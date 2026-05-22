@@ -58,7 +58,12 @@ export function BookingSelectPage() {
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
     const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / 86400000));
-    const months = Math.max(1, Math.ceil(nights / 30));
+    const calculateMonths = (start: Date, end: Date) => {
+      let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+      if (end.getDate() < start.getDate()) months--;
+      return Math.max(1, months);
+    };
+    const months = calculateMonths(checkIn, checkOut);
     const duration = bookingMode === "daily" ? nights : months;
     const rentTotal = bookingMode === "daily" ? room.daily_rent * nights : room.monthly_rent * months;
     const securityDeposit = room.security_deposit ?? 0;
@@ -105,7 +110,16 @@ export function BookingSelectPage() {
   const nights = datesSelected
     ? Math.max(1, Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 86400000))
     : 0;
-  const months = datesSelected ? Math.max(1, Math.ceil(nights / 30)) : 0;
+  
+  const calculateMonths = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+    if (endDate.getDate() < startDate.getDate()) months--;
+    return Math.max(1, months);
+  };
+  
+  const months = datesSelected ? calculateMonths(checkInDate, checkOutDate) : 0;
 
   return (
     <div className="min-h-screen bg-neutral py-8">
