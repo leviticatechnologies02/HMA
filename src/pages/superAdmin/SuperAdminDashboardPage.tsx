@@ -1,20 +1,27 @@
 import { Building2, Users, Star, TrendingUp, CheckCircle, Clock, XCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useSuperAdminDashboard, useSuperAdminHostels } from "../../hooks/useSuperAdminData";
+import { useSuperAdminDashboard, useSuperAdminHostels, useSuperAdminSubscriptions } from "../../hooks/useSuperAdminData";
 import { useAuthStore } from "../../store/authStore";
 
 export function SuperAdminDashboardPage() {
   const userId = useAuthStore((s) => s.userId);
   const { data, isLoading } = useSuperAdminDashboard(userId);
   const hostelsQ = useSuperAdminHostels(userId);
+  const subscriptionsQ = useSuperAdminSubscriptions(userId);
 
   const recentHostels = (hostelsQ.data ?? []).slice(0, 5);
+
+  // Calculate monthly revenue from active subscriptions
+  const subscriptions = subscriptionsQ.data ?? [];
+  const monthlyRevenue = subscriptions
+    .filter((s) => s.status === "active")
+    .reduce((sum, s) => sum + s.price_monthly, 0);
 
   const stats = [
     { label: "Total Hostels", value: data?.total_hostels ?? data?.hostels ?? 0, icon: <Building2 className="w-5 h-5" />, color: "bg-primary/10 text-primary" },
     { label: "Pending Approval", value: data?.pending_approval_count ?? 0, icon: <Clock className="w-5 h-5" />, color: "bg-accent/20 text-warning" },
     { label: "Active Hostels", value: data?.active_hostels ?? 0, icon: <CheckCircle className="w-5 h-5" />, color: "bg-success/10 text-success" },
-    { label: "Revenue (Month)", value: `₹${Math.round(data?.total_revenue_month ?? 0).toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "bg-secondary/10 text-secondary" },
+    { label: "Revenue (Month)", value: `₹${Math.round(monthlyRevenue).toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "bg-secondary/10 text-secondary" },
   ];
 
   const statusIcon = (s: string) => {
