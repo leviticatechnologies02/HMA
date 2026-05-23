@@ -220,7 +220,7 @@ export async function assignSuperAdminAdminHostel(
 
 export async function fetchSuperAdminSubscriptions(
   userId: string,
-  params?: { status?: string; tier?: string }
+  params?: { status?: string; tier?: string; hostel_name?: string; start_date?: string; end_date?: string }
 ) {
   const response = await api.get<SuperAdminSubscription[]>("/super-admin/subscriptions", {
     headers: buildSuperAdminHeaders(userId),

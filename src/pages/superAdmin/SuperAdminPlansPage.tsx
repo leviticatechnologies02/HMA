@@ -45,10 +45,21 @@ export function SuperAdminPlansPage() {
   };
 
   const plans = data?.items ?? [];
-  const filteredPlans = plans.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  
+  // Apply client-side filtering for both search and status
+  const filteredPlans = plans.filter(p => {
+    // Search filter
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.code.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter
+    if (statusFilter !== "all" && p.status !== statusFilter) {
+      return false;
+    }
+    
+    return matchesSearch;
+  });
+  
   const active = plans.filter((p) => p.status === "active").length;
 
   if (!userId) return <div className="p-8 text-slate-500">Please login as super admin.</div>;
@@ -91,7 +102,7 @@ export function SuperAdminPlansPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <h2 className="font-bold text-dark">All Plans</h2>
-              <span className="badge badge-slate text-xs">{plans.length} total</span>
+              <span className="badge badge-slate text-xs">{filteredPlans.length} total</span>
             </div>
           </div>
 

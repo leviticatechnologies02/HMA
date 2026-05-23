@@ -30,26 +30,47 @@ export function SupervisorDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {stats.map((s) => (
-          <Link key={s.label} to={s.to} className="stat-card group">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{s.label}</p>
-                <p className="mt-2 text-3xl font-heading font-bold text-dark">
-                  {isLoading ? <span className="skeleton inline-block w-10 h-8" /> : s.value}
-                </p>
-              </div>
-              <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                {s.icon}
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-1 text-xs text-primary font-medium">
-              View <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-        ))}
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+  {stats.map((s) => (
+    <Link
+      key={s.label}
+      to={s.to}
+      className="group bg-white border border-slate-200 rounded-2xl p-4 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[180px]"
+    >
+      {/* Top Content */}
+      <div>
+        
+        {/* Icon */}
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.color} group-hover:scale-105 transition-transform duration-300`}
+        >
+          {s.icon}
+        </div>
+
+        {/* Heading */}
+        <h3 className=" font-semibold text-slate-700 leading-snug">
+          {s.label}
+        </h3>
+
+        {/* Value */}
+        <p className="mt-3 text-4xl font-bold text-slate-900 leading-none">
+          {isLoading ? (
+            <span className="skeleton inline-block w-12 h-7 rounded-md" />
+          ) : (
+            s.value
+          )}
+        </p>
       </div>
+
+      {/* Bottom */}
+      <div className="pt-4 flex items-center text-sm font-semibold text-primary">
+        <span>View Details</span>
+
+        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+      </div>
+    </Link>
+  ))}
+</div>
 
       {/* Quick actions */}
       <div>

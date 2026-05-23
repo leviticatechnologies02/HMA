@@ -62,8 +62,42 @@ export function SuperAdminSubscriptionsPage() {
   };
 
   const subscriptions = data ?? [];
-  const active = subscriptions.filter((s) => s.status === "active").length;
-  const totalMRR = subscriptions
+  
+  // Apply client-side filtering
+  const filteredSubscriptions = subscriptions.filter((s) => {
+    // Status filter
+    if (statusFilter !== "all" && s.status !== statusFilter) {
+      return false;
+    }
+    
+    // Hostel name search (case-insensitive, partial match)
+    if (hostelSearch && !s.hostel_name?.toLowerCase().includes(hostelSearch.toLowerCase())) {
+      return false;
+    }
+    
+    // Start date filter (format: YYYY-MM-DD from input)
+    if (startDate) {
+      const filterStartDate = new Date(startDate);
+      const subStartDate = new Date(s.start_date);
+      if (subStartDate < filterStartDate) {
+        return false;
+      }
+    }
+    
+    // End date filter (format: YYYY-MM-DD from input)
+    if (endDate) {
+      const filterEndDate = new Date(endDate);
+      const subEndDate = new Date(s.end_date);
+      if (subEndDate > filterEndDate) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
+  
+  const active = filteredSubscriptions.filter((s) => s.status === "active").length;
+  const totalMRR = filteredSubscriptions
     .filter((s) => s.status === "active")
     .reduce((sum, s) => sum + s.price_monthly, 0);
 
@@ -108,7 +142,7 @@ export function SuperAdminSubscriptionsPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <h2 className="font-bold text-dark">All Subscriptions</h2>
-              <span className="badge badge-slate text-xs">{subscriptions.length} total</span>
+              <span className="badge badge-slate text-xs">{filteredSubscriptions.length} total</span>
             </div>
           </div>
 
@@ -188,7 +222,7 @@ export function SuperAdminSubscriptionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {subscriptions.length === 0 && (
+                {filteredSubscriptions.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-5 py-12 text-center text-slate-500">
                       <Star className="w-10 h-10 text-slate-300 mx-auto mb-2" />
@@ -196,7 +230,7 @@ export function SuperAdminSubscriptionsPage() {
                     </td>
                   </tr>
                 )}
-                {subscriptions.map((s) => (
+                {filteredSubscriptions.map((s) => (
                   <tr key={s.id} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="px-5 py-4 font-mono text-xs text-slate-500">{s.hostel_name}</td>
                     <td className="px-5 py-4">
