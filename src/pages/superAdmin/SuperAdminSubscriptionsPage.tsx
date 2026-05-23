@@ -75,20 +75,18 @@ export function SuperAdminSubscriptionsPage() {
       return false;
     }
     
-    // Start date filter (format: YYYY-MM-DD from input)
+    // Start date filter - EXACT date matching (not range)
     if (startDate) {
-      const filterStartDate = new Date(startDate);
-      const subStartDate = new Date(s.start_date);
-      if (subStartDate < filterStartDate) {
+      const subStartDateStr = s.start_date.split('T')[0]; // Extract YYYY-MM-DD
+      if (subStartDateStr !== startDate) {
         return false;
       }
     }
     
-    // End date filter (format: YYYY-MM-DD from input)
+    // End date filter - EXACT date matching (not range)
     if (endDate) {
-      const filterEndDate = new Date(endDate);
-      const subEndDate = new Date(s.end_date);
-      if (subEndDate > filterEndDate) {
+      const subEndDateStr = s.end_date.split('T')[0]; // Extract YYYY-MM-DD
+      if (subEndDateStr !== endDate) {
         return false;
       }
     }
