@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { User, Phone, FileText, ArrowRight, ChevronLeft, Upload, X, CheckCircle } from "lucide-react";
 import { useBookingStore } from "../../store/bookingStore";
 import { usePatchBookingApplicant, useInitiateBooking } from "../../hooks/useBooking";
@@ -12,19 +12,66 @@ import type { BookingApplicantPayload } from "../../api/booking.api";
 import toast from "react-hot-toast";
 
 const schema = z.object({
-  full_name: z.string().min(2, "Full name is required"),
-  date_of_birth: z.string().min(1, "Date of birth is required"),
-  gender: z.string().min(1, "Gender is required"),
-  occupation: z.string().min(2, "Occupation is required"),
-  institution: z.string().min(2, "Institution is required"),
-  current_address: z.string().min(5, "Address is required"),
-  id_type: z.string().min(1, "ID type is required"),
-  emergency_contact_name: z.string().min(2, "Emergency contact name is required"),
-  emergency_contact_phone: z.string().regex(/^[0-9]{10}$/, "Phone must be 10 digits"),
-  emergency_contact_relationship: z.string().min(2, "Relationship is required"),
-  guardian_name: z.string().optional(),
-  guardian_phone: z.string().optional(),
-  special_requirements: z.string().optional(),
+  full_name: z.string()
+    .min(2, "Full name is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Full name can only contain letters, spaces, hyphens, and apostrophes")
+    .refine(val => val.trim().length >= 2, "Full name must be at least 2 characters"),
+  date_of_birth: z.string()
+    .min(1, "Date of birth is required")
+    .refine(val => {
+      // Validate date format YYYY-MM-DD
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(val)) return false;
+      const date = new Date(val);
+      // Check if date is valid
+      if (isNaN(date.getTime())) return false;
+      const today = new Date();
+      const age = today.getFullYear() - date.getFullYear();
+      const monthDiff = today.getMonth() - date.getMonth();
+      const dayDiff = today.getDate() - date.getDate();
+      const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+      return actualAge >= 18;
+    }, "Must be at least 18 years old"),
+  gender: z.string()
+    .min(1, "Gender is required")
+    .refine(val => ["M", "F", "Other"].includes(val), "Invalid gender selection"),
+  occupation: z.string()
+    .min(2, "Occupation is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Occupation can only contain letters, spaces, hyphens, and apostrophes")
+    .refine(val => val.trim().length >= 2, "Occupation must be valid"),
+  institution: z.string()
+    .min(2, "Institution is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Institution can only contain letters, spaces, hyphens, and apostrophes")
+    .refine(val => val.trim().length >= 2, "Institution must be valid"),
+  current_address: z.string()
+    .min(5, "Address is required")
+    .regex(/^[a-zA-Z0-9\s,.\-#]+$/, "Address contains invalid characters"),
+  id_type: z.string()
+    .min(1, "ID type is required")
+    .refine(val => ["Aadhar", "PAN", "DL", "Passport", "VoterID"].includes(val), "Invalid ID type"),
+  emergency_contact_name: z.string()
+    .min(2, "Emergency contact name is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Name can only contain letters, spaces, hyphens, and apostrophes")
+    .refine(val => val.trim().length >= 2, "Emergency contact name must be at least 2 characters"),
+  emergency_contact_phone: z.string()
+    .regex(/^[0-9]{10}$/, "Phone must be exactly 10 digits")
+    .refine(val => /^[6-9]/.test(val), "Phone must start with 6-9"),
+  emergency_contact_relationship: z.string()
+    .min(2, "Relationship is required")
+    .regex(/^[a-zA-Z\s'-]+$/, "Relationship can only contain letters, spaces, hyphens, and apostrophes")
+    .refine(val => val.trim().length >= 2, "Relationship must be valid"),
+  guardian_name: z.string()
+    .optional()
+    .refine(val => !val || /^[a-zA-Z\s'-]+$/.test(val), "Guardian name can only contain letters, spaces, hyphens, and apostrophes")
+    .refine(val => !val || val.trim().length >= 2, "Guardian name must be at least 2 characters if provided"),
+  guardian_phone: z.string()
+    .optional()
+    .refine(val => !val || /^[0-9]{10}$/.test(val), "Guardian phone must be 10 digits")
+    .refine(val => !val || /^[6-9]/.test(val), "Guardian phone must start with 6-9"),
+  special_requirements: z.string()
+    .optional()
+    .refine(val => !val || /^[a-zA-Z0-9\s,.\-()&]+$/.test(val), "Special requirements contains invalid characters")
+    .refine(val => !val || /[a-zA-Z0-9]/.test(val), "Special requirements cannot contain only symbols"),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -47,9 +94,42 @@ export function BookingDetailsPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, trigger, getValues, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, trigger, getValues, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
+    mode: "onChange",
   });
+
+  // Watch all form values for real-time validation
+  const watchedValues = watch();
+
+  // Step validation helper
+  const stepFieldConfigs = [
+    {
+      name: "Step 1 - Personal Info",
+      fields: ["full_name", "date_of_birth", "gender", "occupation", "institution", "current_address"],
+    },
+    {
+      name: "Step 2 - Emergency Contact",
+      fields: ["emergency_contact_name", "emergency_contact_phone", "emergency_contact_relationship"],
+    },
+    {
+      name: "Step 3 - Identity & Docs",
+      fields: ["id_type"],
+    },
+  ];
+
+  // Check if current step fields are valid
+  const isCurrentStepValid = useMemo(() => {
+    const currentFields = stepFieldConfigs[step].fields;
+    const hasErrors = currentFields.some(field => errors[field as keyof FormValues]);
+    const areFieldsFilled = currentFields.every(field => {
+      const value = getValues(field as keyof FormValues);
+      if (!value) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    });
+    return !hasErrors && areFieldsFilled;
+  }, [step, errors, watchedValues, getValues]);
 
   // Fire booking initiation in background as soon as page loads
   const initiatedRef = useRef(false);
@@ -116,6 +196,10 @@ export function BookingDetailsPage() {
   };
 
   const handleNext = async () => {
+    if (!isCurrentStepValid) {
+      toast.error(`Please fill all required fields correctly in ${stepFieldConfigs[step].name}`);
+      return;
+    }
     const fields: (keyof FormValues)[][] = [
       ["full_name", "date_of_birth", "gender", "occupation", "institution", "current_address"],
       ["emergency_contact_name", "emergency_contact_phone", "emergency_contact_relationship"],
@@ -174,6 +258,12 @@ export function BookingDetailsPage() {
   const inputCls = (err?: { message?: string }) =>
     `input-field ${err ? "border-error focus:ring-error/20" : ""}`;
 
+  // Filter functions for input validation
+  const filterNameInput = (value: string) => value.replace(/[^a-zA-Z\s'-]/g, '');
+  const filterInstitutionInput = (value: string) => value.replace(/[^a-zA-Z\s'-]/g, ''); // Letters only, no numbers
+  const filterAddressInput = (value: string) => value.replace(/[^a-zA-Z0-9\s,.\-#]/g, '');
+  const filterPhoneInput = (value: string) => value.replace(/[^0-9]/g, '').slice(0, 10);
+
   return (
     <div className="min-h-screen bg-neutral py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-6">
@@ -202,7 +292,18 @@ export function BookingDetailsPage() {
               <h2 className="font-bold text-dark flex items-center gap-2"><User className="w-5 h-5 text-primary" />Personal Information</h2>
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">Full Name *</label>
-                <input {...register("full_name")} className={inputCls(errors.full_name)} placeholder="As per ID document" />
+                <input 
+                  {...register("full_name", {
+                    onChange: (e) => {
+                      e.target.value = filterNameInput(e.target.value);
+                    }
+                  })} 
+                  className={inputCls(errors.full_name)} 
+                  placeholder="As per ID document" 
+                  onInput={(e) => {
+                    e.currentTarget.value = filterNameInput(e.currentTarget.value);
+                  }}
+                />
                 {errors.full_name && <p className="mt-1 text-xs text-error">{errors.full_name.message}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -225,18 +326,48 @@ export function BookingDetailsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-dark mb-1.5">Occupation *</label>
-                  <input {...register("occupation")} className={inputCls(errors.occupation)} placeholder="Student / Professional" />
+                  <input 
+                    {...register("occupation", {
+                      onChange: (e) => {
+                        e.target.value = filterNameInput(e.target.value);
+                      }
+                    })} 
+                    className={inputCls(errors.occupation)} 
+                    placeholder="Student / Professional"
+                    onInput={(e) => {
+                      e.currentTarget.value = filterNameInput(e.currentTarget.value);
+                    }}
+                  />
                   {errors.occupation && <p className="mt-1 text-xs text-error">{errors.occupation.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-dark mb-1.5">Institution *</label>
-                  <input {...register("institution")} className={inputCls(errors.institution)} placeholder="College / Company" />
+                  <input 
+                    {...register("institution", {
+                      onChange: (e) => {
+                        e.target.value = filterInstitutionInput(e.target.value);
+                      }
+                    })} 
+                    className={inputCls(errors.institution)} 
+                    placeholder="College / Company"
+                    onInput={(e) => {
+                      e.currentTarget.value = filterInstitutionInput(e.currentTarget.value);
+                    }}
+                  />
                   {errors.institution && <p className="mt-1 text-xs text-error">{errors.institution.message}</p>}
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">Current Address *</label>
-                <textarea {...register("current_address")} rows={3} className={inputCls(errors.current_address)} placeholder="Street, City, State, Pincode" />
+                <textarea 
+                  {...register("current_address")} 
+                  rows={3} 
+                  className={inputCls(errors.current_address)} 
+                  placeholder="Street, City, State, Pincode"
+                  onInput={(e) => {
+                    e.currentTarget.value = filterAddressInput(e.currentTarget.value);
+                  }}
+                />
                 {errors.current_address && <p className="mt-1 text-xs text-error">{errors.current_address.message}</p>}
               </div>
             </div>
@@ -248,34 +379,104 @@ export function BookingDetailsPage() {
               <h2 className="font-bold text-dark flex items-center gap-2"><Phone className="w-5 h-5 text-primary" />Emergency Contact</h2>
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">Contact Name *</label>
-                <input {...register("emergency_contact_name")} className={inputCls(errors.emergency_contact_name)} placeholder="Parent / Guardian" />
+                <input 
+                  {...register("emergency_contact_name", {
+                    onChange: (e) => {
+                      e.target.value = filterNameInput(e.target.value);
+                    }
+                  })} 
+                  className={inputCls(errors.emergency_contact_name)} 
+                  placeholder="Parent / Guardian"
+                  onInput={(e) => {
+                    e.currentTarget.value = filterNameInput(e.currentTarget.value);
+                  }}
+                />
                 {errors.emergency_contact_name && <p className="mt-1 text-xs text-error">{errors.emergency_contact_name.message}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-dark mb-1.5">Phone *</label>
-                  <input {...register("emergency_contact_phone")} type="tel" className={inputCls(errors.emergency_contact_phone)} placeholder="10-digit number" />
+                  <input 
+                    {...register("emergency_contact_phone", {
+                      onChange: (e) => {
+                        e.target.value = filterPhoneInput(e.target.value);
+                      }
+                    })} 
+                    type="tel" 
+                    className={inputCls(errors.emergency_contact_phone)} 
+                    placeholder="10-digit number"
+                    onInput={(e) => {
+                      e.currentTarget.value = filterPhoneInput(e.currentTarget.value);
+                    }}
+                    maxLength={10}
+                  />
                   {errors.emergency_contact_phone && <p className="mt-1 text-xs text-error">{errors.emergency_contact_phone.message}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-dark mb-1.5">Relationship *</label>
-                  <input {...register("emergency_contact_relationship")} className={inputCls(errors.emergency_contact_relationship)} placeholder="Mother / Father" />
+                  <input 
+                    {...register("emergency_contact_relationship", {
+                      onChange: (e) => {
+                        e.target.value = filterNameInput(e.target.value);
+                      }
+                    })} 
+                    className={inputCls(errors.emergency_contact_relationship)} 
+                    placeholder="Mother / Father"
+                    onInput={(e) => {
+                      e.currentTarget.value = filterNameInput(e.currentTarget.value);
+                    }}
+                  />
                   {errors.emergency_contact_relationship && <p className="mt-1 text-xs text-error">{errors.emergency_contact_relationship.message}</p>}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-dark mb-1.5">Guardian Name</label>
-                  <input {...register("guardian_name")} className="input-field" placeholder="Optional" />
+                  <input 
+                    {...register("guardian_name", {
+                      onChange: (e) => {
+                        e.target.value = filterNameInput(e.target.value);
+                      }
+                    })} 
+                    className="input-field" 
+                    placeholder="Optional"
+                    onInput={(e) => {
+                      e.currentTarget.value = filterNameInput(e.currentTarget.value);
+                    }}
+                  />
+                  {errors.guardian_name && <p className="mt-1 text-xs text-error">{errors.guardian_name.message as string}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-dark mb-1.5">Guardian Phone</label>
-                  <input {...register("guardian_phone")} type="tel" className="input-field" placeholder="Optional" />
+                  <input 
+                    {...register("guardian_phone", {
+                      onChange: (e) => {
+                        e.target.value = filterPhoneInput(e.target.value);
+                      }
+                    })} 
+                    type="tel" 
+                    className="input-field" 
+                    placeholder="Optional"
+                    onInput={(e) => {
+                      e.currentTarget.value = filterPhoneInput(e.currentTarget.value);
+                    }}
+                    maxLength={10}
+                  />
+                  {errors.guardian_phone && <p className="mt-1 text-xs text-error">{errors.guardian_phone.message as string}</p>}
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">Special Requirements</label>
-                <textarea {...register("special_requirements")} rows={2} className="input-field" placeholder="Dietary restrictions, mobility needs..." />
+                <textarea 
+                  {...register("special_requirements")} 
+                  rows={2} 
+                  className="input-field" 
+                  placeholder="Dietary restrictions, mobility needs..."
+                  onInput={(e) => {
+                    e.currentTarget.value = e.currentTarget.value.replace(/[^a-zA-Z0-9\s,.\-()&]/g, '');
+                  }}
+                />
+                {errors.special_requirements && <p className="mt-1 text-xs text-error">{errors.special_requirements.message as string}</p>}
               </div>
             </div>
           )}
@@ -347,13 +548,20 @@ export function BookingDetailsPage() {
               {step === 0 ? "Back" : "Previous"}
             </button>
             {step < STEPS.length - 1 ? (
-              <button type="button" onClick={handleNext}
-                className="flex-1 btn-primary flex items-center justify-center gap-2">
+              <button 
+                type="button" 
+                onClick={handleNext}
+                disabled={!isCurrentStepValid}
+                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={!isCurrentStepValid ? "Please fill all required fields correctly before proceeding" : ""}>
                 Next <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
-              <button type="submit" disabled={patchMutation.isPending || uploading}
-                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50">
+              <button 
+                type="submit" 
+                disabled={patchMutation.isPending || uploading || !docUrl || !isCurrentStepValid}
+                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={!docUrl ? "Please upload an identity document before proceeding" : !isCurrentStepValid ? "Please select an ID type" : ""}>
                 {patchMutation.isPending ? "Saving..." : uploading ? "Uploading..." : "Review & Pay"}
                 <ArrowRight className="w-4 h-4" />
               </button>
