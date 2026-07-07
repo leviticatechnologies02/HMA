@@ -14,17 +14,16 @@ function _DarkToggle() {
     return (
         <div className="relative group">
             <button
-    type="button"
-    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-    className="p-1.5 sm:p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center min-h-10 sm:min-h-9 min-w-10 sm:min-w-9"
-    aria-label={tooltipText}
-    title={tooltipText}
->
-    {theme === "dark"
-        ? <Sun className="w-4 h-4 text-accent" />
-        : <Moon className="w-4 h-4 text-slate-500" />}
-</button>
-            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap dark:bg-white dark:text-slate-900">
+                type="button"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-1.5 sm:p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors flex items-center justify-center min-h-10 sm:min-h-9 min-w-10 sm:min-w-9"
+                aria-label={tooltipText}
+            >
+                {theme === "dark"
+                    ? <Sun className="w-4 h-4 text-accent" />
+                    : <Moon className="w-4 h-4 text-slate-500" />}
+            </button>
+            <div className="absolute top-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap dark:bg-white dark:text-slate-900">
                 {tooltipText}
             </div>
         </div>
