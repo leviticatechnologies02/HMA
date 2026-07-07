@@ -49,12 +49,12 @@ const AboutApp = () => {
 
     <div className="relative flex flex-col sm:flex-row justify-center gap-4 pt-4">
       <Link to="/register">
-        <button className="btn-primary">
+        <button className="btn-primary px-5 py-3">
           Get Started
         </button>
       </Link>
       <Link to="/">
-        <button className="rounded-xl border-2 border-white px-6 py-3 font-semibold text-white transition hover:bg-white/20">
+        <button className="rounded-xl border-2 border-white px-3 py-2.5 font-semibold text-white transition hover:bg-white/20">
           Learn More
         </button>
       </Link>

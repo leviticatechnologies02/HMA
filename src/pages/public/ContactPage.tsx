@@ -1,168 +1,441 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, MessageCircle, ChevronDown, User, Building2, MessageSquare } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import toast from "react-hot-toast";
+  import { useState } from "react";
+  import { Link } from "react-router-dom";
+  import {
+    Phone,
+    Mail,
+    MapPin,
+    MessageCircle,
+    ChevronDown,
+    User,
+    Users,
+    CalendarDays,
+    Send,
+    Building2,
+    MessageSquare,
+  } from "lucide-react";import { useForm } from "react-hook-form";
+  import { z } from "zod";
+  import { zodResolver } from "@hookform/resolvers/zod";
+  import toast from "react-hot-toast";
 
-const contactSchema = z.object({
-  firstName: z.string()
-    .min(2, "First name must be at least 2 characters")
-    .max(50, "First name must not exceed 50 characters")
-    .refine(
-      (name) => /^[a-zA-Z\s\-]*$/.test(name),
-      "First name can only contain letters, spaces, and hyphens"
-    ),
-  lastName: z.string()
-    .max(50, "Last name must not exceed 50 characters")
-    .refine(
-      (name) => name === "" || /^[a-zA-Z\s\-]*$/.test(name),
-      "Last name can only contain letters, spaces, and hyphens"
-    ),
-  email: z.string()
-    .min(1, "Email is required")
-    .email("Enter a valid email")
-    .max(100, "Email must not exceed 100 characters")
-    .refine(
-      (email) => {
-        // Stricter email validation - must have proper TLD (2-6 characters)
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
-        return emailRegex.test(email);
-      },
-      "Enter a valid email address (e.g., name@example.com)"
-    ),
-  company: z.string()
-    .max(100, "Organization name must not exceed 100 characters")
-    .refine(
-      (company) => company === "" || /^[a-zA-Z0-9\s\-&.]*$/.test(company),
-      "Organization name can only contain letters, numbers, spaces, hyphens, dots, and ampersands"
-    ),
-  phone: z.string()
-    .refine(
-      (phone) => phone === "" || /^[0-9\s\-+()]{10,15}$/.test(phone),
-      "Phone must contain at least 10 digits (allow spaces, hyphens, +, parentheses)"
-    )
-    .optional()
-    .or(z.literal("")),
-  message: z.string()
-    .min(10, "Message must be at least 10 characters")
-    .max(1000, "Message must not exceed 1000 characters")
-    .refine(
-      (msg) => msg.trim().length > 0,
-      "Message cannot be only spaces"
-    ),
-});
-
-type ContactValues = z.infer<typeof contactSchema>;
-
-export default function Contact() {
-  const [status, setStatus] = useState("");
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors }
-  } = useForm<ContactValues>({
-    resolver: zodResolver(contactSchema)
+  const contactSchema = z.object({
+    firstName: z.string()
+      .min(2, "First name must be at least 2 characters")
+      .max(50, "First name must not exceed 50 characters")
+      .refine(
+        (name) => /^[a-zA-Z\s\-]*$/.test(name),
+        "First name can only contain letters, spaces, and hyphens"
+      ),
+    lastName: z.string()
+      .max(50, "Last name must not exceed 50 characters")
+      .refine(
+        (name) => name === "" || /^[a-zA-Z\s\-]*$/.test(name),
+        "Last name can only contain letters, spaces, and hyphens"
+      ),
+    email: z.string()
+      .min(1, "Email is required")
+      .email("Enter a valid email")
+      .max(100, "Email must not exceed 100 characters")
+      .refine(
+        (email) => {
+          // Stricter email validation - must have proper TLD (2-6 characters)
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
+          return emailRegex.test(email);
+        },
+        "Enter a valid email address (e.g., name@example.com)"
+      ),
+    company: z.string()
+      .max(100, "Organization name must not exceed 100 characters")
+      .refine(
+        (company) => company === "" || /^[a-zA-Z0-9\s\-&.]*$/.test(company),
+        "Organization name can only contain letters, numbers, spaces, hyphens, dots, and ampersands"
+      ),
+    phone: z.string()
+      .refine(
+        (phone) => phone === "" || /^[0-9\s\-+()]{10,15}$/.test(phone),
+        "Phone must contain at least 10 digits (allow spaces, hyphens, +, parentheses)"
+      )
+      .optional()
+      .or(z.literal("")),
+    message: z.string()
+      .min(10, "Message must be at least 10 characters")
+      .max(1000, "Message must not exceed 1000 characters")
+      .refine(
+        (msg) => msg.trim().length > 0,
+        "Message cannot be only spaces"
+      ),
   });
 
-  const faqItems = [
-    { id: 1, question: "What is HostelMS?", answer: "HostelMS is a comprehensive hostel management system designed to streamline operations, manage bookings, automate billing, track maintenance, and improve communication between staff and residents." },
-    { id: 2, question: "How can HostelMS help my hostel?", answer: "Our platform helps reduce administrative overhead, minimize errors, improve resident satisfaction, and provide real-time insights into your hostel operations with an intuitive dashboard." },
-    { id: 3, question: "Is there a free trial available?", answer: "Yes! We offer a 14-day free trial for all new customers. No credit card required. Experience all features with your complete hostel data." },
-    { id: 4, question: "What support do you provide?", answer: "We provide 24/7 customer support via email, phone, and live chat. Our team is always ready to help with any questions or issues you might encounter." },
-    { id: 5, question: "Can I integrate HostelMS with my existing systems?", answer: "Absolutely! HostelMS integrates seamlessly with popular accounting software, payment gateways, and communication platforms to enhance your workflow." },
-    { id: 6, question: "What about data security and privacy?", answer: "We prioritize your data security with enterprise-grade encryption, regular backups, GDPR compliance, and strict access controls to protect your sensitive information." }
-  ];
+  type ContactValues = z.infer<typeof contactSchema>;
 
-  const onSubmit = async (values: ContactValues) => {
-    try {
-      console.log("Form submitted:", values);
-      toast.success("Message sent successfully! We'll get back to you within 24 hours.");
-      reset();
-      setStatus("Message sent successfully! We'll get back to you within 24 hours.");
-      setTimeout(() => setStatus(""), 4000);
-    } catch (error) {
-      toast.error("Failed to send message. Please try again.");
-      setStatus("Failed to send message. Please try again.");
-    }
-  };
+  export default function Contact() {
+    const [status, setStatus] = useState("");
+    const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
+    const {
+      register,
+      handleSubmit,
+      reset,
+      formState: { errors }
+    } = useForm<ContactValues>({
+      resolver: zodResolver(contactSchema)
+    });
 
-  return (
-    
-      <div className="min-h-screen bg-gradient-to-b from-neutral via-white to-neutral dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-        <section
-          className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-4 py-20 md:py-28"
-          style={{ backgroundImage: "url('/img/Touch1.png')" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#06282d]/75 via-[#06282d]/50 to-transparent"></div>
-          <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-[#9dd9d2] opacity-15 blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#f0d9a7] opacity-10 blur-3xl"></div>
+    const faqItems = [
+      { id: 1, question: "What is HostelMS?", answer: "HostelMS is a comprehensive hostel management system designed to streamline operations, manage bookings, automate billing, track maintenance, and improve communication between staff and residents." },
+      { id: 2, question: "How can HostelMS help my hostel?", answer: "Our platform helps reduce administrative overhead, minimize errors, improve resident satisfaction, and provide real-time insights into your hostel operations with an intuitive dashboard." },
+      { id: 3, question: "Is there a free trial available?", answer: "Yes! We offer a 14-day free trial for all new customers. No credit card required. Experience all features with your complete hostel data." },
+      { id: 4, question: "What support do you provide?", answer: "We provide 24/7 customer support via email, phone, and live chat. Our team is always ready to help with any questions or issues you might encounter." },
+      { id: 5, question: "Can I integrate HostelMS with my existing systems?", answer: "Absolutely! HostelMS integrates seamlessly with popular accounting software, payment gateways, and communication platforms to enhance your workflow." },
+      { id: 6, question: "What about data security and privacy?", answer: "We prioritize your data security with enterprise-grade encryption, regular backups, GDPR compliance, and strict access controls to protect your sensitive information." }
+    ];
 
-          <div className="relative mx-auto max-w-5xl">
-            <div className="space-y-6 rounded-3xl border border-white/50 bg-white/18 p-8 text-center shadow-[0_30px_80px_rgba(6,40,45,0.18)] backdrop-blur-2xl transition-all duration-500 hover:border-white/60 hover:bg-white/24 sm:p-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/16 px-5 py-2.5 shadow-sm">
-                <div className="relative h-2 w-2">
-                  <div className="absolute inset-0 rounded-full bg-white animate-pulse"></div>
-                  <div className="absolute inset-0 rounded-full bg-white animate-ping"></div>
-                </div>
-                <span className="text-sm font-semibold tracking-wide text-white/95">
-                  24/7 Support Available
-                </span>
-              </div>
+    const onSubmit = async (values: ContactValues) => {
+      try {
+        console.log("Form submitted:", values);
+        toast.success("Message sent successfully! We'll get back to you within 24 hours.");
+        reset();
+        setStatus("Message sent successfully! We'll get back to you within 24 hours.");
+        setTimeout(() => setStatus(""), 4000);
+      } catch (error) {
+        toast.error("Failed to send message. Please try again.");
+        setStatus("Failed to send message. Please try again.");
+      }
+    };
 
-              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
-                Contact{" "}
-                <span className="text-accent">
-                  HostelMS
-                </span>
-              </h1>
+    return (
 
-              <p className="mx-auto max-w-3xl text-lg leading-relaxed text-white/90 drop-shadow-md sm:text-xl">
-                Reach out for bookings, onboarding help, product support, or a personalized walkthrough of how HostelMS can simplify your property management.
-              </p>
-
-              <div className="mx-auto grid max-w-3xl gap-4 py-2 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/30 bg-white/14 p-4 text-white backdrop-blur-sm">
-                  <p className="text-sm font-semibold">Fast replies</p>
-                  <p className="mt-1 text-sm text-white/75">Response within 24 hours</p>
-                </div>
-                <div className="rounded-2xl border border-white/30 bg-white/14 p-4 text-white backdrop-blur-sm">
-                  <p className="text-sm font-semibold">Expert team</p>
-                  <p className="mt-1 text-sm text-white/75">Product and onboarding support</p>
-                </div>
-                <div className="rounded-2xl border border-white/30 bg-white/14 p-4 text-white backdrop-blur-sm">
-                  <p className="text-sm font-semibold">Free consult</p>
-                  <p className="mt-1 text-sm text-white/75">Tailored demo for your hostel</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col justify-center gap-4 pt-2 sm:flex-row">
-                <a
-                  href="#contact-form"
-                  className="btn-primary"
-                >
-                  Contact Us
-                </a>
-                <Link to="/register">
-
-                  <button className="rounded-xl border-2 border-white px-8 py-3.5 font-semibold text-white transition hover:bg-white/20 backdrop-blur-sm">
-                    Request Demo
-                  </button>
-                </Link>
-              </div>
+       <div className="min-h-screen bg-[#F8FBFA] ">
+<section className="relative overflow-hidden bg-white">
+ 
+    {/* Dark Overlay */}
+    <div className="absolute inset-0 bg-gradient-to-r from-white via-[#F8FBFA] to-[#EEFDF7]"></div>
+ 
+    {/* Pattern */}
+    <div className="absolute inset-0 opacity-[0.04]">
+      <div
+        className="h-full w-full"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 25% 25%, white 2px, transparent 2px)",
+          backgroundSize: "80px 80px",
+        }}
+      />
+    </div>
+ 
+    {/* Glow */}
+    <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-[120px]" />
+    <div className="absolute bottom-0 left-1/2 h-72 w-72 rounded-full bg-cyan-400/10 blur-[120px]" />
+     <div className="absolute top-20 right-40 h-3 w-3 rounded-full bg-emerald-300 animate-pulse"></div>
+ 
+  <div className="absolute bottom-24 right-20 h-2 w-2 rounded-full bg-cyan-300 animate-pulse"></div>
+ 
+  <div className="absolute top-40 left-1/2 h-2 w-2 rounded-full bg-white/70 animate-pulse"></div>
+ 
+    {/* Content */}
+<div className="relative z-20 mx-auto flex flex-col-reverse lg:flex-row min-h-screen max-w-[1600px]">
+ 
+         {/* LEFT SIDE */}
+ 
+       <div className="w-full lg:w-1/2 px-6 sm:px-8 md:px-10 lg:px-14 pt-10 lg:pt-8 pb-12 lg:pb-16 text-center lg:text-left">
+ 
+        {/* Badge */}
+ 
+<div className="inline-flex items-center gap-3 rounded-full border border-emerald-300/30 bg-white/5 px-5 py-3 backdrop-blur-md shadow-lg mx-auto lg:mx-0">
+  <span className="relative flex h-3 w-3">
+ 
+    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+ 
+    <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400"></span>
+ 
+  </span>
+ 
+  <span className="font-semibold tracking-wide text-black ">
+ 
+    24/7 Support Available
+ 
+  </span>
+ 
+</div>
+ 
+        {/* Heading */}
+ 
+        <h1 className="mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight lg:leading-none text-black">
+ 
+          Contact{" "}
+ 
+          <span className="text-primary">
+ 
+            HostelMS
+ 
+          </span>
+ 
+        </h1>
+ 
+        {/* Paragraph */}
+ 
+        <p className="mt-6 lg:mt-8 max-w-xl mx-auto lg:mx-0 text-base sm:text-lg lg:text-xl leading-7 lg:leading-9 text-slate-600">
+ 
+          Reach out for bookings, onboarding help, product support,
+          or a personalized walkthrough of how HostelMS can simplify
+          your property management.
+ 
+        </p>
+ 
+        {/* Feature Cards */}
+ 
+        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+ 
+          <div className="group rounded-2xl border border-slate/10 bg-white/5 p-5 backdrop-blur-none transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300/40 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(16,185,129,.15)]">
+ 
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/30">
+ 
+              <MessageCircle className="h-6 w-6 text-emerald-300" />
+ 
             </div>
+ 
+            <h3 className="font-bold text-slate-600">
+ 
+              Fast replies
+ 
+            </h3>
+ 
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+ 
+              Response within 24 hours
+ 
+            </p>
+ 
           </div>
-        </section>
+ 
+          <div className="group rounded-2xl border border-slate/10 bg-white/5 p-5 backdrop-blur-none transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300/40 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(16,185,129,.15)]">
+ 
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/30">
+ 
+              <Users className="h-6 w-6 text-emerald-300" />
+ 
+            </div>
+ 
+            <h3 className="font-bold text-slate-600">
+ 
+              Expert team
+ 
+            </h3>
+ 
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+ 
+              Product & onboarding support
+ 
+            </p>
+ 
+          </div>
+ 
+          <div className="group rounded-2xl border border-slate/10 bg-white/5 p-5 backdrop-blur-none transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300/40 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(16,185,129,.15)]">
+ 
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/30">
+ 
+              <CalendarDays className="h-6 w-6 text-emerald-300" />
+ 
+            </div>
+ 
+            <h3 className="font-bold text-slate-600">
+ 
+              Free consult
+ 
+            </h3>
+ 
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+ 
+              Tailored demo for your hostel
+ 
+            </p>
+ 
+          </div>
+ 
+        </div>
+ 
+        {/* Buttons */}
+ 
+        <div className="relative z-50 mt-10 lg:mt-14 flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+ 
+          <a
+  href="#contact-form"
+  className="relative z-50 flex items-center gap-3 rounded-2xl bg-[#0A6B72] px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[#08585E] hover:shadow-xl hover:scale-105"
+>
+  <Send className="h-5 w-5" />
+  Contact Us
+</a>
+ 
+<Link to="/register">
+  <button
+    className="relative z-50 w-full sm:w-auto rounded-2xl border-2 border-[#0A6B72] bg-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-[#0A6B72] shadow-md transition-all duration-300 hover:bg-[#0A6B72] hover:text-white hover:shadow-lg hover:scale-105"
+  >
+    Request Demo
+  </button>
+</Link>
+        </div>
+ 
+      </div>
+ 
+     {/* RIGHT SIDE */}
+ 
+ <div className="relative w-full lg:w-1/2 h-[520px] sm:h-[650px] lg:h-[850px] flex items-center justify-center overflow-hidden">
+  {/* Background Photo */}
+  <div className="absolute inset-0 overflow-hidden rounded-r-[34px] -z-10">
+ 
+<img
+  src="/img/Touch1.jpg"
+  alt="Support"
+  className="
+    absolute
+    top-0
+    right-0
+    w-[115%]
+    h-full
+    object-cover
+    object-right
+    opacity-95
+    scale-[1.08]
+    pointer-events-none
+  "
+/>
+ 
+    <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/10 to-white/50" />
+ 
+  </div>
+ 
+  {/* Decorative Triangles */}
+  <div className="absolute left-8 top-12 opacity-5">
+ 
+    <svg
+      width="340"
+      height="340"
+      viewBox="0 0 340 340"
+      fill="none"
+    >
+ 
+      <polygon points="170,0 340,170 170,340 0,170" fill="white" />
+ 
+    </svg>
+ 
+  </div>
+ 
+  {/* Headset Circle */}
+ 
+  <div className="relative z-20 flex h-full w-full items-center justify-center">
+ 
+    {/* Animated Rings */}
+ 
+    <div className="absolute w-[320px] h-[320px] rounded-full border border-[#5EEAD4]/60"></div>
+
+<div className="absolute w-[400px] h-[400px] rounded-full border border-[#5EEAD4]/40"></div>
+
+<div className="absolute w-[480px] h-[480px] rounded-full border border-[#5EEAD4]/30"></div>
+
+<div className="absolute w-[560px] h-[560px] rounded-full border border-[#5EEAD4]/20"></div>
+ 
+    {/* Glow */}
+ 
+    <div className="absolute h-[320px] w-[320px] rounded-full bg-emerald-300/20 blur-[80px]"></div>
+ 
+    {/* Main Circle */}
+   
+ 
+<div
+  className="
+  relative
+  flex
+  h-[240px]
+  w-[240px]
+  sm:h-[300px]
+  sm:w-[300px]
+  lg:h-[360px]
+  lg:w-[360px]
+  items-center
+  justify-center
+  rounded-full
+  bg-white
+  shadow-[0_30px_80px_rgba(0,0,0,0.15)]
+"
+>
+  <img
+    src="/img/contact-icon.png"
+    alt="Contact"
+    className="w-[105%] h-[105%] object-contain"
+  />
+ 
+</div>
+ 
+  </div>
+ 
+  {/* Floating Dots */}
+ 
+  
+<div className="absolute top-12 right-8 hidden lg:grid grid-cols-5 gap-4 opacity-70">
+  {Array.from({ length: 25 }).map((_, index) => (
+    <div
+      key={`top-${index}`}
+      className="h-2 w-2 rounded-full bg-[#6EE7B7]"
+    />
+  ))}
+</div>
+
+{/* Bottom Left Dots */}
+<div className="absolute bottom-24 left-8 grid grid-cols-5 gap-4 opacity-70">
+  {Array.from({ length: 20 }).map((_, index) => (
+    <div
+      key={`bottom-${index}`}
+      className="h-2 w-2 rounded-full bg-[#6EE7B7]"
+    />
+  ))}
+</div>
+ 
+  {/* Bottom Glow */}
+ 
+  <div className="absolute bottom-0 right-0 h-56 w-80 rounded-full bg-cyan-400/10 blur-[120px]" />
+ 
+  {/* Wave */}
+ 
+  <svg
+    className="absolute bottom-0 right-0 w-[260px] sm:w-[360px] lg:w-[700px] opacity-40"
+    viewBox="0 0 600 180"
+    fill="none"
+  >
+ 
+    <path
+      d="M0 120 C100 30 220 180 320 90 C420 10 520 170 600 70"
+      stroke="#64F1C1"
+      strokeWidth="2"
+    />
+ 
+    <path
+      d="M0 145 C100 55 220 200 320 120 C420 40 520 190 600 95"
+      stroke="#64F1C1"
+      strokeWidth="2"
+    />
+ 
+    <path
+      d="M0 170 C100 80 220 220 320 145 C420 70 520 210 600 120"
+      stroke="#64F1C1"
+      strokeWidth="2"
+    />
+ 
+  </svg>
+ 
+</div>
+ 
+    </div>
+ 
+  </section>
+ 
+
+
 
         <section className="py-10 px-4 bg-white dark:bg-slate-900">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="mb-3 text-3xl font-bold tracking-tight text-dark dark:text-white sm:text-4xl md:text-5xl">
-                Quick Contact Options
-              </h2>
+              <h2 className="mb-3 text-3xl font-bold tracking-tight dark:text-white sm:text-4xl md:text-5xl">
+  Quick{" "}
+  <span className="text-primary">Contact Options</span>{" "}
+</h2>
               <p className="text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
                 Choose your preferred way to connect with us
               </p>
@@ -185,15 +458,15 @@ export default function Contact() {
                     <span>+91 8008682560</span>
                     <Phone className="group-hover/btn:translate-x-1 transition-transform" />
                   </a>
-                  <a
-                    href="https://wa.me/918008682560"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-xl bg-accent/10 px-5 py-3 font-semibold text-accent transition-colors hover:bg-accent/20"
-                  >
-                    <MessageCircle className="text-lg" />
-                    <span>Message on WhatsApp</span>
-                  </a>
+                 <a
+  href="https://wa.me/918008682560"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition-colors hover:bg-primary/80"
+>
+  <MessageCircle className="text-lg" />
+  <span>Message on WhatsApp</span>
+</a>
                 </div>
               </div>
 
@@ -218,8 +491,8 @@ export default function Contact() {
               </div>
 
               <div className="group rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 shadow-sm hover:shadow-lg dark:hover:shadow-lg/30 transition-all duration-300 hover:-translate-y-2">
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-accent/10 dark:bg-accent/20 transition-transform duration-300 group-hover:scale-110">
-                  <MapPin className="text-2xl text-accent" />
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/20 transition-transform duration-300 group-hover:scale-110">
+                  <MapPin className="text-2xl text-primary" />
                 </div>
                 <h3 className="mb-3 text-2xl font-bold tracking-tight text-dark dark:text-white">Visit Us</h3>
                 <p className="text-slate-600 dark:text-slate-300 mb-6">
@@ -235,8 +508,7 @@ export default function Contact() {
                   href="https://www.google.com/maps/place/Design+Career+Metrics+Pvt+Ltd/@17.4579659,78.4237526,12z/data=!4m6!3m5!1s0x3bcb910838be5b35:0xfa8c53166a450046!8m2!3d17.4579659!4d78.5053877!16s%2Fg%2F11rw2sypv9?entry=ttu"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 rounded-xl bg-accent/10 dark:bg-accent/20 px-5 py-3 font-semibold text-accent transition-colors hover:bg-accent/20 dark:hover:bg-accent/30"
-                >
+className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition-colors hover:bg-primary/80"                >
                   <MapPin />
                   <span>Get Directions</span>
                 </a>
