@@ -16,12 +16,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "react-vendor":  ["react", "react-dom", "react-router-dom"],
-          "query-vendor":  ["@tanstack/react-query"],
-          "form-vendor":   ["react-hook-form", "@hookform/resolvers", "zod"],
-          "ui-vendor":     ["lucide-react", "react-hot-toast"],
-          "axios-vendor":  ["axios"],
-          "zustand-vendor":["zustand"],
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "query-vendor": ["@tanstack/react-query"],
+          "form-vendor": ["react-hook-form", "@hookform/resolvers", "zod"],
+          "ui-vendor": ["lucide-react", "react-hot-toast"],
+          "axios-vendor": ["axios"],
+          "zustand-vendor": ["zustand"],
         },
       },
     },
