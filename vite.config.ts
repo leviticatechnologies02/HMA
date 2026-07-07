@@ -7,7 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "https://hostel-final.onrender.com",
+        target: "https://hostel-final-bq3a.onrender.com",
         changeOrigin: true,
       },
     },

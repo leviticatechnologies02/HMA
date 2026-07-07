@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { useAuthStore } from "../store/authStore";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1",
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? "https://hostel-final-bq3a.onrender.com/api/v1",
    
 
   withCredentials: true,
@@ -78,7 +78,7 @@ api.interceptors.response.use(
           hostel_ids: string[];
           expires_in: number;
         }>(
-          `${import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1"}/auth/refresh`,
+          `${import.meta.env.VITE_API_BASE_URL ?? "https://hostel-final-bq3a.onrender.com/api/v1"}/auth/refresh`,
           {},
           { withCredentials: true }
         );
