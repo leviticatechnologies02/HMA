@@ -30,16 +30,18 @@ export function LoginPage() {
     handleSubmit,
     setError,
     setValue,
+    trigger,
     formState: { errors }
   } = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema)
+    resolver: zodResolver(loginSchema),
+    mode: "onTouched"
   });
 
   const onSubmit = handleSubmit(async (values) => {
     try {
       const response = await mutation.mutateAsync(values);
       console.log("Login successful:", response.access_token);
-      // Redirect based on role
+
       const role = response.role;
       if (role === "super_admin") navigate("/super-admin/dashboard");
       else if (role === "hostel_admin") navigate("/admin/dashboard");
@@ -49,7 +51,7 @@ export function LoginPage() {
     } catch (error) {
       const hasFieldErrors = applyValidationErrors(error, setError);
       if (!hasFieldErrors) {
-        
+
         // toast.error(getApiErrorMessage(error, "Login failed. Check your credentials."));
       }
     }
@@ -83,11 +85,12 @@ export function LoginPage() {
           <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">
-                Email or Phone
+                Email or Phone <span className="text-error">*</span>
               </label>
               <EmailInput
                 value={emailValue}
-                onChange={(val) => { setEmailValue(val); setValue("email_or_phone", val); }}
+                onChange={(val) => { setEmailValue(val); setValue("email_or_phone", val, { shouldValidate: true, shouldDirty: true }); }}
+                onBlur={() => trigger("email_or_phone")}
                 placeholder="you@example.com or 9000000000"
                 error={!!errors.email_or_phone}
               />
@@ -98,7 +101,7 @@ export function LoginPage() {
 
             <div>
               <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">
-                Password
+                Password <span className="text-error">*</span>
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400 dark:text-[#64748B]" />
@@ -129,7 +132,6 @@ export function LoginPage() {
             <div className="flex items-center gap-2">
               <input type="checkbox" id="remember" className="w-4 h-4 accent-primary"
                 onChange={(e) => {
-                  // Store preference — actual 30-day session handled by refresh token
                   if (e.target.checked) localStorage.setItem("rememberMe", "true");
                   else localStorage.removeItem("rememberMe");
                 }} />

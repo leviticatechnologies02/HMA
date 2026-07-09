@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Home, Search, LogIn, UserPlus, BookOpen, LogOut, ChevronDown, Sun, Moon } from "lucide-react";
+import { Menu, X, Home, Search, LogIn, UserPlus, BookOpen, LogOut, ChevronDown, Sun, Moon, Building2 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useLogout } from "../hooks/useAuth";
 import { useUIStore } from "../store/uiStore";
@@ -70,7 +70,7 @@ export function Navbar() {
                 }`}
         >
             <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-                {/* Logo */}
+
                 <Link to="/" className="flex items-center gap-2 group">
                     <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                         <Home className="w-5 h-5 text-white" />
@@ -80,7 +80,7 @@ export function Navbar() {
                     </span>
                 </Link>
 
-                {/* Desktop Nav */}
+
                 <nav className="hidden md:flex items-center gap-1">
                     <NavLink to="/" label="Home" current={location.pathname === "/"} />
                     <NavLink to="/hostels" label="Find Hostels" current={location.pathname.startsWith("/hostels") && !location.pathname.includes("/map")} />
@@ -101,7 +101,6 @@ export function Navbar() {
                                 Dashboard
                                 <ChevronDown className="w-4 h-4" />
                             </Link>
-                            {/* Show My Profile + My Bookings for visitor role */}
                             {role === "visitor" && (
                                 <>
                                     <Link to="/profile" className="px-4 py-2 text-sm font-medium text-dark hover:text-primary transition-colors dark:text-[#E2E8F0] dark:hover:text-primary">
@@ -136,11 +135,18 @@ export function Navbar() {
                                 <UserPlus className="w-4 h-4" />
                                 Get Started
                             </Link>
+                            <Link
+                                to="/register-hostel"
+                                className="btn-secondary flex items-center gap-2 text-sm text-primary bg-primary/10 hover:bg-primary/20 dark:text-primary dark:bg-primary/20 dark:hover:bg-primary/30"
+                            >
+                                <Building2 className="w-4 h-4" />
+                                Register Hostel
+                            </Link>
                         </>
                     )}
                 </div>
 
-                {/* Mobile Toggle */}
+
                 <button
                     className="md:hidden p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors dark:text-[#E2E8F0]"
                     onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -150,7 +156,7 @@ export function Navbar() {
                 </button>
             </div>
 
-            {/* Mobile Menu */}
+
             {isMobileOpen && (
                 <div className="md:hidden glass border-t border-white/20 animate-slide-up dark:bg-[#0D0D1A]/80 dark:border-white/10">
                     <div className="px-4 py-4 space-y-1">
@@ -188,6 +194,12 @@ export function Navbar() {
                                     className="block w-full text-center btn-primary mt-2"
                                 >
                                     Get Started Free
+                                </Link>
+                                <Link
+                                    to="/register-hostel"
+                                    className="block w-full text-center btn-secondary mt-2 text-primary bg-primary/10 hover:bg-primary/20 dark:text-primary dark:bg-primary/20 dark:hover:bg-primary/30"
+                                >
+                                    Register Hostel
                                 </Link>
                             </>
                         )}

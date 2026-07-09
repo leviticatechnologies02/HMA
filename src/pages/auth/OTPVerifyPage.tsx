@@ -25,7 +25,7 @@ export function OTPVerifyPage() {
   const [canResend, setCanResend] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
   const [otpExpiredError, setOtpExpiredError] = useState(false);
-  
+
   const userId = searchParams.get("user_id");
   const verifyMutation = useVerifyOTP();
   const resendMutation = useResendOTP();
@@ -42,7 +42,7 @@ export function OTPVerifyPage() {
 
   const otpValue = watch("otp_code");
 
-  // Countdown timer
+
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -52,7 +52,7 @@ export function OTPVerifyPage() {
     }
   }, [countdown]);
 
-  // Redirect if no user_id
+
   useEffect(() => {
     if (!userId) {
       navigate("/register");
@@ -67,13 +67,13 @@ export function OTPVerifyPage() {
         user_id: userId,
         otp_code: values.otp_code
       });
-      // OTP verified, redirect to reset password or login
-      toast.success("OTP verified successfully!");
-      navigate(`/reset-password?user_id=${userId}`);
+
+      toast.success("Email verified successfully! Please log in.");
+      navigate("/login?verified=true");
     } catch (error: any) {
       const errorMessage = getApiErrorMessage(error, "");
-      
-      // Check for specific OTP errors
+
+
       if (errorMessage?.includes("expired") || errorMessage?.includes("Expired")) {
         setOtpExpiredError(true);
         setError("otp_code", { message: "OTP has expired. Please request a new one." });
@@ -133,7 +133,7 @@ export function OTPVerifyPage() {
           )}
 
           <form className="space-y-6" onSubmit={onSubmit}>
-            {/* OTP Input - Hidden by default */}
+
             <div>
               <label className="block text-sm font-medium text-dark mb-2">
                 Verification Code
@@ -166,7 +166,7 @@ export function OTPVerifyPage() {
               )}
             </div>
 
-            {/* Resend OTP */}
+
             <div className="text-center">
               {canResend ? (
                 <button
@@ -185,7 +185,7 @@ export function OTPVerifyPage() {
               )}
             </div>
 
-            {/* Submit Button */}
+
             <button
               type="submit"
               disabled={verifyMutation.isPending || !otpValue || otpValue.length !== 6}

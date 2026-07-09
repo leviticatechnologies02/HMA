@@ -13,7 +13,7 @@ import { EmailInput } from "../../components/EmailInput";
 const registerSchema = z.object({
   full_name: z.string().min(2, "Full name is required"),
   email: z.string().email("Enter a valid email"),
-  phone: z.string().regex(/^[0-9]{10}$/, "Phone number must be 10 digits"),
+  phone: z.string().regex(/^[6-9][0-9]{9}$/, "Must be a valid 10-digit number starting with 6-9"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -70,9 +70,11 @@ export function RegisterPage() {
     setError,
     setValue,
     watch,
+    trigger,
     formState: { errors }
   } = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema)
+    resolver: zodResolver(registerSchema),
+    mode: "onTouched"
   });
 
   const passwordValue = watch("password") || "";
@@ -107,7 +109,7 @@ export function RegisterPage() {
 
           <form className="space-y-4" onSubmit={onSubmit}>
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Full Name <span className="text-error">*</span></label>
               <div className="relative">
                 <User className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 dark:text-[#64748B]" />
                 <input
@@ -123,10 +125,11 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Email</label>
+              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Email <span className="text-error">*</span></label>
               <EmailInput
                 value={emailValue}
-                onChange={(val) => { setEmailValue(val); setValue("email", val); }}
+                onChange={(val) => { setEmailValue(val); setValue("email", val, { shouldValidate: true, shouldDirty: true }); }}
+                onBlur={() => trigger("email")}
                 placeholder="you@example.com"
                 error={!!errors.email}
               />
@@ -136,12 +139,18 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Phone Number</label>
+              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Phone Number <span className="text-error">*</span></label>
               <div className="relative">
                 <Phone className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 dark:text-[#64748B]" />
                 <input
                   {...register("phone")}
                   type="tel"
+                  maxLength={10}
+                  onInput={(e) => {
+                    let val = e.currentTarget.value.replace(/\D/g, "");
+                    val = val.replace(/^[^6-9]+/, "");
+                    e.currentTarget.value = val;
+                  }}
                   placeholder="9876543210"
                   className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-[#252540] dark:border-[#2D2D4A] dark:text-[#E2E8F0] dark:placeholder:text-[#64748B]"
                 />
@@ -152,7 +161,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Password</label>
+              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Password <span className="text-error">*</span></label>
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 dark:text-[#64748B]" />
                 <input
@@ -177,7 +186,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Retype Password</label>
+              <label className="block text-sm font-medium text-dark dark:text-[#E2E8F0] mb-2">Retype Password <span className="text-error">*</span></label>
               <div className="relative">
                 <Lock className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 dark:text-[#64748B]" />
                 <input

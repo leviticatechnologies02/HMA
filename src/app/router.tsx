@@ -39,6 +39,7 @@ import Contact from "../pages/public/ContactPage";
 import TermsOfService from "../pages/public/TermsOfServicePage";
 import PrivacyPolicy from "../pages/public/PrivacyPolicyPage";
 import HelpCenter from "../pages/public/HelpCenterPage";
+import { RegisterHostelPage } from "../pages/public/RegisterHostelPage";
 import { SuperAdminAdminsPage } from "../pages/superAdmin/SuperAdminAdminsPage";
 import { SuperAdminDashboardPage } from "../pages/superAdmin/SuperAdminDashboardPage";
 import { SuperAdminHostelsPage } from "../pages/superAdmin/SuperAdminHostelsPage";
@@ -81,6 +82,7 @@ export function AppRouter() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/help" element={<HelpCenter />} />
+          <Route path="/register-hostel" element={<RegisterHostelPage />} />
           <Route path="/booking" element={<Navigate to="/hostels" replace />} />
           <Route path="/booking/select" element={<BookingSelectPage />} />
           <Route path="/booking/details" element={<BookingDetailsPage />} />
@@ -108,8 +110,8 @@ export function AppRouter() {
             <Route path="/super-admin/plans" element={<SuperAdminPlansPage />} />
             <Route path="/super-admin/reports" element={<SuperAdminReportsPage />}
              />
-              <Route path="/super-admin/settings" element={<SuperAdminSettingsPage />} />
-            <Route path="/admin/attendance" element={<AdminAttendancePage />} />
+            <Route path="/super-admin/settings" element={<SuperAdminSettingsPage />} />
+            {/* <Route path="/admin/attendance" element={<AdminAttendancePage />} /> */}
 
             <Route path="/admin/bookings" element={<AdminBookingsPage />} />
             <Route path="/admin/hostel-profile" element={<AdminHostelProfilePage />} />

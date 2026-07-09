@@ -10,12 +10,13 @@ const DOMAINS = [
 type Props = {
   value: string;
   onChange: (val: string) => void;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
   placeholder?: string;
   className?: string;
   error?: boolean;
 };
 
-export function EmailInput({ value, onChange, placeholder = "you@example.com", className = "", error }: Props) {
+export function EmailInput({ value, onChange, onBlur, placeholder = "you@example.com", className = "", error }: Props) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeIdx, setActiveIdx] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ export function EmailInput({ value, onChange, placeholder = "you@example.com", c
     }
   };
 
-  // Close on outside click
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -88,11 +89,11 @@ export function EmailInput({ value, onChange, placeholder = "you@example.com", c
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        onBlur={onBlur}
         placeholder={placeholder}
         autoComplete="off"
-        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition dark:bg-[#252540] dark:text-[#E2E8F0] dark:placeholder:text-[#64748B] ${
-          error ? "border-error dark:border-error" : "border-slate-200 dark:border-[#2D2D4A]"
-        } ${className}`}
+        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition dark:bg-[#252540] dark:text-[#E2E8F0] dark:placeholder:text-[#64748B] ${error ? "border-error dark:border-error" : "border-slate-200 dark:border-[#2D2D4A]"
+          } ${className}`}
       />
       {/* {suggestions.length > 0 && (
         <ul className="absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden dark:bg-[#1A1A2E] dark:border-[#2D2D4A]">
