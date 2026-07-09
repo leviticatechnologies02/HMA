@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/authStore";
 export const api = axios.create({
   baseURL:
     import.meta.env.VITE_API_BASE_URL ??
-    "https://hostel-final-bq3a.onrender.com/api/v1",
+    "https://hostel-final-cqes.onrender.com/api/v1",
 
   withCredentials: true,
   headers: {
