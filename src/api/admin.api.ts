@@ -469,6 +469,17 @@ export async function updateAdminStudent(
   );
   return response.data;
 }
+export async function deleteAdminStudent(
+  userId: string,
+  hostelIds: string[],
+  studentId: string
+) {
+  const response = await api.delete(`/admin/students/${studentId}`, {
+    headers: buildAdminHeaders(userId, hostelIds)
+  });
+  return response.data;
+}
+
 export async function fetchAdminMaintenance(userId: string, hostelId: string, hostelIds: string[]) {
   const response = await api.get<MaintenanceRequest[]>(`/admin/hostels/${hostelId}/maintenance`, {
     headers: buildAdminHeaders(userId, hostelIds)

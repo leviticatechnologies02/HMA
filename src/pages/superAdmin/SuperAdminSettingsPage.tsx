@@ -68,7 +68,8 @@ export function SuperAdminSettingsPage() {
       new_password: Yup.string()
         .required("New password is required")
         .min(8, "Password must be at least 8 characters")
-        .matches(/^[^\s]*$/, "Password cannot contain spaces"),
+        .matches(/^[^\s]*$/, "Password cannot contain spaces")
+        .notOneOf([Yup.ref("current_password")], "New password must be different from current password"),
       confirm_password: Yup.string()
         .required("Please confirm your password")
         .oneOf([Yup.ref("new_password")], "Passwords do not match"),

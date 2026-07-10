@@ -64,6 +64,7 @@ import {
   type DirectStudentPayload,
   type AdminProfile,
   deleteAdminRoom,
+  deleteAdminStudent,
 
 
 
@@ -218,6 +219,21 @@ export function useUpdateAdminStudent(userId: string | null, hostelId: string | 
         queryKey: ["admin-student-details", userId, hostelIds, variables.studentId]
       });
 
+    }
+  });
+}
+
+export function useDeleteAdminStudent(userId: string | null, hostelId: string | null, hostelIds: string[]) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (studentId: string) => deleteAdminStudent(userId!, hostelIds, studentId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-students", userId, hostelId, hostelIds]
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-beds"]
+      });
     }
   });
 }

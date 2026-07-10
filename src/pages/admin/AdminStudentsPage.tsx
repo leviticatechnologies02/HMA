@@ -1,7 +1,8 @@
-﻿import { useState } from "react";
-import { Search, Users, X, Calendar, Bed, Hash, Plus } from "lucide-react";
+import { useState } from "react";
+import { Search, Users, X, Calendar, Bed, Hash, Plus, Trash2 } from "lucide-react";
 
-import { useAdminStudents } from "../../hooks/useAdminData";
+import { useAdminStudents, useDeleteAdminStudent } from "../../hooks/useAdminData";
+import toast from "react-hot-toast";
 import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
 import { formatDate } from "../../utils/formatters";
@@ -18,7 +19,7 @@ export function AdminStudentsPage() {
 
   const { openModal } = useModal();
 
-  // Open modal for adding a new tennat
+
   const handleAddTenant = () => {
     openModal("tenant");
   }
@@ -27,9 +28,22 @@ export function AdminStudentsPage() {
   const hostelId = useAuthStore((s) => s.activeHostelId) ?? hostelIds[0] ?? null;
 
   const { data, isLoading } = useAdminStudents(userId, hostelId, hostelIds);
-
+  const deleteMutation = useDeleteAdminStudent(userId, hostelId, hostelIds);
 
   const [search, setSearch] = useState("");
+  const [tenantToDelete, setTenantToDelete] = useState<string | null>(null);
+
+  const confirmDelete = async () => {
+    if (!tenantToDelete) return;
+    try {
+      await deleteMutation.mutateAsync(tenantToDelete);
+      toast.success("Tenant deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete tenant");
+    } finally {
+      setTenantToDelete(null);
+    }
+  };
 
 
 
@@ -80,7 +94,7 @@ export function AdminStudentsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 dark:bg-slate-800">
                   <tr>
-                    {["Tenants #", "Name", "Room", "Bed", "Check-in", "Status", "View", "Edit"].map((h) => (
+                    {["Tenants #", "Name", "Room", "Bed", "Check-in", "Status", "View", "Edit", "Delete"].map((h) => (
                       <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{h}</th>
                     ))}
                   </tr>
@@ -104,6 +118,15 @@ export function AdminStudentsPage() {
                       <td className="px-5 py-4">
                         <button onClick={() => openModal('tenant', s)} className="text-xs text-secondary font-semibold hover:underline">Edit</button>
                       </td>
+                      <td className="px-5 py-4">
+                        <button
+                          onClick={() => setTenantToDelete(s.id)}
+                          className="text-xs text-red-500 font-semibold hover:underline flex items-center gap-1"
+                          title="Delete Tenant"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -113,8 +136,37 @@ export function AdminStudentsPage() {
         </div>
       )}
 
-
-
+      {tenantToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-lg font-bold text-dark dark:text-white mb-2">Delete Tenant</h3>
+              <p className="text-slate-500 dark:text-slate-400">
+                Are you sure you want to delete this tenant? This action cannot be undone and will free up the associated bed.
+              </p>
+            </div>
+            <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => setTenantToDelete(null)}
+                className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm shadow-red-600/20 disabled:opacity-50"
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete Tenant"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
