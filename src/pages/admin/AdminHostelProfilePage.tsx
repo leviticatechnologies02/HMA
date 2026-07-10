@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
 import { Save, Building2 } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAdminHostelProfile, useAdminMyHostels, useUpdateAdminHostelProfile } from "../../hooks/useAdminData";
 import { useAuthStore } from "../../store/authStore";
 import type { AdminHostelProfilePayload } from "../../api/admin.api";
+import toast from "react-hot-toast";
+import { useState, useEffect, useRef } from "react";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().trim().required("Hostel name is required"),
@@ -72,6 +73,9 @@ export function AdminHostelProfilePage() {
   const [saved, setSaved] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
   const [pincodeError, setPincodeError] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initialValues: AdminHostelProfilePayload = {
     name: profileQuery.data?.name ?? "",
@@ -143,10 +147,61 @@ export function AdminHostelProfilePage() {
       setPincodeLoading(false);
     }
   };
+  const handleImageUpload = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  if (!e.target.files) return;
+
+  const files = Array.from(e.target.files);
+
+  setImages((prev) => [...prev, ...files]);
+};
 
   if (!userId || !hostelIds.length) {
     return <div className="p-8 text-slate-500">Login as admin with assigned hostels.</div>;
   }
+ const handleUploadImages = async () => {
+  if (images.length === 0) {
+    toast.error("Please select at least one image.");
+    return;
+  }
+
+  setUploading(true);
+
+  // Loading toast
+  const toastId = toast.loading("Uploading images...");
+
+  try {
+    const formData = new FormData();
+
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+
+    // Replace this with your actual API endpoint
+    await fetch("", {
+      method: "POST",
+      body: formData,
+    });
+
+    toast.success("Images uploaded successfully!", {
+      id: toastId,
+    });
+
+    setImages([]);
+    if (fileInputRef.current) {
+  fileInputRef.current.value = "";
+}
+  } catch (error) {
+    console.error(error);
+
+    toast.error("Image upload failed!", {
+      id: toastId,
+    });
+  } finally {
+    setUploading(false);
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -381,6 +436,62 @@ export function AdminHostelProfilePage() {
               </div>
             </div>
           </div>
+
+          <div>
+  <h2 className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
+    Hostel Images
+  </h2>
+
+  {/* Choose File */}
+  <input
+  ref={fileInputRef}
+    type="file"
+    multiple
+    accept="image/*"
+    onChange={handleImageUpload}
+    className="w-full border border-slate-300 rounded-xl p-3"
+  />
+
+  {/* Preview */}
+  {images.length > 0 && (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-5">
+      {images.map((image, index) => (
+        <div
+          key={index}
+          className="relative rounded-xl overflow-hidden border border-slate-300"
+        >
+          <img
+            src={URL.createObjectURL(image)}
+            alt="preview"
+            className="w-full h-32 object-cover"
+          />
+
+          <button
+            type="button"
+            onClick={() =>
+              setImages(images.filter((_, i) => i !== index))
+            }
+            className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-7 h-7"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Upload Button */}
+  {images.length > 0 && (
+    <button
+      type="button"
+      onClick={handleUploadImages}
+      disabled={uploading}
+      className="mt-5 px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-50"
+    >
+      {uploading ? "Uploading..." : "Upload Images"}
+    </button>
+  )}
+</div>
 
           <div>
             <h2 className="text-xs sm:text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 sm:mb-4">Visibility</h2>

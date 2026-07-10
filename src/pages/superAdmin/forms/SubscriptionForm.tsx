@@ -287,25 +287,50 @@ const SubscriptionForm = ({
                 </div>
               )}
 
-              {/* Start Date */}
-              <div className="col-span-2">
-                <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
-                  Start Date *
-                </label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={values.start_date}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                {touched.start_date && errors.start_date && (
-                  <p className="text-xs text-red-500">
-                    {errors.start_date as string}
-                  </p>
-                )}
-              </div>
+              
+<div>
+  <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+    Start Date *
+  </label>
+  <input
+    type="date"
+    name="start_date"
+    value={values.start_date}
+    onChange={handleChange}
+    onBlur={handleBlur}
+    className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+  />
+  {touched.start_date && errors.start_date && (
+    <p className="text-xs text-red-500">
+      {errors.start_date as string}
+    </p>
+  )}
+</div>
+
+
+<div>
+  <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+    End Date
+  </label>
+
+  <input
+    type="date"
+    value={
+      values.start_date && selectedPlan
+        ? (() => {
+            const start = new Date(values.start_date);
+            const end = new Date(start);
+            end.setDate(
+              end.getDate() + (selectedPlan.duration_days || 30)
+            );
+            return end.toISOString().split("T")[0];
+          })()
+        : ""
+    }
+    readOnly
+    className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-gray-900 dark:text-white cursor-not-allowed"
+  />
+</div>
 
               {/* Auto Renew */}
               <div className="col-span-2 flex items-center gap-3 mt-2">

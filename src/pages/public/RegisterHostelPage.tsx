@@ -153,34 +153,51 @@ export function RegisterHostelPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl pt-24 pb-12 px-4 sm:px-6">
+    
+  <div
+    className="relative min-h-screen bg-cover bg-center bg-no-repeat py-20 px-4"
+    style={{
+      backgroundImage: "url('/img/Heroo.png')",
+    }}
+  >
+    
+    <div className="absolute inset-0 bg-black/55"></div>
+
+    
+    <div className="relative z-10 mx-auto max-w-3xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-heading font-bold text-dark dark:text-[#E2E8F0]">Register Your Hostel</h1>
-        <p className="text-slate-600 dark:text-[#B0B8C8] mt-2">Partner with us and list your property on HostelHub.</p>
+       <h1 className="text-5xl font-bold text-white">
+  <span className="text-primary">Register</span> Your Hostel
+</h1>
+
+        <p className="mt-2 text-gray-200">
+          Partner with us and list your property on HostelHub.
+        </p>
       </div>
 
-      <section className="rounded-2xl bg-white dark:bg-[#1A1A2E] p-6 shadow-sm border border-slate-100 dark:border-[#2D2D4A] space-y-4">
+      <section className="rounded-3xl bg-white p-8 shadow-2xl border border-slate-200 space-y-4">
+
         <h2 className="text-xl font-semibold text-dark dark:text-[#E2E8F0]">Hostel Details</h2>
         <p className="text-xs text-slate-400">Fields marked * are required</p>
-
+ 
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Hostel Name *</label>
           <input className="input-field" placeholder="e.g. Green Valley Boys Hostel" value={form.name}
             onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} />
         </div>
-
+ 
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Slug * <span className="normal-case font-normal text-slate-400">(URL-friendly ID)</span></label>
           <input className="input-field" placeholder="e.g. green-valley-boys-hostel" value={form.slug}
             onChange={(e) => setForm((c) => ({ ...c, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") }))} />
         </div>
-
+ 
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Description * <span className="normal-case font-normal text-slate-400">(min 10 chars)</span></label>
           <textarea className="input-field min-h-20" placeholder="Describe the hostel facilities, location, highlights..." value={form.description}
             onChange={(e) => setForm((c) => ({ ...c, description: e.target.value }))} />
         </div>
-
+ 
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Hostel Type *</label>
           <select className="input-field" value={form.hostel_type}
@@ -190,7 +207,7 @@ export function RegisterHostelPage() {
             <option value="co-living">Co-living</option>
           </select>
         </div>
-
+ 
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Address Line 1 *</label>
@@ -257,7 +274,7 @@ export function RegisterHostelPage() {
             <input className="input-field" placeholder="hostel@email.com" value={form.email}
               onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} />
           </div>
-
+ 
           <div className="col-span-2">
             <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
               Location on Map
@@ -293,7 +310,7 @@ export function RegisterHostelPage() {
                 Open in OpenStreetMap to verify →
               </a>
             )}
-
+ 
             <div className="grid grid-cols-2 gap-2 mt-2">
               <div>
                 <label className="block text-xs text-slate-400 mb-1">Latitude</label>
@@ -308,65 +325,9 @@ export function RegisterHostelPage() {
             </div>
           </div>
         </div>
-
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-semibold text-dark dark:text-[#E2E8F0] flex items-center gap-1.5">
-              <ImagePlus className="w-4 h-4 text-primary" /> Hostel Images (URLs)
-            </label>
-            {imageUrls.length < 6 && (
-              <button type="button" onClick={() => setImageUrls((u) => [...u, ""])}
-                className="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
-                <Plus className="w-3 h-3" /> Add more
-              </button>
-            )}
-          </div>
-          <p className="text-xs text-slate-400">First image becomes the primary/cover photo.</p>
-          {imageUrls.map((url, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <div className="relative flex-1">
-                <input
-                  className="input-field text-sm pr-10"
-                  placeholder={i === 0 ? "Primary image URL (required for listing)" : `Image ${i + 1} URL (optional)`}
-                  value={url}
-                  onChange={(e) => setImageUrls((u) => u.map((v, j) => j === i ? e.target.value : v))}
-                />
-                {url && (
-                  <img src={url} alt=""
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded object-cover border border-slate-200 dark:border-[#2D2D4A]"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
-                )}
-              </div>
-              {imageUrls.length > 1 && (
-                <button type="button" onClick={() => setImageUrls((u) => u.filter((_, j) => j !== i))}
-                  className="p-1.5 rounded-lg hover:bg-error/10 text-slate-400 hover:text-error transition-colors">
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-
-
-          <div className="flex flex-wrap gap-2 pt-1">
-            <p className="w-full text-xs text-slate-400">Quick fill with sample images:</p>
-            {HOSTEL_IMAGES.slice(0, 4).map((src, i) => (
-              <button key={i} type="button"
-                onClick={() => setImageUrls((u) => {
-                  const next = [...u];
-                  const emptyIdx = next.findIndex((v) => !v.trim());
-                  if (emptyIdx !== -1) next[emptyIdx] = src;
-                  else next.push(src);
-                  return next;
-                })}
-                className="relative w-14 h-10 rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all">
-                <img src={src} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        </div>
-
+ 
+ 
+ 
         <div className="flex items-center gap-4 pt-1">
           <label className="flex items-center gap-2 text-sm cursor-pointer dark:text-[#E2E8F0]">
             <input type="checkbox" checked={form.is_public}
@@ -381,7 +342,7 @@ export function RegisterHostelPage() {
             Featured
           </label>
         </div>
-
+ 
         <button
           className="btn-primary w-full disabled:opacity-60"
           disabled={submitting || !form.name.trim() || !form.slug.trim()}
@@ -390,7 +351,9 @@ export function RegisterHostelPage() {
         >
           {submitting ? "Submitting Request..." : "Register Hostel"}
         </button>
+
       </section>
     </div>
-  );
+  </div>
+);
 }

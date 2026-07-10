@@ -184,7 +184,7 @@ export function Navbar() {
                 className="flex items-center gap-2 text-sm px-4 py-2 text-primary bg-primary/10 hover:bg-primary/10 rounded-xl transition-colors dark:text-primary dark:bg-primary/20 dark:hover:bg-primary/20"
               >
                 <Building2 className="w-4 h-4" />
-                Register Hostel
+                Create Hostel
               </Link>
             </>
           )}

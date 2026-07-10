@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
 import { formatDate } from "../../utils/formatters";
+import toast from "react-hot-toast";
 
 const STATUS_BADGE: Record<string, string> = {
   active: "badge-success",
@@ -49,17 +50,35 @@ export function SuperAdminSubscriptionsPage() {
     openModal("subscription");
   }
 
-  const handleCancel = (id: string) => {
-    if (window.confirm("Are you sure you want to cancel this subscription?")) {
-      cancelSub(id);
-    }
-  };
+ const handleCancel = (id: string) => {
+  if (!window.confirm("Are you sure you want to cancel this subscription?")) {
+    return;
+  }
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Cancel this Subscription plan before Deleting?")) {
-      deleteSub(id);
-    }
-  };
+  cancelSub(id, {
+    onSuccess: () => {
+      toast.success("Subscription cancelled successfully");
+    },
+    onError: () => {
+      toast.error("Failed to cancel subscription");
+    },
+  });
+};
+
+ const handleDelete = (id: string) => {
+  if (!window.confirm("Cancel this Subscription plan before Deleting?")) {
+    return;
+  }
+
+  deleteSub(id, {
+    onSuccess: () => {
+      toast.success("Subscription deleted successfully");
+    },
+    onError: () => {
+      toast.error("Failed to delete subscription");
+    },
+  });
+};
 
   const subscriptions = data ?? [];
   

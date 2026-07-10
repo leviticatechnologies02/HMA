@@ -7,6 +7,7 @@ import {
 import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
 import { formatDate } from "../../utils/formatters";
+import toast from "react-hot-toast";
 
 const STATUS_BADGE: Record<string, string> = {
   active: "badge-success",
@@ -38,11 +39,18 @@ export function SuperAdminPlansPage() {
     openModal("plan", plan);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this plan?")) {
-      deletePlan(id);
-    }
-  };
+ const handleDelete = (id: string) => {
+  if (!window.confirm("Are you sure you want to delete this plan?")) return;
+
+  deletePlan(id, {
+    onSuccess: () => {
+      toast.success("Plan deleted successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Failed to delete plan");
+    },
+  });
+};
 
   const plans = data?.items ?? [];
   

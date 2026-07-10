@@ -366,63 +366,10 @@ export function SuperAdminHostelsPage() {
             </div>
           </div>
 
-          {/* ── Image URLs ── */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold text-dark flex items-center gap-1.5">
-                <ImagePlus className="w-4 h-4 text-primary" /> Hostel Images (URLs)
-              </label>
-              {imageUrls.length < 6 && (
-                <button type="button" onClick={() => setImageUrls((u) => [...u, ""])}
-                  className="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
-                  <Plus className="w-3 h-3" /> Add more
-                </button>
-              )}
-            </div>
-            <p className="text-xs text-slate-400">First image becomes the primary/cover photo.</p>
-            {imageUrls.map((url, i) => (
-              <div key={i} className="flex gap-2 items-center">
-                <div className="relative flex-1">
-                  <input
-                    className="input-field text-sm pr-10"
-                    placeholder={i === 0 ? "Primary image URL (required for listing)" : `Image ${i + 1} URL (optional)`}
-                    value={url}
-                    onChange={(e) => setImageUrls((u) => u.map((v, j) => j === i ? e.target.value : v))}
-                  />
-                  {url && (
-                    <img src={url} alt=""
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded object-cover border border-slate-200"
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    />
-                  )}
-                </div>
-                {imageUrls.length > 1 && (
-                  <button type="button" onClick={() => setImageUrls((u) => u.filter((_, j) => j !== i))}
-                    className="p-1.5 rounded-lg hover:bg-error/10 text-slate-400 hover:text-error transition-colors">
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            ))}
+         
 
-            {/* Quick-fill with sample Unsplash images */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <p className="w-full text-xs text-slate-400">Quick fill with sample images:</p>
-              {HOSTEL_IMAGES.slice(0, 4).map((src, i) => (
-                <button key={i} type="button"
-                  onClick={() => setImageUrls((u) => {
-                    const next = [...u];
-                    const emptyIdx = next.findIndex((v) => !v.trim());
-                    if (emptyIdx !== -1) next[emptyIdx] = src;
-                    else next.push(src);
-                    return next;
-                  })}
-                  className="relative w-14 h-10 rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all">
-                  <img src={src} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
+
+          
 
           <div className="flex items-center gap-4 pt-1">
             <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -536,10 +483,7 @@ export function SuperAdminHostelsPage() {
                       )}>
                       Suspend
                     </button>
-                    <button className="rounded-xl border border-primary/30 text-primary text-xs px-3 py-1.5 hover:bg-primary/5 transition-colors flex items-center gap-1" type="button"
-                      onClick={() => setManagingHostel(hostel)}>
-                      <Settings className="w-3.5 h-3.5" /> Manage
-                    </button>
+                    
                   </div>
                 </div>
               </article>

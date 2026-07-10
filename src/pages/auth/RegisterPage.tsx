@@ -10,6 +10,7 @@ import { useRegister } from "../../hooks/useAuth";
 import { applyValidationErrors, getApiErrorMessage } from "../../utils/apiErrors";
 import { EmailInput } from "../../components/EmailInput";
 
+
 const registerSchema = z.object({
   full_name: z.string().min(2, "Full name is required"),
   email: z.string().email("Enter a valid email"),
@@ -93,8 +94,19 @@ export function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-[#0D0D1A]">
-      <div className="w-full max-w-md">
+    
+    <div
+  className="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center px-4 py-10"
+  style={{
+    backgroundImage: "url('/img/Heroo.png')",
+  }}
+>
+    {/* Dark Overlay */}
+    <div className="absolute inset-0 bg-black/60"></div>
+
+    {/* Content */}
+   <div className="relative z-10 w-full max-w-md">
+
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 dark:bg-[#1A1A2E] dark:border-[#2D2D4A]">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-dark dark:text-[#E2E8F0]">Create Account</h1>
@@ -115,7 +127,7 @@ export function RegisterPage() {
                 <input
                   {...register("full_name")}
                   type="text"
-                  placeholder="rajesh kumar"
+                  placeholder="Enter your name"
                   className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-[#252540] dark:border-[#2D2D4A] dark:text-[#E2E8F0] dark:placeholder:text-[#64748B]"
                 />
               </div>
@@ -130,7 +142,7 @@ export function RegisterPage() {
                 value={emailValue}
                 onChange={(val) => { setEmailValue(val); setValue("email", val, { shouldValidate: true, shouldDirty: true }); }}
                 onBlur={() => trigger("email")}
-                placeholder="you@example.com"
+                placeholder="Enter your email"
                 error={!!errors.email}
               />
               {errors.email && (
@@ -151,7 +163,7 @@ export function RegisterPage() {
                     val = val.replace(/^[^6-9]+/, "");
                     e.currentTarget.value = val;
                   }}
-                  placeholder="9876543210"
+                  placeholder="+91**********"
                   className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-[#252540] dark:border-[#2D2D4A] dark:text-[#E2E8F0] dark:placeholder:text-[#64748B]"
                 />
               </div>
@@ -233,6 +245,6 @@ export function RegisterPage() {
           By registering, you agree to our Terms of Service
         </p>
       </div>
-    </div>
+   </div>
   );
 }
