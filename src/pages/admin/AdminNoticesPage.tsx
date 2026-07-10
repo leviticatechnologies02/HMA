@@ -21,29 +21,23 @@ export function AdminNoticesPage() {
 
   const { openModal } = useModal();
 
-
-
   const [page] = useState(1);
   const [limit] = useState(10);
   const [activeTab, setActiveTab] = useState<"hostel" | "platform">("hostel");
 
   // ✅ Hostel notices (always)
-  const {
-    data: hostelsData,
-    isLoading: isHostelNoticesLoading,
-  } = useAdminNoticesPaginated(userId, hostelId, hostelIds, page, limit);
+  const { data: hostelsData, isLoading: isHostelNoticesLoading } =
+    useAdminNoticesPaginated(userId, hostelId, hostelIds, page, limit);
 
-  const {
-    data: platformNotices,
-    isLoading: isPlatformNoticesLoading,
-  } = useAdminPlatformNotices(userId, hostelIds);
+  const { data: platformNotices, isLoading: isPlatformNoticesLoading } =
+    useAdminPlatformNotices(userId, hostelIds);
 
   const isLoading = isHostelNoticesLoading || isPlatformNoticesLoading;
 
   const { data: readStats } = useAdminNoticeReadStats(
     userId,
     hostelId,
-    hostelIds
+    hostelIds,
   );
 
   const deleteMutation = useDeleteAdminNotice(userId, hostelId, hostelIds);
@@ -51,22 +45,25 @@ export function AdminNoticesPage() {
   const toggleMutation = useToggleAdminNoticePublish(
     userId,
     hostelId,
-    hostelIds
+    hostelIds,
   );
 
   const hostelNoticesList = useMemo(() => {
     return [...(hostelsData?.items ?? [])].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
   }, [hostelsData?.items]);
 
   const platformNoticesList = useMemo(() => {
     return [...(platformNotices?.items ?? [])].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
   }, [platformNotices?.items]);
 
-  const notices = activeTab === "hostel" ? hostelNoticesList : platformNoticesList;
+  const notices =
+    activeTab === "hostel" ? hostelNoticesList : platformNoticesList;
 
   const readByNoticeId = useMemo(() => {
     const m = new Map<string, { read_count: number; total_students: number }>();
@@ -81,8 +78,7 @@ export function AdminNoticesPage() {
 
   const handleCreateNotice = () => openModal("notice");
 
-  const handleEditNotice = (notice: Notice) =>
-    openModal("notice", notice);
+  const handleEditNotice = (notice: Notice) => openModal("notice", notice);
 
   const handleDelete = (id: string) => {
     if (!confirm("Delete this notice?")) return;
@@ -119,14 +115,9 @@ export function AdminNoticesPage() {
           <p className="mt-1 text-slate-500 dark:text-slate-400">
             Post announcements and updates for students.
           </p>
-
-
         </div>
 
         <div className="flex items-center gap-2">
-
-
-
           <button
             onClick={handleCreateNotice}
             className="btn-primary flex items-center gap-2"
@@ -139,25 +130,26 @@ export function AdminNoticesPage() {
       <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800">
         <button
           onClick={() => setActiveTab("hostel")}
-          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "hostel"
+          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "hostel"
               ? "border-primary text-primary"
               : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
+          }`}
         >
           Hostel Notices
         </button>
         <button
           onClick={() => setActiveTab("platform")}
-          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === "platform"
+          className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "platform"
               ? "border-primary text-primary"
               : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            }`}
+          }`}
         >
           Platform Notices
         </button>
       </div>
 
-      {/* Loading */}
       {isLoading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -166,7 +158,6 @@ export function AdminNoticesPage() {
         </div>
       )}
 
-      {/* Content */}
       {!isLoading && (
         <div className="space-y-3">
           {notices.length === 0 && (
@@ -181,7 +172,6 @@ export function AdminNoticesPage() {
           {notices.map((n: Notice) => {
             const stats = readByNoticeId.get(n.id);
 
-
             return (
               <div
                 key={n.id}
@@ -195,8 +185,9 @@ export function AdminNoticesPage() {
                       </h3>
 
                       <span
-                        className={`badge ${n.is_published ? "badge-success" : "badge-slate"
-                          } text-xs`}
+                        className={`badge ${
+                          n.is_published ? "badge-success" : "badge-slate"
+                        } text-xs`}
                       >
                         {n.is_published ? "Published" : "Draft"}
                       </span>
@@ -215,9 +206,7 @@ export function AdminNoticesPage() {
                     {stats && n.is_published && (
                       <p className="mt-2 text-xs text-slate-500">
                         Read by{" "}
-                        <span className="font-medium">
-                          {stats.read_count}
-                        </span>{" "}
+                        <span className="font-medium">{stats.read_count}</span>{" "}
                         of{" "}
                         <span className="font-medium">
                           {stats.total_students}
@@ -225,32 +214,34 @@ export function AdminNoticesPage() {
                       </p>
                     )}
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Created at{" "}
-                      {formatDate(n.created_at)}
+                      Created at {formatDate(n.created_at)}
                     </p>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleEditNotice(n)}
-                      className="btn-primary"
+                      className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium transition-all duration-200 shadow"
                     >
                       Edit
                     </button>
 
                     <button
                       onClick={() => handleDelete(n.id)}
-                      className="btn-secondary"
+                      className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-all duration-200 shadow"
                     >
                       Delete
                     </button>
 
                     <button
                       onClick={() => handleToggle(n.id)}
-                      className="btn-secondary"
+                      className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-all duration-200 shadow ${
+                        n.status === "Published"
+                          ? "bg-amber-500 hover:bg-amber-600"
+                          : "bg-emerald-500 hover:bg-emerald-600"
+                      }`}
                     >
-                      Toggle
+                      {n.status === "Published" ? "Unpublish" : "Publish"}
                     </button>
                   </div>
                 </div>
