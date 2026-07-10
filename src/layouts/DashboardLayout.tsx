@@ -265,24 +265,28 @@ export function DashboardLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex items-center gap-4">
+        <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-4">
           <button
-            className="md:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            className="md:hidden p-1.5 sm:p-2 -ml-1.5 sm:-ml-0 rounded-xl hover:bg-slate-100 transition-colors shrink-0"
             onClick={() => setMobileOpen(true)}
           >
             <Menu className="w-5 h-5" />
           </button>
 
           {/* Breadcrumb */}
-          <div className="flex-1 flex items-center gap-3">
-            <p className="text-sm font-medium text-dark capitalize">
+          <div className="flex-1 flex items-center gap-2 sm:gap-3 min-w-0">
+            <p className="text-sm font-medium text-dark capitalize truncate hidden sm:block">
               {nav.find((n) => n.to === location.pathname)?.label ?? "Dashboard"}
             </p>
             {/* Hostel switcher for admin role */}
-            {role === "hostel_admin" && <HostelSwitcher />}
+            {role === "hostel_admin" && (
+              <div className="shrink-0 min-w-0">
+                <HostelSwitcher />
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Dark mode toggle */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

@@ -223,8 +223,8 @@ export function PublicHostelListPage() {
         {isLoading && (
           <div className={viewMode === "grid" ? "grid gap-6 md:grid-cols-2 lg:grid-cols-3" : "space-y-4"}>
             {[...Array(6)].map((_, i) => (
-              <div key={i} className={`bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 ${viewMode === "list" ? "flex h-40" : ""}`}>
-                <div className={`skeleton ${viewMode === "list" ? "w-48 h-full rounded-none" : "h-48 rounded-none"}`} />
+              <div key={i} className={`bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 ${viewMode === "list" ? "flex flex-col sm:flex-row sm:h-40" : ""}`}>
+                <div className={`skeleton ${viewMode === "list" ? "w-full sm:w-64 h-48 sm:h-full rounded-none" : "h-48 rounded-none"}`} />
                 <div className="p-6 space-y-3 flex-1">
                   <div className="skeleton h-5 w-3/4" />
                   <div className="skeleton h-4 w-1/2" />
@@ -262,15 +262,15 @@ export function PublicHostelListPage() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
+                    <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-2 sm:gap-4">
+                      <div className="min-w-0 w-full sm:w-auto">
                         <h2 className="font-heading font-bold text-dark dark:text-white text-lg truncate group-hover:text-primary transition-colors">{hostel.name}</h2>
                         <div className="flex items-center gap-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
                           <MapPin className="w-3.5 h-3.5 shrink-0" />
                           <span className="truncate">{hostel.city}, {hostel.state}</span>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
+                      <div className="text-left sm:text-right shrink-0 mt-3 sm:mt-0 border-t border-slate-100 dark:border-slate-800 sm:border-0 pt-3 sm:pt-0 w-full sm:w-auto">
                         <p className="text-sm font-semibold text-primary">₹{(hostel.starting_daily_price ?? 0).toLocaleString()} /night</p>
                         <p className="text-sm font-bold text-dark dark:text-white">₹{(hostel.starting_monthly_price ?? hostel.starting_price ?? 0).toLocaleString()} /month</p>
                       </div>
@@ -318,15 +318,15 @@ export function PublicHostelListPage() {
           <div className="space-y-4">
             {sorted.map((hostel, idx) => (
               <Link key={hostel.id} to={`/hostels/${hostel.slug}`} className="group block">
-                <article className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden card-hover flex">
-                  <div className="w-48 sm:w-64 shrink-0 relative overflow-hidden">
+                <article className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden card-hover flex flex-col sm:flex-row">
+                  <div className="w-full sm:w-56 md:w-64 h-48 sm:h-auto shrink-0 relative overflow-hidden">
                     <img src={HOSTEL_IMAGES[idx % HOSTEL_IMAGES.length]} alt={hostel.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                     {hostel.is_featured && <div className="absolute top-3 left-3"><span className="badge badge-primary text-xs">Featured</span></div>}
                   </div>
-                  <div className="p-5 flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
+                  <div className="p-4 sm:p-5 flex-1 min-w-0">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+                      <div className="min-w-0 w-full md:w-auto">
                         <h2 className="font-heading font-bold text-dark dark:text-white text-lg group-hover:text-primary transition-colors">{hostel.name}</h2>
                         <div className="flex items-center gap-1 mt-1 text-sm text-slate-500 dark:text-slate-400">
                           <MapPin className="w-3.5 h-3.5 shrink-0" />
@@ -341,7 +341,7 @@ export function PublicHostelListPage() {
                         )}
                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{hostel.description}</p>
                       </div>
-                      <div className="text-right shrink-0">
+                      <div className="text-left md:text-right shrink-0 mt-2 md:mt-0 w-full md:w-auto border-t border-slate-100 dark:border-slate-800 md:border-0 pt-4 md:pt-0">
                         <p className="text-lg font-bold text-primary">₹{(hostel.starting_monthly_price ?? 0).toLocaleString()}<span className="text-xs font-normal text-slate-500 dark:text-slate-400">/mo</span></p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">₹{(hostel.starting_daily_price ?? 0).toLocaleString()}/night</p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1"><b>{hostel.available_beds}</b> beds available</p>
@@ -352,7 +352,7 @@ export function PublicHostelListPage() {
                               navigate(`/booking/select?hostel=${hostel.slug}`);
                             } 
                           }}
-                          className="mt-2 inline-block btn-primary text-xs px-3 py-1.5">Book Now</button>
+                          className="mt-3 md:mt-2 w-full md:w-auto inline-block btn-primary text-xs px-4 py-2 text-center">Book Now</button>
                       </div>
                     </div>
                   </div>

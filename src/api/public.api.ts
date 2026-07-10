@@ -144,6 +144,32 @@ export async function submitInquiry(payload: InquiryPayload) {
   return response.data;
 }
 
+export interface RegisterHostelPayload {
+  name: string;
+  slug: string;
+  description: string;
+  hostel_type: string;
+  address_line1: string;
+  address_line2?: string | null;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+  latitude: number;
+  longitude: number;
+  phone: string;
+  email: string;
+  website?: string | null;
+  is_featured?: boolean;
+  is_public?: boolean;
+  rules_and_regulations?: string | null;
+}
+
+export async function registerHostel(payload: RegisterHostelPayload) {
+  const response = await api.post("/public/hostels/register", payload);
+  return response.data;
+}
+
 export interface ReviewPayload {
   hostel_id: string;
   booking_id?: string;

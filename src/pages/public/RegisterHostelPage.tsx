@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { ImagePlus, Plus } from "lucide-react";
 import toast from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
+import { registerHostel } from "../../api/public.api";
 import { HOSTEL_IMAGES } from "../../utils/images";
 
 const defaultForm = {
@@ -28,7 +31,7 @@ const defaultForm = {
 export function RegisterHostelPage() {
   const [form, setForm] = useState(defaultForm);
   const [imageUrls, setImageUrls] = useState<string[]>(["", "", ""]);
-  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
   const [citySearch, setCitySearch] = useState("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -121,6 +124,20 @@ export function RegisterHostelPage() {
     ? allCities.filter(c => c.toLowerCase().startsWith(citySearch.toLowerCase())).slice(0, 8)
     : [];
 
+  const registerMutation = useMutation({
+    mutationFn: registerHostel,
+    onSuccess: () => {
+      toast.success(`Hostel "${form.name}" registration request submitted successfully! We will contact you soon.`);
+      setForm(defaultForm);
+      setImageUrls(["", "", ""]);
+      setCitySearch("");
+      navigate("/hostels");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to register hostel");
+    }
+  });
+
   const handleCreate = async () => {
     if (!form.name.trim() || !form.slug.trim()) return;
 
@@ -138,18 +155,7 @@ export function RegisterHostelPage() {
       return;
     }
 
-    setSubmitting(true);
-
-
-    setTimeout(() => {
-      setSubmitting(false);
-      const validImages = imageUrls.map(u => u.trim()).filter(Boolean);
-      console.log("Mock Hostel Registration:", { ...form, images: validImages });
-      toast.success(`Hostel "${form.name}" registration request submitted successfully! We will contact you soon.`);
-      setForm(defaultForm);
-      setImageUrls(["", "", ""]);
-      setCitySearch("");
-    }, 1500);
+    registerMutation.mutate(form);
   };
 
   return (
@@ -345,11 +351,11 @@ export function RegisterHostelPage() {
  
         <button
           className="btn-primary w-full disabled:opacity-60"
-          disabled={submitting || !form.name.trim() || !form.slug.trim()}
+          disabled={registerMutation.isPending || !form.name.trim() || !form.slug.trim()}
           type="button"
           onClick={handleCreate}
         >
-          {submitting ? "Submitting Request..." : "Register Hostel"}
+          {registerMutation.isPending ? "Submitting Request..." : "Register Hostel"}
         </button>
 
       </section>
