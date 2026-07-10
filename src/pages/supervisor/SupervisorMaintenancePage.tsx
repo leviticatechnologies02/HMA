@@ -191,8 +191,9 @@ export function SupervisorMaintenancePage() {
       )}
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-t-3xl md:rounded-3xl w-full md:max-w-lg md:max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/50 overflow-y-auto">
+  <div className="min-h-full flex items-end md:items-center justify-center p-0 md:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-t-3xl md:rounded-3xl w-full md:max-w-lg max-h-[90dvh] overflow-y-auto">
             <div className="flex items-center justify-between px-4 md:px-6 py-4 md:py-5 border-b border-slate-100 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900">
               <h2 className="font-bold text-base md:text-lg text-dark dark:text-white">New Maintenance Request</h2>
               <button onClick={() => setShowForm(false)} className="p-1.5 md:p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400"><X className="w-5 h-5" /></button>
@@ -243,6 +244,7 @@ export function SupervisorMaintenancePage() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       )}
     </div>
