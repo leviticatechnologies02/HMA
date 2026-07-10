@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Search, CheckCircle, XCircle, Clock, ChevronDown, UserCheck, X, Bed } from "lucide-react";
-import { useAdminBookings, useApproveAdminBooking, useRejectAdminBooking, useCheckInAdminBooking, useCheckOutAdminBooking, useCancelAdminBooking, useAdminRooms, useAdminBeds, useSyncAdminStudentRecord } from "../../hooks/useAdminData";
+import { Search, CheckCircle, XCircle, Clock, ChevronDown, UserCheck, X, Bed, FileText } from "lucide-react";
+import { useAdminBookings, useApproveAdminBooking, useRejectAdminBooking, useCheckInAdminBooking, useCheckOutAdminBooking, useCancelAdminBooking, useAdminRooms, useAdminBeds, useSyncAdminStudentRecord, useDownloadAdminBookingDocument } from "../../hooks/useAdminData";
 import { useAuthStore } from "../../store/authStore";
 import type { Booking } from "../../api/booking.api";
 import { formatDate } from "../../utils/formatters";
+import toast from "react-hot-toast";
 
 const STATUS_BADGE: Record<string, string> = {
   payment_pending: "badge-warning",
@@ -27,6 +28,7 @@ export function AdminBookingsPage() {
   const checkOutMutation = useCheckOutAdminBooking(userId, hostelId, hostelIds);
   const cancelMutation = useCancelAdminBooking(userId, hostelId, hostelIds);
   const syncStudentMutation = useSyncAdminStudentRecord(userId, hostelId, hostelIds);
+  const downloadDocMutation = useDownloadAdminBookingDocument(userId, hostelIds);
   const roomsQ = useAdminRooms(userId, hostelId, hostelIds);
 
   const [search, setSearch] = useState("");
@@ -37,6 +39,7 @@ export function AdminBookingsPage() {
   const [showReject, setShowReject] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [showCancel, setShowCancel] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const bookings = bookingsQ.data ?? [];
   const filtered = bookings.filter((b) => {
@@ -82,6 +85,54 @@ export function AdminBookingsPage() {
     setShowCancel(false);
   };
 
+  const handleDownloadDocument = async (bookingId: string, bookingNumber: string) => {
+    setDownloadingId(bookingId);
+    try {
+      const blob = await downloadDocMutation.mutateAsync(bookingId);
+
+      // If the API returned a presigned URL instead of a file blob
+      if (blob.type === "application/json") {
+        const text = await blob.text();
+        const data = JSON.parse(text);
+        const fileUrl = data.url || data.document_url || data.id_document_url || data.file_url || data.download_url;
+
+        if (fileUrl) {
+          window.open(fileUrl, "_blank");
+          return;
+        } else {
+          console.error("JSON response without a recognizable URL:", data);
+          toast.error(data.detail || data.message || "Document not found or invalid format.");
+          return;
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+
+      let ext = "";
+      if (blob.type === "application/pdf") ext = ".pdf";
+      else if (blob.type === "image/jpeg") ext = ".jpg";
+      else if (blob.type === "image/png") ext = ".png";
+
+      a.download = `document_${bookingNumber}${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e: any) {
+      console.error("Failed to download document", e);
+      if (e.response?.status === 404) {
+        toast.error("No document found for this booking.");
+      } else {
+        toast.error("Failed to download document.");
+      }
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   if (!userId || !hostelIds.length) {
     return <div className="p-8 text-slate-500 dark:text-slate-400">Login as admin with assigned hostels.</div>;
   }
@@ -93,7 +144,7 @@ export function AdminBookingsPage() {
         <p className="mt-1 text-slate-500 dark:text-slate-400">Approve, reject, and manage all booking requests.</p>
       </div>
 
-      {/* Filters */}
+
       <div className="flex flex-wrap gap-3 bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800">
         <div className="flex-1 min-w-48 relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-600" />
@@ -116,21 +167,21 @@ export function AdminBookingsPage() {
         </select>
       </div>
 
-      {/* Loading */}
+
       {bookingsQ.isLoading && (
         <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="skeleton h-24 rounded-2xl" />)}
+          {[1, 2, 3].map(i => <div key={i} className="skeleton h-24 rounded-2xl" />)}
         </div>
       )}
 
-      {/* Table */}
+
       {!bookingsQ.isLoading && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  {["Booking #", "Guest", "Mode", "Check-in", "Check-out", "Amount", "Status", "Actions"].map(h => (
+                  {["Booking #", "Guest", "Mode", "Check-in", "Check-out", "Amount", "Status", "Document", "Actions"].map(h => (
                     <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -151,6 +202,16 @@ export function AdminBookingsPage() {
                     </td>
                     <td className="px-5 py-4">
                       <button
+                        onClick={() => handleDownloadDocument(b.id, b.booking_number)}
+                        disabled={downloadingId === b.id}
+                        className="text-xs text-primary font-semibold hover:underline flex items-center gap-1 disabled:opacity-50"
+                      >
+                        <FileText className="w-3 h-3" />
+                        {downloadingId === b.id ? "..." : "View"}
+                      </button>
+                    </td>
+                    <td className="px-5 py-4">
+                      <button
                         onClick={() => { setSelected(b); setSelectedBedId(""); setShowReject(false); setShowCancel(false); setCancelReason(""); }}
                         className="text-xs text-primary font-semibold hover:underline"
                       >
@@ -160,7 +221,7 @@ export function AdminBookingsPage() {
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={8} className="px-5 py-12 text-center text-slate-500">No bookings found.</td></tr>
+                  <tr><td colSpan={9} className="px-5 py-12 text-center text-slate-500">No bookings found.</td></tr>
                 )}
               </tbody>
             </table>
@@ -168,7 +229,7 @@ export function AdminBookingsPage() {
         </div>
       )}
 
-      {/* Detail Modal */}
+
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -180,7 +241,7 @@ export function AdminBookingsPage() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Info grid */}
+
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { label: "Guest", value: selected.full_name },
@@ -199,7 +260,6 @@ export function AdminBookingsPage() {
                 ))}
               </div>
 
-              {/* Approve action */}
               {(selected.status === "payment_pending" || selected.status === "pending_approval") && !showReject && (
                 <div className="space-y-3">
                   <div>
@@ -235,7 +295,7 @@ export function AdminBookingsPage() {
                 </div>
               )}
 
-              {/* Reject form */}
+
               {showReject && (
                 <div className="space-y-3 bg-error/5 dark:bg-error/10 rounded-2xl p-4 border border-error/20 dark:border-error/30">
                   <label className="block text-sm font-medium text-dark dark:text-white">Rejection Reason</label>
@@ -259,7 +319,7 @@ export function AdminBookingsPage() {
                 </div>
               )}
 
-              {/* Check-in action */}
+
               {selected.status === "approved" && (
                 <button
                   onClick={handleCheckIn}
@@ -271,7 +331,7 @@ export function AdminBookingsPage() {
                 </button>
               )}
 
-              {/* Check-out action */}
+
               {selected.status === "checked_in" && (
                 <div className="space-y-3">
                   <button
@@ -295,7 +355,7 @@ export function AdminBookingsPage() {
                 </div>
               )}
 
-              {/* Cancel action */}
+
               {(selected.status === "approved" || selected.status === "checked_in") && (
                 <>
                   {!showCancel ? (

@@ -27,6 +27,7 @@ import {
   fetchAdminAttendance,
   fetchAdminAttendanceSummary,
   fetchAdminBookings,
+  fetchAdminBookingDocument,
   fetchAdminComplaints,
   fetchAdminMaintenance,
   fetchAdminMessMenu,
@@ -79,6 +80,12 @@ export function useAdminBookings(userId: string | null, hostelId: string | null,
   });
 }
 
+export function useDownloadAdminBookingDocument(userId: string | null, hostelIds: string[]) {
+  return useMutation({
+    mutationFn: (bookingId: string) => fetchAdminBookingDocument(userId!, hostelIds, bookingId),
+  });
+}
+
 export function useAdminMyHostels(userId: string | null, hostelIds: string[]) {
   return useQuery({
     queryKey: ["admin-my-hostels", userId, hostelIds],
@@ -117,11 +124,11 @@ export function useDeleteAdminRoom(
       await queryClient.invalidateQueries({
         queryKey: ["admin-rooms", userId, hostelId, hostelIds]
       });
-      // Also invalidate beds if needed (in case any beds were in the deleted room)
+
       await queryClient.invalidateQueries({
         queryKey: ["admin-beds"]
       });
-      // Optionally invalidate dashboard stats
+
       await queryClient.invalidateQueries({
         queryKey: ["admin-dashboard", userId, hostelId ?? hostelIds]
       });
@@ -425,12 +432,12 @@ export function useUpdateAdminMessMenu(
     onSuccess: async (_, variables) => {
       const { itemId } = variables;
 
-      // invalidate list
+
       await queryClient.invalidateQueries({
         queryKey: ["admin-mess-menu", userId, hostelId, hostelIds],
       });
 
-      // optional: if you later add detail query
+
       await queryClient.invalidateQueries({
         queryKey: ["admin-mess-menu-item", userId, itemId],
       });
@@ -519,7 +526,7 @@ export function useAdminComplaints(userId: string | null, hostelId: string | nul
 }
 
 
-// notices hooks
+
 export function useAdminNoticesPaginated(
   userId: string | null,
   hostelId: string | null,
@@ -777,7 +784,7 @@ export function useSyncAdminStudentRecord(userId: string | null, hostelId: strin
   });
 }
 
-// Admin Profile Hooks
+
 export function useAdminProfile(userId: string | null, hostelIds: string[]) {
   return useQuery({
     queryKey: ["admin-profile", userId, hostelIds],

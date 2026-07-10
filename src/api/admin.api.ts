@@ -272,6 +272,18 @@ export async function fetchAdminBookings(userId: string, hostelId: string, hoste
   return response.data;
 }
 
+export async function fetchAdminBookingDocument(
+  userId: string,
+  hostelIds: string[],
+  bookingId: string
+) {
+  const response = await api.get(`/admin/bookings/${bookingId}/document`, {
+    headers: buildAdminHeaders(userId, hostelIds),
+    responseType: "blob"
+  });
+  return response.data;
+}
+
 export async function approveAdminBooking(
   userId: string,
   hostelIds: string[],
