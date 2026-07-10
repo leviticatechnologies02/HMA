@@ -1,7 +1,7 @@
 import { Save, Building2 } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useAdminHostelProfile, useAdminMyHostels, useUpdateAdminHostelProfile } from "../../hooks/useAdminData";
+import { useAdminHostelProfile, useAdminMyHostels, useUpdateAdminHostelProfile, useUploadAdminHostelImages } from "../../hooks/useAdminData";
 import { useAuthStore } from "../../store/authStore";
 import type { AdminHostelProfilePayload } from "../../api/admin.api";
 import toast from "react-hot-toast";
@@ -69,6 +69,7 @@ export function AdminHostelProfilePage() {
 
   const profileQuery = useAdminHostelProfile(userId, selectedHostelId, actualHostelIds);
   const updateMutation = useUpdateAdminHostelProfile(userId, selectedHostelId, actualHostelIds);
+  const uploadMutation = useUploadAdminHostelImages(userId, selectedHostelId, actualHostelIds);
 
   const [saved, setSaved] = useState(false);
   const [pincodeLoading, setPincodeLoading] = useState(false);
@@ -172,17 +173,15 @@ export function AdminHostelProfilePage() {
   const toastId = toast.loading("Uploading images...");
 
   try {
-    const formData = new FormData();
-
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
-
-    // Replace this with your actual API endpoint
-    await fetch("", {
-      method: "POST",
-      body: formData,
-    });
+    // The API expects a single file upload per request with the field name "file"
+    for (const image of images) {
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("image_type", "gallery");
+      formData.append("is_primary", "false");
+      
+      await uploadMutation.mutateAsync(formData);
+    }
 
     toast.success("Images uploaded successfully!", {
       id: toastId,

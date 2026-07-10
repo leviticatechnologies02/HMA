@@ -203,6 +203,21 @@ export async function updateAdminHostelProfile(
   return response.data;
 }
 
+export async function uploadAdminHostelImages(
+  userId: string,
+  hostelId: string,
+  hostelIds: string[],
+  formData: FormData
+) {
+  const response = await api.post(`/uploads/hostel-image/${hostelId}`, formData, {
+    headers: {
+      ...buildAdminHeaders(userId, hostelIds),
+      "Content-Type": "multipart/form-data"
+    }
+  });
+  return response.data;
+}
+
 export async function createAdminRoom(
   userId: string,
   hostelId: string,

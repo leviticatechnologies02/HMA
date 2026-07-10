@@ -41,6 +41,7 @@ import {
   fetchAdminStudentDetails,
   rejectAdminBooking,
   updateAdminHostelProfile,
+  uploadAdminHostelImages,
   updateAdminComplaint,
   updateAdminRoom,
   updateAdminBed,
@@ -159,6 +160,24 @@ export function useUpdateAdminHostelProfile(
   return useMutation({
     mutationFn: (payload: AdminHostelProfilePayload) =>
       updateAdminHostelProfile(userId!, hostelId!, hostelIds, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-hostel-profile", userId, hostelId, hostelIds]
+      });
+    }
+  });
+}
+
+export function useUploadAdminHostelImages(
+  userId: string | null,
+  hostelId: string | null,
+  hostelIds: string[]
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (formData: FormData) =>
+      uploadAdminHostelImages(userId!, hostelId!, hostelIds, formData),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ["admin-hostel-profile", userId, hostelId, hostelIds]
