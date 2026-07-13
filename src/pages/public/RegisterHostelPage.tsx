@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import { registerHostel } from "../../api/public.api";
-import { HOSTEL_IMAGES } from "../../utils/images";
+
 
 const defaultForm = {
   name: "",

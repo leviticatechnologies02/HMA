@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Star, Bed, Zap } from "lucide-react";
 import type { HostelListItem } from "../../api/public.api";
-import { getHostelImage } from "../../utils/images";
+import { Building2 } from "lucide-react";
 
 interface HostelCardProps {
   hostel: HostelListItem;
@@ -14,7 +14,7 @@ export default function HostelCard({ hostel, index = 0 }: HostelCardProps) {
   const [tilt, setTilt] = useState({ x: 0, y: 0, glare: { x: 50, y: 50 } });
   const [hovered, setHovered] = useState(false);
 
-  const imageUrl = hostel.images?.[0]?.url ?? getHostelImage(hostel.id);
+  const imageUrl = hostel.images?.[0]?.url;
 
   const bedsLeft = hostel.available_beds ?? 0;
   const bedColor =
@@ -72,13 +72,22 @@ export default function HostelCard({ hostel, index = 0 }: HostelCardProps) {
 
           {/* Image */}
           <div className="relative h-52 overflow-hidden">
-            <img
-              src={imageUrl}
-              alt={hostel.name}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-500"
-              style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }}
-            />
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={hostel.name}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-500"
+                style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }}
+              />
+            ) : (
+              <div
+                className="w-full h-full bg-slate-100 flex items-center justify-center transition-transform duration-500"
+                style={{ transform: hovered ? "scale(1.08)" : "scale(1)" }}
+              >
+                <Building2 className="w-12 h-12 text-slate-300" />
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
             {/* Top badges */}

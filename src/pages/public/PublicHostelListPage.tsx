@@ -22,15 +22,6 @@ function useGuestFavorites() {
   return { favs, toggle };
 }
 
-const HOSTEL_IMAGES = [
-  "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80",
-  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600&q=80",
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=80",
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80",
-];
-
 const SORT_OPTIONS = [
   { value: "", label: "Relevance" },
   { value: "price_asc", label: "Price: Low to High" },
@@ -248,8 +239,14 @@ export function PublicHostelListPage() {
               <Link key={hostel.id} to={`/hostels/${hostel.slug}`} className="group">
                 <article className="h-full bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 card-hover">
                   <div className="h-48 relative overflow-hidden">
-                    <img src={HOSTEL_IMAGES[idx % HOSTEL_IMAGES.length]} alt={hostel.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    {hostel.images?.[0]?.url ? (
+                      <img src={hostel.images[0].url} alt={hostel.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                        <Building2 className="w-10 h-10 text-slate-300 dark:text-slate-600" />
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                     {hostel.is_featured && <div className="absolute top-4 left-4"><span className="badge badge-primary text-xs">Featured</span></div>}
                     <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -320,8 +317,14 @@ export function PublicHostelListPage() {
               <Link key={hostel.id} to={`/hostels/${hostel.slug}`} className="group block">
                 <article className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden card-hover flex flex-col sm:flex-row">
                   <div className="w-full sm:w-56 md:w-64 h-48 sm:h-auto shrink-0 relative overflow-hidden">
-                    <img src={HOSTEL_IMAGES[idx % HOSTEL_IMAGES.length]} alt={hostel.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    {hostel.images?.[0]?.url ? (
+                      <img src={hostel.images[0].url} alt={hostel.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    ) : (
+                      <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                        <Building2 className="w-10 h-10 text-slate-300 dark:text-slate-600" />
+                      </div>
+                    )}
                     {hostel.is_featured && <div className="absolute top-3 left-3"><span className="badge badge-primary text-xs">Featured</span></div>}
                   </div>
                   <div className="p-4 sm:p-5 flex-1 min-w-0">

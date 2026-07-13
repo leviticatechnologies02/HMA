@@ -5,6 +5,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useHostelSwitcher } from "../../components/admin/useHostelSwitcher";
 
 
+
 const STATUS_BADGE: Record<string, string> = {
   active: "badge-success",
   pending_approval: "badge-warning",
@@ -42,8 +43,19 @@ export function AdminMyHostelsPage() {
           )}
           {(data ?? []).map((h: any) => (
             <div key={h.id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden card-hover">
-              <div className="h-32 bg-gradient-to-br from-primary/15 via-accent/10 to-secondary/15 flex items-center justify-center">
-                <Building2 className="w-12 h-12 text-primary/30" />
+              <div className="relative h-32 overflow-hidden bg-gradient-to-br from-primary/15 via-accent/10 to-secondary/15 flex items-center justify-center">
+                {h.images?.[0]?.url ? (
+                  <img
+                    src={h.images[0].url}
+                    alt={h.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
+                ) : (
+                  <Building2 className="w-12 h-12 text-primary/30" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               </div>
               <div className="p-5">
                 <div className="flex items-start justify-between gap-2">

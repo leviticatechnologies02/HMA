@@ -9,7 +9,6 @@ import {
 } from "../../hooks/useSuperAdminData";
 import { addSuperAdminHostelImages } from "../../api/superAdmin.api";
 import { useAuthStore } from "../../store/authStore";
-import { HOSTEL_IMAGES } from "../../utils/images";
 import { HostelManageDrawer } from "../../components/superAdmin/HostelManageDrawer";
 import type { SuperAdminHostel } from "../../api/superAdmin.api";
 
@@ -442,12 +441,14 @@ export function SuperAdminHostelsPage() {
               <article key={hostel.id} className="rounded-xl border border-slate-200 overflow-hidden">
                 {/* Image strip if available */}
                 <div className="h-28 bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-                  <img
-                    src={HOSTEL_IMAGES[hostel.name.charCodeAt(0) % HOSTEL_IMAGES.length]}
-                    alt={hostel.name}
-                    className="w-full h-full object-cover opacity-60"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
+                  {hostel.images?.[0]?.url && (
+                    <img
+                      src={hostel.images[0].url}
+                      alt={hostel.name}
+                      className="w-full h-full object-cover opacity-60"
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
                     <div>

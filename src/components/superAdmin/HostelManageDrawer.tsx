@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/axiosInstance";
 import type { SuperAdminHostel } from "../../api/superAdmin.api";
 import { addSuperAdminHostelImages, type SuperAdminHostelPayload } from "../../api/superAdmin.api";
-import { HOSTEL_IMAGES } from "../../utils/images";
+
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type Room = { id: string; room_number: string; floor: number; room_type: string; total_beds: number; daily_rent: number; monthly_rent: number; security_deposit: number; available_beds: number };
@@ -247,18 +247,7 @@ export function HostelManageDrawer({ hostel, userId, onClose }: Props) {
                   <Plus className="w-3 h-3" /> Add more
                 </button>
               )}
-              {/* Quick fill */}
-              <div>
-                <p className="text-xs text-slate-400 mb-2">Quick fill with sample images:</p>
-                <div className="flex gap-2 flex-wrap">
-                  {HOSTEL_IMAGES.map((src, i) => (
-                    <button key={i} type="button" onClick={() => setImageUrls(u => { const next = [...u]; const idx = next.findIndex(v => !v.trim()); if (idx !== -1) next[idx] = src; else next.push(src); return next; })}
-                      className="w-14 h-10 rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all">
-                      <img src={src} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </div>
+
               <button className="btn-primary w-full disabled:opacity-50" disabled={addImagesM.isPending || !imageUrls.some(u => u.trim())} onClick={() => addImagesM.mutate()}>
                 {addImagesM.isPending ? "Saving..." : "Save Images"}
               </button>
