@@ -92,7 +92,7 @@ export function Navbar() {
             <Home className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-heading font-bold text-dark dark:text-[#E2E8F0]">
-            Hostel<span className="text-primary">Hub</span>
+            Levitica<span className="text-primary">Nestora</span>
           </span>
         </Link>
 

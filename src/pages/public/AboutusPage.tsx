@@ -40,7 +40,7 @@ const AboutApp = () => {
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
 
           <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">
-            About <span className="text-accent">Hostel Hub</span>
+            About <span className="text-accent">Leviticanestora</span>
           </h1>
 
           <p className="relative text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">

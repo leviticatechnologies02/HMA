@@ -12,7 +12,7 @@ export function Footer() {
                                 <Home className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-xl font-heading font-bold text-white">
-                                Hostel<span className="text-primary">Hub</span>
+                               Levitica<span className="text-primary">Nestora</span>
                             </span>
                         </Link>
                         <p className="text-sm leading-relaxed">
@@ -70,7 +70,7 @@ export function Footer() {
                 <div className="border-t border-white/10 mt-12 pt-10">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div>
-                            <p className="text-white font-semibold text-base mb-1">Get the HostelHub by Levitica Technologies</p>
+                            <p className="text-white font-semibold text-base mb-1">Get the Leviticanestora by Levitica Technologies</p>
                             <p className="text-slate-400 text-sm">Book hostels on the go — available on Android & iOS</p>
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">

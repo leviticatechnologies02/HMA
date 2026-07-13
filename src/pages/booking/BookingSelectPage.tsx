@@ -107,20 +107,41 @@ export function BookingSelectPage() {
     );
   }
 
-  const nights = datesSelected
+  const nights = datesSelected 
     ? Math.max(1, Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 86400000))
     : 0;
   
-  const calculateMonths = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    let months = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
-    if (endDate.getDate() < startDate.getDate()) months--;
-    return Math.max(1, months);
-  };
-  
-  const months = datesSelected ? calculateMonths(checkInDate, checkOutDate) : 0;
+const calculateDuration = (start: string, end: string) => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
 
+  let months =
+    (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+    (endDate.getMonth() - startDate.getMonth());
+
+  let compareDate = new Date(startDate);
+  compareDate.setMonth(compareDate.getMonth() + months);
+
+  if (compareDate > endDate) {
+    months--;
+    compareDate = new Date(startDate);
+    compareDate.setMonth(compareDate.getMonth() + months);
+  }
+
+  const diff =
+    endDate.getTime() - compareDate.getTime();
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+  return {
+    months,
+    days,
+  };
+};
+  
+  const duration = datesSelected
+  ? calculateDuration(checkInDate, checkOutDate)
+  : { months: 0, days: 0 };
   return (
     <div className="min-h-screen bg-neutral py-8">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 space-y-6">
@@ -187,18 +208,28 @@ export function BookingSelectPage() {
             </div>
           </div>
 
-          {datesSelected && (
-            <div className="flex items-center gap-2 text-sm text-success bg-success/5 border border-success/20 rounded-xl px-4 py-2.5">
-              <CheckCircle className="w-4 h-4 shrink-0" />
-              {bookingMode === "daily"
-                ? `${nights} night${nights !== 1 ? "s" : ""} selected`
-                : `${months} month${months !== 1 ? "s" : ""} selected`
-              } · {formatDate(checkInDate)} → {formatDate(checkOutDate)}
-            </div>
-          )}
-        </div>
+         {datesSelected && (
+  <div className="flex items-center gap-2 text-sm text-success bg-success/5 border border-success/20 rounded-xl px-4 py-2.5">
+    <CheckCircle className="w-4 h-4 shrink-0" />
 
-        {/* Step 2 — Room selection */}
+    {bookingMode === "daily" ? (
+      `${nights} night${nights !== 1 ? "s" : ""} selected`
+    ) : (
+      <>
+        {`${duration.months} month${duration.months !== 1 ? "s" : ""}${
+  duration.days > 0
+    ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
+    : ""
+} selected`}
+      </>
+    )}
+
+    {" · "}
+    {formatDate(checkInDate)} → {formatDate(checkOutDate)}
+  </div>
+)}
+
+  </div>      
         <div className={`bg-white rounded-2xl border p-6 space-y-4 transition-all ${datesSelected ? "border-slate-100" : "border-slate-100 opacity-60 pointer-events-none"}`}>
           <h2 className="font-bold text-dark flex items-center gap-2">
             <span className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold ${datesSelected ? "bg-primary" : "bg-slate-300"}`}>2</span>
@@ -224,9 +255,10 @@ export function BookingSelectPage() {
               {rooms.map((room) => {
                 const price = bookingMode === "daily" ? room.daily_rent : room.monthly_rent;
                 const unit = bookingMode === "daily" ? "night" : "month";
-                const total = bookingMode === "daily"
-                  ? room.daily_rent * nights
-                  : room.monthly_rent * months;
+                const total =
+  bookingMode === "daily"
+    ? room.daily_rent * nights
+    : room.monthly_rent * Math.max(1, duration.months);
                 const hasAvailability = (room.available_beds ?? 0) > 0;
 
                 return (
@@ -248,7 +280,11 @@ export function BookingSelectPage() {
                         {datesSelected && nights > 0 && (
                           <p className="text-xs text-slate-500 mt-1">
                             Est. total: <span className="font-semibold text-dark">₹{total.toLocaleString()}</span>
-                            {bookingMode === "daily" ? ` for ${nights} night${nights !== 1 ? "s" : ""}` : ` for ${months} month${months !== 1 ? "s" : ""}`}
+                            {bookingMode === "daily" ? ` for ${nights} night${nights !== 1 ? "s" : ""}` : ` for ${duration.months} month${duration.months !== 1 ? "s" : ""}${
+  duration.days > 0
+    ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
+    : ""
+}`}
                             {" "}+ ₹{room.security_deposit.toLocaleString()} deposit
                           </p>
                         )}

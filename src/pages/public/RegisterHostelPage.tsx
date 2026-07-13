@@ -177,7 +177,7 @@ export function RegisterHostelPage() {
 </h1>
 
         <p className="mt-2 text-gray-200">
-          Partner with us and list your property on HostelHub.
+          Partner with us and list your property on Leviticanestora.
         </p>
       </div>
 
