@@ -25,7 +25,9 @@ export function AdminNoticesPage() {
   const [limit] = useState(10);
   const [activeTab, setActiveTab] = useState<"hostel" | "platform">("hostel");
 
-  // ✅ Hostel notices (always)
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedNoticeId, setSelectedNoticeId] = useState<string | null>(null);
+
   const { data: hostelsData, isLoading: isHostelNoticesLoading } =
     useAdminNoticesPaginated(userId, hostelId, hostelIds, page, limit);
 
@@ -41,7 +43,6 @@ export function AdminNoticesPage() {
   );
 
   const deleteMutation = useDeleteAdminNotice(userId, hostelId, hostelIds);
-
   const toggleMutation = useToggleAdminNoticePublish(
     userId,
     hostelId,
@@ -77,16 +78,33 @@ export function AdminNoticesPage() {
   }, [readStats]);
 
   const handleCreateNotice = () => openModal("notice");
-
   const handleEditNotice = (notice: Notice) => openModal("notice", notice);
 
   const handleDelete = (id: string) => {
-    if (!confirm("Delete this notice?")) return;
+    setSelectedNoticeId(id);
+    setShowDeleteModal(true);
+  };
 
-    deleteMutation.mutate(id, {
-      onSuccess: () => toast.success("Notice deleted"),
-      onError: () => toast.error("Delete failed"),
+  // ✅ Only ONE confirmDelete
+  const confirmDelete = () => {
+    if (!selectedNoticeId) return;
+    deleteMutation.mutate(selectedNoticeId, {
+      onSuccess: () => {
+        toast.success("Notice deleted successfully!");
+        setShowDeleteModal(false);
+        setSelectedNoticeId(null);
+      },
+      onError: () => {
+        toast.error("Failed to delete notice.");
+        setShowDeleteModal(false);
+        setSelectedNoticeId(null);
+      },
     });
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setSelectedNoticeId(null);
   };
 
   const handleToggle = (id: string) => {
@@ -106,6 +124,35 @@ export function AdminNoticesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              Delete Notice
+            </h2>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+              Are you sure you want to delete this notice?
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={cancelDelete}
+                className="rounded-lg border border-slate-300 dark:border-slate-700 px-5 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleteMutation.isPending}
+                className="rounded-lg bg-red-600 hover:bg-red-700 px-5 py-2 text-sm font-medium text-white disabled:opacity-50"
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -116,17 +163,15 @@ export function AdminNoticesPage() {
             Post announcements and updates for students.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleCreateNotice}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" /> New Notice
-          </button>
-        </div>
+        <button
+          onClick={handleCreateNotice}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" /> New Notice
+        </button>
       </div>
 
+      {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800">
         <button
           onClick={() => setActiveTab("hostel")}
@@ -171,7 +216,6 @@ export function AdminNoticesPage() {
 
           {notices.map((n: Notice) => {
             const stats = readByNoticeId.get(n.id);
-
             return (
               <div
                 key={n.id}
@@ -183,7 +227,6 @@ export function AdminNoticesPage() {
                       <h3 className="font-semibold text-dark dark:text-white">
                         {n.title}
                       </h3>
-
                       <span
                         className={`badge ${
                           n.is_published ? "badge-success" : "badge-slate"
@@ -191,18 +234,15 @@ export function AdminNoticesPage() {
                       >
                         {n.is_published ? "Published" : "Draft"}
                       </span>
-
                       <span className="badge text-xs capitalize">
                         {n.priority}
                       </span>
-
                       {n.hostel_id == null && (
                         <span className="badge badge-info text-xs">
                           Platform
                         </span>
                       )}
                     </div>
-
                     {stats && n.is_published && (
                       <p className="mt-2 text-xs text-slate-500">
                         Read by{" "}
@@ -225,14 +265,12 @@ export function AdminNoticesPage() {
                     >
                       Edit
                     </button>
-
                     <button
                       onClick={() => handleDelete(n.id)}
                       className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-all duration-200 shadow"
                     >
                       Delete
                     </button>
-
                     <button
                       onClick={() => handleToggle(n.id)}
                       className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-all duration-200 shadow ${

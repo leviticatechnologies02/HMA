@@ -149,7 +149,11 @@ export function AdminInventoryPage() {
   });
 
   // Delete Room
-  const handleDeleteRoom = async (room: Room) => {
+  const handleDeleteRoom = async () => {
+    if (!showDeleteConfirm.room) return;
+
+    const room = showDeleteConfirm.room;
+
     try {
       await deleteRoomMutation.mutateAsync(room.id);
 
@@ -303,6 +307,7 @@ export function AdminInventoryPage() {
                     </select>
                   </div>
                 </div>
+
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-dark dark:text-slate-200 mb-1">
                     Total Beds *
@@ -562,6 +567,7 @@ export function AdminInventoryPage() {
                           style={{ fontSize: "16px" }}
                         />
                       </div>
+
                       <div>
                         <label className="block text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">
                           Monthly Rent
@@ -625,15 +631,12 @@ export function AdminInventoryPage() {
                       </button>
                       <button
                         className="rounded-xl bg-red-600 dark:bg-red-700 border-red-600 dark:border-red-700 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm hover:bg-red-700 dark:hover:bg-red-600 transition-colors text-white"
-                        onClick={() => {
-                          if (
-                            confirm(
-                              `Are you sure you want to delete Room ${room.room_number}?`,
-                            )
-                          ) {
-                            handleDeleteRoom(room);
-                          }
-                        }}
+                        onClick={() =>
+                          setShowDeleteConfirm({
+                            show: true,
+                            room,
+                          })
+                        }
                         type="button"
                       >
                         <Trash className="w-3.5 h-3.5 text-white" />
@@ -747,6 +750,48 @@ export function AdminInventoryPage() {
           </div>
         </section>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-[560px] rounded-3xl bg-white shadow-2xl">
+            <div className="px-8 pt-8">
+              <h2 className="text-[22px] font-bold text-slate-900">
+                Delete Room
+              </h2>
+
+              <p className="mt-5 text-[16px] text-slate-600">
+                Are you sure you want to delete Room{" "}
+                <span className="font-semibold">
+                  {showDeleteConfirm.room?.room_number}
+                </span>
+                ?
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-4 px-8 py-8">
+              <button
+                onClick={() =>
+                  setShowDeleteConfirm({
+                    show: false,
+                    room: null,
+                  })
+                }
+                className="h-11 w-28 rounded-xl border border-slate-300 bg-white text-[16px] font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDeleteRoom}
+                className="h-11 w-28 rounded-xl bg-red-600 text-[16px] font-semibold text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
