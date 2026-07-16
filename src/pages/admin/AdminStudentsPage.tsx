@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Users, X, Calendar, Bed, Hash, Plus, Trash2 } from "lucide-react";
+import { Search, Users, X, Calendar, Bed, Hash, Plus, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useAdminStudents, useDeleteAdminStudent } from "../../hooks/useAdminData";
 import toast from "react-hot-toast";
@@ -31,7 +31,9 @@ export function AdminStudentsPage() {
   const deleteMutation = useDeleteAdminStudent(userId, hostelId, hostelIds);
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [tenantToDelete, setTenantToDelete] = useState<string | null>(null);
+  const itemsPerPage = 10;
 
   const confirmDelete = async () => {
     if (!tenantToDelete) return;
@@ -57,6 +59,12 @@ export function AdminStudentsPage() {
     s.full_name?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const paginatedTenants = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   if (!userId || !hostelIds.length) return <div className="p-8 text-slate-500 dark:text-slate-400">Login as admin with assigned hostels.</div>;
 
   return (
@@ -74,7 +82,7 @@ export function AdminStudentsPage() {
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-600" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
             placeholder="Search by name or tenant number..."
             className="input-field pl-9 text-sm" />
         </div>
@@ -100,7 +108,7 @@ export function AdminStudentsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((s: any) => (
+                  {paginatedTenants.map((s: any) => (
                     <tr key={s.id} className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-5 py-4 font-mono text-xs text-slate-600 dark:text-slate-400">{s.student_number}</td>
                       <td className="px-5 py-4 font-medium text-dark dark:text-slate-200">{s.full_name ?? "—"}</td>
@@ -131,6 +139,35 @@ export function AdminStudentsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          
+          {filtered.length > itemsPerPage && (
+            <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length} entries
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Previous Page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div className="px-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {currentPage} <span className="text-slate-400 dark:text-slate-500 font-normal">/ {totalPages}</span>
+                </div>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Next Page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>

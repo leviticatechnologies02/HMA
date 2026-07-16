@@ -109,7 +109,7 @@ export function AppRouter() {
             <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptionsPage />} />
             <Route path="/super-admin/plans" element={<SuperAdminPlansPage />} />
             <Route path="/super-admin/reports" element={<SuperAdminReportsPage />}
-             />
+            />
             <Route path="/super-admin/settings" element={<SuperAdminSettingsPage />} />
             {/* <Route path="/admin/attendance" element={<AdminAttendancePage />} /> */}
 
@@ -129,7 +129,7 @@ export function AppRouter() {
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/supervisor/dashboard" element={<SupervisorDashboardPage />} />
-            <Route path="/supervisor/attendance" element={<SupervisorAttendancePage />} />
+            {/* <Route path="/supervisor/attendance" element={<SupervisorAttendancePage />} /> */}
             <Route path="/supervisor/complaints" element={<SupervisorComplaintsPage />} />
             <Route path="/supervisor/maintenance" element={<SupervisorMaintenancePage />} />
             <Route path="/supervisor/notices" element={<SupervisorNoticesPage />} />
@@ -139,7 +139,7 @@ export function AppRouter() {
             <Route path="/student/dashboard" element={<StudentDashboardPage />} />
             <Route path="/student/bookings" element={<StudentBookingsPage />} />
             <Route path="/student/profile" element={<StudentProfilePage />} />
-            <Route path="/student/attendance" element={<StudentAttendancePage />} />
+            {/* <Route path="/student/attendance" element={<StudentAttendancePage />} /> */}
             <Route path="/student/complaints" element={<StudentComplaintsPage />} />
             <Route path="/student/notices" element={<StudentNoticesPage />} />
             <Route path="/student/payments" element={<StudentPaymentsPage />} />

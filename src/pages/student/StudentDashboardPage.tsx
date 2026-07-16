@@ -31,7 +31,7 @@ export function StudentDashboardPage() {
     { label: "Bookings", value: bookingsQ.data?.length ?? 0, icon: <BookOpen className="w-5 h-5" />, color: "bg-primary/10 text-primary", to: "/student/bookings" },
     { label: "Payments", value: paymentsQ.data?.length ?? 0, icon: <CreditCard className="w-5 h-5" />, color: "bg-success/10 text-success", to: "/student/payments" },
     { label: "Complaints", value: complaintsQ.data?.length ?? 0, icon: <MessageSquare className="w-5 h-5" />, color: "bg-error/10 text-error", to: "/student/complaints" },
-    { label: "Attendance", value: attendanceQ.data?.length ?? 0, icon: <UserCheck className="w-5 h-5" />, color: "bg-secondary/10 text-secondary", to: "/student/attendance" },
+    // { label: "Attendance", value: attendanceQ.data?.length ?? 0, icon: <UserCheck className="w-5 h-5" />, color: "bg-secondary/10 text-secondary", to: "/student/attendance" },
     { label: "Waitlist", value: waitlistQ.data?.length ?? 0, icon: <ListOrdered className="w-5 h-5" />, color: "bg-accent/20 text-dark", to: "/student/waitlist" },
   ];
 
@@ -178,7 +178,7 @@ export function StudentDashboardPage() {
           <div className="grid grid-cols-2 gap-3">
             {[
               { label: "Mess Menu", to: "/student/mess-menu", icon: <UtensilsCrossed className="w-5 h-5 text-secondary" /> },
-              { label: "Attendance", to: "/student/attendance", icon: <UserCheck className="w-5 h-5 text-success" /> },
+              // { label: "Attendance", to: "/student/attendance", icon: <UserCheck className="w-5 h-5 text-success" /> },
               { label: "Payments", to: "/student/payments", icon: <CreditCard className="w-5 h-5 text-primary" /> },
               { label: "Profile", to: "/student/profile", icon: <User className="w-5 h-5 text-slate-600" /> },
             ].map((l) => (

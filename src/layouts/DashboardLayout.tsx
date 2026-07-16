@@ -46,7 +46,7 @@ const SUPERVISOR_NAV: NavItem[] = [
   { label: "Dashboard", to: "/supervisor/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
   { label: "Tenants", to: "/supervisor/students", icon: <Users className="w-4 h-4" /> },
   { label: "Complaints", to: "/supervisor/complaints", icon: <MessageSquare className="w-4 h-4" /> },
-  { label: "Attendance", to: "/supervisor/attendance", icon: <UserCheck className="w-4 h-4" /> },
+  // { label: "Attendance", to: "/supervisor/attendance", icon: <UserCheck className="w-4 h-4" /> },
   { label: "Maintenance", to: "/supervisor/maintenance", icon: <Wrench className="w-4 h-4" /> },
   { label: "Notices", to: "/supervisor/notices", icon: <Bell className="w-4 h-4" /> },
   { label: "Mess Menu", to: "/supervisor/mess-menu", icon: <UtensilsCrossed className="w-4 h-4" /> },
@@ -59,7 +59,7 @@ const STUDENT_NAV: NavItem[] = [
   { label: "Bookings", to: "/student/bookings", icon: <BookOpen className="w-4 h-4" /> },
   { label: "Payments", to: "/student/payments", icon: <CreditCard className="w-4 h-4" /> },
   { label: "Complaints", to: "/student/complaints", icon: <MessageSquare className="w-4 h-4" /> },
-  { label: "Attendance", to: "/student/attendance", icon: <UserCheck className="w-4 h-4" /> },
+  // { label: "Attendance", to: "/student/attendance", icon: <UserCheck className="w-4 h-4" /> },
   { label: "Notices", to: "/student/notices", icon: <Bell className="w-4 h-4" /> },
   { label: "Mess Menu", to: "/student/mess-menu", icon: <UtensilsCrossed className="w-4 h-4" /> },
   { label: "Waitlist", to: "/student/waitlist", icon: <ListOrdered className="w-4 h-4" /> },
@@ -69,7 +69,7 @@ const ROLE_LABELS: Record<string, string> = {
   super_admin: "Super Admin",
   hostel_admin: "Hostel Admin",
   supervisor: "Supervisor",
-  student: "Student", 
+  student: "Student",
 };
 
 function getNav(role: string | null): NavItem[] {
@@ -147,7 +147,7 @@ export function DashboardLayout() {
       import("../api/auth.api").then(({ refreshToken }) => {
         refreshToken()
           .then((data) => setUser(data.user_id, data.role, data.access_token, data.hostel_ids))
-          .catch(() => {});
+          .catch(() => { });
       });
     }
   }, [location.pathname, role, setUser]);
@@ -160,9 +160,8 @@ export function DashboardLayout() {
 
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
     <aside
-      className={`flex flex-col bg-dark text-white transition-all duration-300 ${
-        mobile ? "w-72" : collapsed ? "w-16" : "w-64"
-      } h-screen overflow-hidden`}
+      className={`flex flex-col bg-dark text-white transition-all duration-300 ${mobile ? "w-72" : collapsed ? "w-16" : "w-64"
+        } h-screen overflow-hidden`}
     >
       {/* Logo */}
       <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${collapsed && !mobile ? "justify-center" : ""}`}>
@@ -247,69 +246,69 @@ export function DashboardLayout() {
         }
       `}</style>
       <div className="flex h-screen bg-neutral">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex shrink-0">
-        <Sidebar />
-      </div>
-
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-          <div className="relative z-10 animate-fade-in-left">
-            <Sidebar mobile />
-          </div>
+        {/* Desktop sidebar */}
+        <div className="hidden md:flex shrink-0">
+          <Sidebar />
         </div>
-      )}
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top bar */}
-        <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-4">
-          <button
-            className="md:hidden p-1.5 sm:p-2 -ml-1.5 sm:-ml-0 rounded-xl hover:bg-slate-100 transition-colors shrink-0"
-            onClick={() => setMobileOpen(true)}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-
-          {/* Breadcrumb */}
-          <div className="flex-1 flex items-center gap-2 sm:gap-3 min-w-0">
-            <p className="text-sm font-medium text-dark capitalize truncate hidden sm:block">
-              {nav.find((n) => n.to === location.pathname)?.label ?? "Dashboard"}
-            </p>
-            {/* Hostel switcher for admin role */}
-            {role === "hostel_admin" && (
-              <div className="shrink-0 min-w-0">
-                <HostelSwitcher />
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            {/* Dark mode toggle */}
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {theme === "dark"
-                ? <Sun className="w-4 h-4 text-accent" />
-                : <Moon className="w-4 h-4 text-slate-500" />}
-            </button>
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-xs font-bold text-primary">
-                {ROLE_LABELS[role ?? ""]?.[0] ?? "U"}
-              </span>
+        {/* Mobile overlay */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+            <div className="relative z-10 animate-fade-in-left">
+              <Sidebar mobile />
             </div>
           </div>
-        </header>
+        )}
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <Outlet />
-        </main>
-      </div>
+        {/* Main content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Top bar */}
+          <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-4">
+            <button
+              className="md:hidden p-1.5 sm:p-2 -ml-1.5 sm:-ml-0 rounded-xl hover:bg-slate-100 transition-colors shrink-0"
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Breadcrumb */}
+            <div className="flex-1 flex items-center gap-2 sm:gap-3 min-w-0">
+              <p className="text-sm font-medium text-dark capitalize truncate hidden sm:block">
+                {nav.find((n) => n.to === location.pathname)?.label ?? "Dashboard"}
+              </p>
+              {/* Hostel switcher for admin role */}
+              {role === "hostel_admin" && (
+                <div className="shrink-0 min-w-0">
+                  <HostelSwitcher />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+              {/* Dark mode toggle */}
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+                aria-label="Toggle dark mode"
+              >
+                {theme === "dark"
+                  ? <Sun className="w-4 h-4 text-accent" />
+                  : <Moon className="w-4 h-4 text-slate-500" />}
+              </button>
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-xs font-bold text-primary">
+                  {ROLE_LABELS[role ?? ""]?.[0] ?? "U"}
+                </span>
+              </div>
+            </div>
+          </header>
+
+          {/* Page content */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </>
   );
