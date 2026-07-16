@@ -1,6 +1,12 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Calendar, Bed, ArrowRight, ChevronLeft, CheckCircle } from "lucide-react";
+import {
+  Calendar,
+  Bed,
+  ArrowRight,
+  ChevronLeft,
+  CheckCircle,
+} from "lucide-react";
 import { useHostelDetail } from "../../hooks/useHostels";
 import { fetchHostelRooms, type Room } from "../../api/public.api";
 import { useBookingStore } from "../../store/bookingStore";
@@ -13,7 +19,9 @@ export function BookingSelectPage() {
 
   const { data: hostel, isLoading, isError } = useHostelDetail(hostelSlug);
 
-  const [bookingMode, setBookingMode] = useState<"daily" | "monthly">("monthly");
+  const [bookingMode, setBookingMode] = useState<"daily" | "monthly">(
+    "monthly",
+  );
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -41,7 +49,9 @@ export function BookingSelectPage() {
     }
   }, [bookingMode, checkInDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const datesSelected = Boolean(checkInDate && checkOutDate && checkOutDate >= minCheckOut);
+  const datesSelected = Boolean(
+    checkInDate && checkOutDate && checkOutDate >= minCheckOut,
+  );
 
   useEffect(() => {
     if (hostel?.id) {
@@ -57,15 +67,47 @@ export function BookingSelectPage() {
     if (!datesSelected || !hostel) return;
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
-    const nights = Math.max(1, Math.ceil((checkOut.getTime() - checkIn.getTime()) / 86400000));
-    const calculateMonths = (start: Date, end: Date) => {
-      let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      if (end.getDate() < start.getDate()) months--;
-      return Math.max(1, months);
+    const nights = Math.max(
+      1,
+      Math.ceil((checkOut.getTime() - checkIn.getTime()) / 86400000),
+    );
+    const calculateDuration = (start: string, end: string) => {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+
+      let months =
+        (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+        (endDate.getMonth() - startDate.getMonth());
+
+      const tempDate = new Date(startDate);
+      tempDate.setMonth(tempDate.getMonth() + months);
+
+      while (tempDate > endDate) {
+        months--;
+        tempDate.setMonth(tempDate.getMonth() - 1);
+      }
+
+      const days = Math.floor(
+        (endDate.getTime() - tempDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
+
+      return {
+        months,
+        days,
+      };
     };
-    const months = calculateMonths(checkIn, checkOut);
+
+    const durationInfo = calculateDuration(checkIn, checkOut);
+
+    const months = durationInfo.months;
+    const days = durationInfo.days;
+
     const duration = bookingMode === "daily" ? nights : months;
-    const rentTotal = bookingMode === "daily" ? room.daily_rent * nights : room.monthly_rent * months;
+
+    const rentTotal =
+      bookingMode === "daily"
+        ? room.daily_rent * nights
+        : room.monthly_rent * months + (room.monthly_rent / 30) * days;
     const securityDeposit = room.security_deposit ?? 0;
     const bookingAdvance = Math.ceil(rentTotal * 0.25);
     const grandTotal = rentTotal + securityDeposit;
@@ -101,63 +143,79 @@ export function BookingSelectPage() {
       <div className="min-h-screen bg-neutral flex items-center justify-center">
         <div className="text-center">
           <p className="text-error mb-4">Hostel not found.</p>
-          <button onClick={() => navigate("/hostels")} className="btn-primary">Browse Hostels</button>
+          <button onClick={() => navigate("/hostels")} className="btn-primary">
+            Browse Hostels
+          </button>
         </div>
       </div>
     );
   }
 
-  const nights = datesSelected 
-    ? Math.max(1, Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / 86400000))
+  const nights = datesSelected
+    ? Math.max(
+        1,
+        Math.ceil(
+          (new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) /
+            86400000,
+        ),
+      )
     : 0;
-  
-const calculateDuration = (start: string, end: string) => {
-  const startDate = new Date(start);
-  const endDate = new Date(end);
 
-  let months =
-    (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-    (endDate.getMonth() - startDate.getMonth());
+  const calculateDuration = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
 
-  let compareDate = new Date(startDate);
-  compareDate.setMonth(compareDate.getMonth() + months);
+    let months =
+      (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+      (endDate.getMonth() - startDate.getMonth());
 
-  if (compareDate > endDate) {
-    months--;
-    compareDate = new Date(startDate);
+    let compareDate = new Date(startDate);
     compareDate.setMonth(compareDate.getMonth() + months);
-  }
 
-  const diff =
-    endDate.getTime() - compareDate.getTime();
+    if (compareDate > endDate) {
+      months--;
+      compareDate = new Date(startDate);
+      compareDate.setMonth(compareDate.getMonth() + months);
+    }
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const diff = endDate.getTime() - compareDate.getTime();
 
-  return {
-    months,
-    days,
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    return {
+      months,
+      days,
+    };
   };
-};
-  
+
   const duration = datesSelected
-  ? calculateDuration(checkInDate, checkOutDate)
-  : { months: 0, days: 0 };
+    ? calculateDuration(checkInDate, checkOutDate)
+    : { months: 0, days: 0 };
   return (
     <div className="min-h-screen bg-neutral py-8">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 space-y-6">
         {/* Header */}
         <div>
-          <button onClick={() => navigate(`/hostels/${hostel.slug}`)} className="flex items-center gap-1 text-sm text-slate-500 hover:text-primary mb-3 transition-colors">
+          <button
+            onClick={() => navigate(`/hostels/${hostel.slug}`)}
+            className="flex items-center gap-1 text-sm text-slate-500 hover:text-primary mb-3 transition-colors"
+          >
             <ChevronLeft className="w-4 h-4" /> Back to {hostel.name}
           </button>
-          <h1 className="text-3xl font-heading font-bold text-dark">Select Your Stay</h1>
-          <p className="mt-1 text-slate-500">{hostel.name} · {hostel.city}, {hostel.state}</p>
+          <h1 className="text-3xl font-heading font-bold text-dark">
+            Select Your Stay
+          </h1>
+          <p className="mt-1 text-slate-500">
+            {hostel.name} · {hostel.city}, {hostel.state}
+          </p>
         </div>
 
         {/* Step 1 — Booking type & dates */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
           <h2 className="font-bold text-dark flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">1</span>
+            <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
+              1
+            </span>
             Choose type & dates
           </h2>
 
@@ -168,12 +226,16 @@ const calculateDuration = (start: string, end: string) => {
                 key={mode}
                 onClick={() => setBookingMode(mode)}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
-                  bookingMode === mode ? "border-primary bg-primary/5" : "border-slate-200 hover:border-primary/40"
+                  bookingMode === mode
+                    ? "border-primary bg-primary/5"
+                    : "border-slate-200 hover:border-primary/40"
                 }`}
               >
                 <p className="font-semibold text-dark capitalize">{mode}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {mode === "monthly" ? "Best value · pay per month" : "Flexible · pay per night"}
+                  {mode === "monthly"
+                    ? "Best value · pay per month"
+                    : "Flexible · pay per night"}
                 </p>
               </button>
             ))}
@@ -183,19 +245,24 @@ const calculateDuration = (start: string, end: string) => {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-dark mb-1.5">
-                <Calendar className="w-4 h-4 inline mr-1 text-primary" />Check-in
+                <Calendar className="w-4 h-4 inline mr-1 text-primary" />
+                Check-in
               </label>
               <input
                 type="date"
                 value={checkInDate}
                 min={today}
-                onChange={(e) => { setCheckInDate(e.target.value); setCheckOutDate(""); }}
+                onChange={(e) => {
+                  setCheckInDate(e.target.value);
+                  setCheckOutDate("");
+                }}
                 className="input-field"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-dark mb-1.5">
-                <Calendar className="w-4 h-4 inline mr-1 text-slate-400" />Check-out
+                <Calendar className="w-4 h-4 inline mr-1 text-slate-400" />
+                Check-out
               </label>
               <input
                 type="date"
@@ -208,33 +275,40 @@ const calculateDuration = (start: string, end: string) => {
             </div>
           </div>
 
-         {datesSelected && (
-  <div className="flex items-center gap-2 text-sm text-success bg-success/5 border border-success/20 rounded-xl px-4 py-2.5">
-    <CheckCircle className="w-4 h-4 shrink-0" />
-
-    {bookingMode === "daily" ? (
-      `${nights} night${nights !== 1 ? "s" : ""} selected`
-    ) : (
-      <>
-        {`${duration.months} month${duration.months !== 1 ? "s" : ""}${
-  duration.days > 0
-    ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
-    : ""
-} selected`}
-      </>
-    )}
-
-    {" · "}
-    {formatDate(checkInDate)} → {formatDate(checkOutDate)}
-  </div>
-)}
-
-  </div>      
-        <div className={`bg-white rounded-2xl border p-6 space-y-4 transition-all ${datesSelected ? "border-slate-100" : "border-slate-100 opacity-60 pointer-events-none"}`}>
+          {datesSelected && (
+            <div className="flex items-center gap-2 text-sm text-success bg-success/5 border border-success/20 rounded-xl px-4 py-2.5">
+              <CheckCircle className="w-4 h-4 shrink-0" />
+              {bookingMode === "daily" ? (
+                `${nights} night${nights !== 1 ? "s" : ""} selected`
+              ) : (
+                <>
+                  {`${duration.months} month${duration.months !== 1 ? "s" : ""}${
+                    duration.days > 0
+                      ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
+                      : ""
+                  } selected`}
+                </>
+              )}
+              {" · "}
+              {formatDate(checkInDate)} → {formatDate(checkOutDate)}
+            </div>
+          )}
+        </div>
+        <div
+          className={`bg-white rounded-2xl border p-6 space-y-4 transition-all ${datesSelected ? "border-slate-100" : "border-slate-100 opacity-60 pointer-events-none"}`}
+        >
           <h2 className="font-bold text-dark flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold ${datesSelected ? "bg-primary" : "bg-slate-300"}`}>2</span>
+            <span
+              className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center font-bold ${datesSelected ? "bg-primary" : "bg-slate-300"}`}
+            >
+              2
+            </span>
             Select a room
-            {!datesSelected && <span className="text-xs text-slate-400 font-normal">(select dates first)</span>}
+            {!datesSelected && (
+              <span className="text-xs text-slate-400 font-normal">
+                (select dates first)
+              </span>
+            )}
           </h2>
 
           {roomsLoading && (
@@ -246,19 +320,23 @@ const calculateDuration = (start: string, end: string) => {
           {!roomsLoading && rooms.length === 0 && (
             <div className="text-center py-8">
               <Bed className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">No rooms available at this hostel.</p>
+              <p className="text-slate-500 text-sm">
+                No rooms available at this hostel.
+              </p>
             </div>
           )}
 
           {!roomsLoading && rooms.length > 0 && (
             <div className="space-y-3">
               {rooms.map((room) => {
-                const price = bookingMode === "daily" ? room.daily_rent : room.monthly_rent;
+                const price =
+                  bookingMode === "daily" ? room.daily_rent : room.monthly_rent;
                 const unit = bookingMode === "daily" ? "night" : "month";
                 const total =
-  bookingMode === "daily"
-    ? room.daily_rent * nights
-    : room.monthly_rent * Math.max(1, duration.months);
+                  bookingMode === "daily"
+                    ? room.daily_rent * nights
+                    : room.monthly_rent * duration.months +
+                      (room.monthly_rent / 30) * duration.days;
                 const hasAvailability = (room.available_beds ?? 0) > 0;
 
                 return (
@@ -269,28 +347,48 @@ const calculateDuration = (start: string, end: string) => {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-dark">Room {room.room_number}</h3>
-                          <span className="badge badge-secondary capitalize text-xs">{room.room_type}</span>
-                          {!hasAvailability && <span className="badge badge-error text-xs">Full</span>}
+                          <h3 className="font-semibold text-dark">
+                            Room {room.room_number}
+                          </h3>
+                          <span className="badge badge-secondary capitalize text-xs">
+                            {room.room_type}
+                          </span>
+                          {!hasAvailability && (
+                            <span className="badge badge-error text-xs">
+                              Full
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-slate-500 mt-1">
-                          Floor {room.floor} · {room.total_beds} beds · {room.available_beds ?? 0} available
+                          Floor {room.floor} · {room.total_beds} beds ·{" "}
+                          {room.available_beds ?? 0} available
                         </p>
-                        {room.dimensions && <p className="text-xs text-slate-400 mt-0.5">{room.dimensions}</p>}
+                        {room.dimensions && (
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {room.dimensions}
+                          </p>
+                        )}
                         {datesSelected && nights > 0 && (
                           <p className="text-xs text-slate-500 mt-1">
-                            Est. total: <span className="font-semibold text-dark">₹{total.toLocaleString()}</span>
-                            {bookingMode === "daily" ? ` for ${nights} night${nights !== 1 ? "s" : ""}` : ` for ${duration.months} month${duration.months !== 1 ? "s" : ""}${
-  duration.days > 0
-    ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
-    : ""
-}`}
-                            {" "}+ ₹{room.security_deposit.toLocaleString()} deposit
+                            Est. total:{" "}
+                            <span className="font-semibold text-dark">
+                              ₹{total.toLocaleString()}
+                            </span>
+                            {bookingMode === "daily"
+                              ? ` for ${nights} night${nights !== 1 ? "s" : ""}`
+                              : ` for ${duration.months} month${duration.months !== 1 ? "s" : ""}${
+                                  duration.days > 0
+                                    ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
+                                    : ""
+                                }`}{" "}
+                            + ₹{room.security_deposit.toLocaleString()} deposit
                           </p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-xl font-bold text-primary">₹{price.toLocaleString()}</p>
+                        <p className="text-xl font-bold text-primary">
+                          ₹{price.toLocaleString()}
+                        </p>
                         <p className="text-xs text-slate-500">/{unit}</p>
                         <button
                           onClick={() => handleSelectRoom(room)}
