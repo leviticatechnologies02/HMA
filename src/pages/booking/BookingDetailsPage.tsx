@@ -101,6 +101,7 @@ export function BookingDetailsPage() {
 
   // Watch all form values for real-time validation
   const watchedValues = watch();
+  const selectedIdType = watch("id_type");
 
   // Step validation helper
   const stepFieldConfigs = [
@@ -500,43 +501,108 @@ export function BookingDetailsPage() {
 
               {/* Upload zone */}
               <div>
-                <label className="block text-sm font-medium text-dark mb-1.5">Upload Document</label>
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  onDragOver={e => e.preventDefault()}
-                  onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileSelect(f); }}
-                  className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all ${docUrl ? "border-success bg-success/5" : "border-slate-200 hover:border-primary/50 hover:bg-primary/5"
-                    }`}>
-                  <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" className="hidden"
-                    onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} />
-                  {docUrl ? (
-                    <div className="flex items-center justify-center gap-3">
-                      <CheckCircle className="w-8 h-8 text-success" />
-                      <div className="text-left">
-                        <p className="font-semibold text-success text-sm">Document uploaded</p>
-                        <p className="text-xs text-slate-500 truncate max-w-xs">{docFile?.name}</p>
-                      </div>
-                      <button type="button" onClick={e => { e.stopPropagation(); setDocFile(null); setDocUrl(""); }}
-                        className="ml-auto p-1 rounded-lg hover:bg-slate-100">
-                        <X className="w-4 h-4 text-slate-400" />
-                      </button>
-                    </div>
-                  ) : uploading ? (
-                    <div className="space-y-2">
-                      <div className="w-full bg-slate-200 rounded-full h-2">
-                        <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-                      </div>
-                      <p className="text-sm text-slate-500">Uploading... {uploadProgress}%</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-dark">Click or drag to upload</p>
-                      <p className="text-xs text-slate-400 mt-1">JPG, PNG, WEBP, PDF  Max 10MB</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+  <label className="block text-sm font-medium text-dark mb-1.5">
+    Upload Document
+  </label>
+
+  <div
+    onClick={() => {
+      if (selectedIdType) {
+        fileRef.current?.click();
+      }
+    }}
+    onDragOver={(e) => {
+      if (selectedIdType) e.preventDefault();
+    }}
+    onDrop={(e) => {
+      if (!selectedIdType) return;
+
+      e.preventDefault();
+      const f = e.dataTransfer.files[0];
+      if (f) handleFileSelect(f);
+    }}
+    className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all
+      ${
+        !selectedIdType
+          ? "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60"
+          : docUrl
+          ? "border-success bg-success/5 cursor-pointer"
+          : "border-slate-200 hover:border-primary/50 hover:bg-primary/5 cursor-pointer"
+      }`}
+  >
+    <input
+      ref={fileRef}
+      type="file"
+      accept=".jpg,.jpeg,.png,.webp,.pdf"
+      className="hidden"
+      disabled={!selectedIdType}
+      onChange={(e) => {
+        const f = e.target.files?.[0];
+        if (f) handleFileSelect(f);
+      }}
+    />
+
+    {!selectedIdType ? (
+      <div>
+        <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        <p className="text-sm font-medium text-slate-500">
+          Select an ID Type first
+        </p>
+      </div>
+    ) : docUrl ? (
+      <div className="flex items-center justify-center gap-3">
+        <CheckCircle className="w-8 h-8 text-success" />
+        <div className="text-left">
+          <p className="font-semibold text-success text-sm">
+            Document uploaded
+          </p>
+          <p className="text-xs text-slate-500 truncate max-w-xs">
+            {docFile?.name}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setDocFile(null);
+            setDocUrl("");
+          }}
+          className="ml-auto p-1 rounded-lg hover:bg-slate-100"
+        >
+          <X className="w-4 h-4 text-slate-400" />
+        </button>
+      </div>
+    ) : uploading ? (
+      <div className="space-y-2">
+        <div className="w-full bg-slate-200 rounded-full h-2">
+          <div
+            className="bg-primary h-2 rounded-full transition-all duration-300"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
+        <p className="text-sm text-slate-500">
+          Uploading... {uploadProgress}%
+        </p>
+      </div>
+    ) : (
+      <div>
+        <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+        <p className="text-sm font-medium text-dark">
+          Click or drag to upload
+        </p>
+        <p className="text-xs text-slate-400 mt-1">
+          JPG, PNG, WEBP, PDF • Max 10MB
+        </p>
+      </div>
+    )}
+  </div>
+
+  {!selectedIdType && (
+    <p className="mt-2 text-xs text-amber-600">
+      Please select an ID Type before uploading the document.
+    </p>
+  )}
+</div>
             </div>
           )}
 

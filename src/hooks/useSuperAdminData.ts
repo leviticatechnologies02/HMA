@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { deleteSuperAdminHostel } from "../api/superAdmin.api";
 import {
   assignSuperAdminAdminHostel,
   assignSuperAdminAdminHostels,
@@ -330,5 +330,20 @@ export function useToggleSuperAdminPlanStatus(userId: string | null) {
       await queryClient.invalidateQueries({ queryKey: ["super-admin-plans", userId] });
       await queryClient.invalidateQueries({ queryKey: ["super-admin-plan"] });
     }
+  });
+}
+
+export function useDeleteSuperAdminHostel(userId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (hostelId: string) =>
+      deleteSuperAdminHostel(userId, hostelId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["super-admin-hostels"],
+      });
+    },
   });
 }

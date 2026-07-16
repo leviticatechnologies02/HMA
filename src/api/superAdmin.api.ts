@@ -431,3 +431,20 @@ export async function fetchSuperAdminPayments(userId: string): Promise<StudentPa
   if (data?.items && Array.isArray(data.items)) return data.items;
   return [];
 }
+
+export async function deleteSuperAdminHostel(
+  userId: string,
+  hostelId: string
+) {
+  const response = await api.delete(
+    `/super-admin/hostels/${hostelId}`,
+    {
+      headers: {
+        "x-user-id": userId,
+        "x-user-role": "super_admin",
+      },
+    }
+  );
+
+  return response.data;
+}
