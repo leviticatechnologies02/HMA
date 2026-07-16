@@ -18,9 +18,11 @@ type NavItem = { label: string; to: string; icon: React.ReactNode };
 const SUPER_ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", to: "/super-admin/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
   { label: "Hostels", to: "/super-admin/hostels", icon: <Building2 className="w-4 h-4" /> },
+  { label: "Hostels List", to: "/super-admin/hostels-list", icon: <ListOrdered className="w-4 h-4" /> },
   { label: "Admins", to: "/super-admin/admins", icon: <Users className="w-4 h-4" /> },
   { label: "Plans", to: "/super-admin/plans", icon: <BookOpen className="w-4 h-4" /> },
   { label: "Subscriptions", to: "/super-admin/subscriptions", icon: <Star className="w-4 h-4" /> },
+  { label: "Payments", to: "/super-admin/payments", icon: <CreditCard className="w-4 h-4" /> },
   { label: "Reports", to: "/super-admin/reports", icon: <BarChart2 className="w-4 h-4" /> },
   { label: "Settings", to: "/super-admin/settings", icon: <ShieldCheck className="w-4 h-4" /> },
 ];

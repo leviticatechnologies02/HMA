@@ -544,11 +544,16 @@ export async function fetchAdminAttendanceSummary(
   return response.data;
 }
 
-export async function fetchAdminPayments(userId: string, hostelId: string, hostelIds: string[]) {
-  const response = await api.get<StudentPayment[]>(`/admin/hostels/${hostelId}/payments`, {
+export async function fetchAdminPayments(userId: string, hostelId: string, hostelIds: string[]): Promise<StudentPayment[]> {
+  const response = await api.get<any>(`/payments/admin/hostels/${hostelId}/payments`, {
     headers: buildAdminHeaders(userId, hostelIds)
   });
-  return response.data;
+  const data = response.data;
+  if (Array.isArray(data)) return data;
+  if (data?.data && Array.isArray(data.data)) return data.data;
+  if (data?.payments && Array.isArray(data.payments)) return data.payments;
+  if (data?.items && Array.isArray(data.items)) return data.items;
+  return [];
 }
 
 export async function fetchAdminMessMenu(userId: string, hostelId: string, hostelIds: string[]) {

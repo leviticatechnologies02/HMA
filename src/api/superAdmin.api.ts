@@ -1,4 +1,5 @@
 import { api } from "./axiosInstance";
+import { StudentPayment } from "./student.api";
 
 type SuperAdminHeaders = {
   "x-user-id": string;
@@ -417,4 +418,16 @@ export async function toggleSuperAdminPlanStatus(userId: string, planId: string)
     headers: buildSuperAdminHeaders(userId)
   });
   return response.data;
+}
+
+export async function fetchSuperAdminPayments(userId: string): Promise<StudentPayment[]> {
+  const response = await api.get<any>("/super-admin/payments", {
+    headers: buildSuperAdminHeaders(userId)
+  });
+  const data = response.data;
+  if (Array.isArray(data)) return data;
+  if (data?.data && Array.isArray(data.data)) return data.data;
+  if (data?.payments && Array.isArray(data.payments)) return data.payments;
+  if (data?.items && Array.isArray(data.items)) return data.items;
+  return [];
 }

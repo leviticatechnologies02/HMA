@@ -43,6 +43,8 @@ import { RegisterHostelPage } from "../pages/public/RegisterHostelPage";
 import { SuperAdminAdminsPage } from "../pages/superAdmin/SuperAdminAdminsPage";
 import { SuperAdminDashboardPage } from "../pages/superAdmin/SuperAdminDashboardPage";
 import { SuperAdminHostelsPage } from "../pages/superAdmin/SuperAdminHostelsPage";
+import { SuperAdminHostelsListPage } from "../pages/superAdmin/SuperAdminHostelsListPage";
+import { SuperAdminPaymentsPage } from "../pages/superAdmin/SuperAdminPaymentsPage";
 import { SuperAdminSubscriptionsPage } from "../pages/superAdmin/SuperAdminSubscriptionsPage";
 import { SuperAdminPlansPage } from "../pages/superAdmin/SuperAdminPlansPage";
 import { SuperAdminReportsPage } from "../pages/superAdmin/SuperAdminReportsPage";
@@ -105,7 +107,9 @@ export function AppRouter() {
           <Route element={<DashboardLayout />}>
             <Route path="/super-admin/dashboard" element={<SuperAdminDashboardPage />} />
             <Route path="/super-admin/hostels" element={<SuperAdminHostelsPage />} />
+            <Route path="/super-admin/hostels-list" element={<SuperAdminHostelsListPage />} />
             <Route path="/super-admin/admins" element={<SuperAdminAdminsPage />} />
+            <Route path="/super-admin/payments" element={<SuperAdminPaymentsPage />} />
             <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptionsPage />} />
             <Route path="/super-admin/plans" element={<SuperAdminPlansPage />} />
             <Route path="/super-admin/reports" element={<SuperAdminReportsPage />}

@@ -1,14 +1,12 @@
 import { useMemo, useState } from "react";
 import { CreditCard, TrendingUp, Clock, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAdminPayments } from "../../hooks/useAdminData";
+import { useSuperAdminPayments } from "../../hooks/useSuperAdminData";
 import { useAuthStore } from "../../store/authStore";
 import { formatDate } from "../../utils/formatters";
 
-export function AdminPaymentsPage() {
+export function SuperAdminPaymentsPage() {
   const userId = useAuthStore((s) => s.userId);
-  const hostelIds = useAuthStore((s) => s.hostelIds);
-  const hostelId = useAuthStore((s) => s.activeHostelId) ?? hostelIds[0] ?? null;
-  const { data, isLoading, isError } = useAdminPayments(userId, hostelId, hostelIds);
+  const { data, isLoading, isError } = useSuperAdminPayments(userId);
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -35,13 +33,13 @@ export function AdminPaymentsPage() {
     pending: payments.filter(p => p.status === "created" || p.status === "pending").length,
   }), [payments]);
 
-  if (!userId || !hostelIds.length) return <div className="p-8 text-slate-500">Login as admin with assigned hostels.</div>;
+  if (!userId) return <div className="p-8 text-slate-500">Login as super admin.</div>;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-heading font-bold text-dark dark:text-white">Payments</h1>
-        <p className="mt-1 text-slate-500 dark:text-slate-400">Track all payment transactions for your hostel.</p>
+        <p className="mt-1 text-slate-500 dark:text-slate-400">Track all payment transactions across all hostels.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

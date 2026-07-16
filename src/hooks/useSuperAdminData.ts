@@ -28,10 +28,19 @@ import {
   updateSuperAdminPlan,
   deleteSuperAdminPlan,
   toggleSuperAdminPlanStatus,
+  fetchSuperAdminPayments,
   type SuperAdminAdminPayload,
   type SuperAdminHostelPayload,
   type CreateSubscriptionFromPlanPayload,
 } from "../api/superAdmin.api";
+
+export function useSuperAdminPayments(userId: string | null) {
+  return useQuery({
+    queryKey: ["super-admin-payments", userId],
+    queryFn: () => fetchSuperAdminPayments(userId!),
+    enabled: Boolean(userId)
+  });
+}
 
 export function useSuperAdminProfile(userId: string | null) {
   return useQuery({

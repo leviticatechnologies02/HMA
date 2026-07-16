@@ -99,8 +99,9 @@ export type MessMenu = {
 };
 
 export type StudentPayment = {
-  id: string;
-  hostel_id: string;
+  id?: string;
+  payment_id?: string;
+  hostel_id?: string;
   student_id?: string | null;
   booking_id?: string | null;
   amount: number;
@@ -113,8 +114,11 @@ export type StudentPayment = {
   receipt_url?: string | null;
   due_date?: string | null;
   paid_at?: string | null;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
+  payer_name?: string | null;
+  payer_email?: string | null;
+  transaction_id?: string | null;
 };
 
 export type StudentProfile = {

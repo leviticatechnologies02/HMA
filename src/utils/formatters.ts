@@ -2,21 +2,27 @@ export function formatCurrency(amount: number, currency = "INR"): string {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency }).format(amount);
 }
 
-export function formatDate(dateStr: string | Date): string {
+export function formatDate(dateStr: string | Date | null | undefined): string {
+  if (!dateStr || dateStr === "—") return "—";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   })
-    .format(new Date(dateStr))
+    .format(date)
     .replace(/\//g, "-");
 }
 
-export function formatDateTime(dateStr: string | Date): string {
+export function formatDateTime(dateStr: string | Date | null | undefined): string {
+  if (!dateStr || dateStr === "—") return "—";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit",
-  }).format(new Date(dateStr)).replace(/\//g, "-");
+  }).format(date).replace(/\//g, "-");
 }
 
 export function formatBookingNumber(num: string): string {
