@@ -48,6 +48,13 @@ export function SuperAdminHostelsPage() {
   const [page, setPage] = useState(1);
   const [rejectingHostelId, setRejectingHostelId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{
+  show: boolean;
+  hostel: SuperAdminHostel | null;
+}>({
+  show: false,
+  hostel: null,
+});
   const [imageUrls, setImageUrls] = useState<string[]>(["", "", ""]);
   const [submitting, setSubmitting] = useState(false);
   const [managingHostel, setManagingHostel] = useState<SuperAdminHostel | null>(null);
@@ -500,21 +507,15 @@ if (!/^\d{10}$/.test(phone)) {
       </button>
     </>
   )}
-  <button
+<button
   className="rounded-xl border border-red-500 text-red-600 text-xs px-3 py-1.5 hover:bg-red-50 transition-colors"
   type="button"
-  disabled={deleteMutation.isPending}
-  onClick={() => {
-    
-deleteMutation.mutate(hostel.id, {
-      onSuccess: () => {
-        toast.success("Hostel deleted");
-      },
-      onError: () => {
-        toast.error("Failed to delete hostel");
-      },
-    });
-  }}
+  onClick={() =>
+    setShowDeleteConfirm({
+      show: true,
+      hostel,
+    })
+  }
 >
   Delete
 </button>
@@ -594,6 +595,64 @@ deleteMutation.mutate(hostel.id, {
         </div>
       )}
 
+{showDeleteConfirm.show && (
+ <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-[90%] max-w-[400px] rounded-2xl bg-white shadow-2xl">
+            <div className="px-8 pt-8">
+              <h2 className="text-[22px] font-bold text-slate-900">
+          Delete Hostel
+        </h2>
+
+        <p className="mt-3 text-[16px] text-slate-600">
+          Are you sure you want to delete Hostel{" "}
+          <span className="font-semibold text-[#182238]">
+            {showDeleteConfirm.hostel?.name}
+          </span>
+          ?
+        </p>
+      </div>
+
+      <div className="flex justify-end gap-3 px-5 pt-8 pb-6 sm:px-8 sm:pt-10 sm:pb-8">
+
+        <button
+          onClick={() =>
+            setShowDeleteConfirm({
+              show: false,
+              hostel: null,
+            })
+          }
+          className="h-11 w-28 sm:h-12 sm:w-32 rounded-xl border border-[#D5DCE8] bg-white text-sm sm:text-base font-medium text-[#42526B]"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            if (!showDeleteConfirm.hostel) return;
+
+            deleteMutation.mutate(showDeleteConfirm.hostel.id, {
+              onSuccess: () => {
+                toast.success("Hostel deleted");
+
+                setShowDeleteConfirm({
+                  show: false,
+                  hostel: null,
+                });
+              },
+              onError: () => {
+                toast.error("Failed to delete hostel");
+              },
+            });
+          }}
+         className="h-11 w-28 sm:h-12 sm:w-32 rounded-xl bg-[#EB2424] text-sm sm:text-base font-semibold text-white"
+        >
+          Delete
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
       {managingHostel && userId && (
         <HostelManageDrawer
           hostel={managingHostel}

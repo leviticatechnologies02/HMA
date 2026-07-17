@@ -32,25 +32,24 @@ export function StudentComplaintsPage() {
   const handlenewComplaint = () => {
     openModal("complaint");
   };
-  const handleDelete = (complaintId: string) => {
-    if (!confirm("Are you sure you want to delete this complaint?")) return;
-
-    deleteComplaintMutation.mutate(complaintId, {
-      onSuccess: () => {
-        toast.success("Complaint deleted successfully");
-        refetch();
-      },
-      onError: () => {
-        toast.error("Failed to delete complaint. Please try again.");
-      },
-    });
-  };
+const handleDelete = (complaintId: string) => {
+  setShowDeleteConfirm({
+    show: true,
+    complaintId,
+  });
+};
 
   if (!userId)
     return (
       <div className="p-8 text-slate-500">Please login to view complaints.</div>
     );
-
+const [showDeleteConfirm, setShowDeleteConfirm] = useState<{
+  show: boolean;
+  complaintId: string | null;
+}>({
+  show: false,
+  complaintId: null,
+});
   return (
     <div className="space-y-6">
       <StudentNotCheckedInBanner />
@@ -144,6 +143,70 @@ export function StudentComplaintsPage() {
           ))}
         </div>
       )}
+      {showDeleteConfirm.show && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+    <div className="w-full max-w-sm sm:max-w-md rounded-2xl bg-white shadow-2xl">
+
+      <div className="px-5 sm:px-8 pt-6 sm:pt-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+          Delete Complaint
+        </h2>
+
+        <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+          Are you sure you want to delete this complaint?
+        </p>
+      </div>
+
+      <div className="flex justify-end gap-3 px-5 sm:px-8 pt-8 pb-6">
+
+        <button
+          onClick={() =>
+            setShowDeleteConfirm({
+              show: false,
+              complaintId: null,
+            })
+          }
+          className="h-11 w-28 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            if (!showDeleteConfirm.complaintId) return;
+
+            deleteComplaintMutation.mutate(
+              showDeleteConfirm.complaintId,
+              {
+                onSuccess: () => {
+                  toast.success("Complaint deleted successfully");
+                  refetch();
+
+                  setShowDeleteConfirm({
+                    show: false,
+                    complaintId: null,
+                  });
+                },
+                onError: () => {
+                  toast.error("Failed to delete complaint.");
+
+                  setShowDeleteConfirm({
+                    show: false,
+                    complaintId: null,
+                  });
+                },
+              }
+            );
+          }}
+          className="h-11 w-28 rounded-xl bg-red-600 text-sm font-semibold text-white hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
