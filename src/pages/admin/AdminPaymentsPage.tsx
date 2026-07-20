@@ -14,6 +14,7 @@ export function AdminPaymentsPage() {
   const ITEMS_PER_PAGE = 10;
 
   const payments = data ?? [];
+  console.log("Payments data from API:", payments);
   const filtered = payments.filter(p => {
     if (statusFilter === "all") return true;
     if (statusFilter === "pending") return p.status === "pending" || p.status === "created";
@@ -80,7 +81,7 @@ export function AdminPaymentsPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  {["Payer", "Type", "Method", "Amount", "Status", "Paid At"].map(h => (
+                  {["Payer", "Type", "Method", "Amount", "Balance", "Status", "Paid At"].map(h => (
                     <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{h}</th>
                   ))}
                 </tr>
@@ -95,16 +96,19 @@ export function AdminPaymentsPage() {
                     <td className="px-5 py-4 capitalize text-dark dark:text-slate-200">{p.payment_type?.replace(/_/g, " ")}</td>
                     <td className="px-5 py-4 capitalize text-slate-600 dark:text-slate-400">{p.payment_method}</td>
                     <td className="px-5 py-4 font-semibold text-dark dark:text-white">₹{Number(p.amount).toLocaleString()}</td>
+                    <td className="px-5 py-4 font-medium text-slate-600 dark:text-slate-400">
+                      {p.remaining_balance !== undefined && p.remaining_balance !== null ? `₹${Number(p.remaining_balance).toLocaleString()}` : "—"}
+                    </td>
                     <td className="px-5 py-4">
                       <span className={`badge ${p.status === "captured" || p.status === "paid" || p.status === "success" ? "badge-success" : p.status === "failed" ? "badge-error" : "badge-warning"} capitalize text-xs`}>
-                        {p.status}
+                        {p.status === "success" || p.status === "paid" ? "Captured" : p.status}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-slate-500 dark:text-slate-400">{formatDate(p.paid_at ?? "—")}</td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={6} className="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No payments found.</td></tr>
+                  <tr><td colSpan={7} className="px-5 py-12 text-center text-slate-500 dark:text-slate-400">No payments found.</td></tr>
                 )}
               </tbody>
             </table>

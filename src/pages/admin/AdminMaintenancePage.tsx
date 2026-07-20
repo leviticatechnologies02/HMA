@@ -1,10 +1,7 @@
-﻿import { useState } from "react";
-import { Search, CheckCircle, Wrench, AlertTriangle, Clock } from "lucide-react";
+import { useState } from "react";
+import { Search, Wrench, Clock } from "lucide-react";
 import { useAdminMaintenance } from "../../hooks/useAdminData";
 import { useAuthStore } from "../../store/authStore";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../api/axiosInstance";
-import toast from "react-hot-toast";
 
 const PRIORITY_BADGE: Record<string, string> = {
   low: "badge-slate", medium: "badge-warning", high: "badge-error", emergency: "badge-error",
@@ -20,18 +17,6 @@ export function AdminMaintenancePage() {
   const { data, isLoading } = useAdminMaintenance(userId, hostelId, hostelIds);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const qc = useQueryClient();
-
-  const approveMutation = useMutation({
-    mutationFn: (id: string) => api.patch(`/admin/maintenance/${id}/approve`, {}, {
-      headers: { "x-user-id": userId!, "x-user-role": "hostel_admin", "x-hostel-ids": hostelIds.join(",") },
-    }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin-maintenance", userId, hostelId, hostelIds] });
-      toast.success("Request approved");
-    },
-    onError: () => toast.error("Failed to approve"),
-  });
 
   const items = data ?? [];
   const filtered = items.filter((m: any) => {
@@ -42,7 +27,6 @@ export function AdminMaintenancePage() {
 
   const pending = items.filter((m: any) => m.status === "pending").length;
   const inProgress = items.filter((m: any) => m.status === "in_progress").length;
-  const needsApproval = items.filter((m: any) => m.requires_admin_approval && m.status === "pending").length;
 
   if (!userId || !hostelIds.length) return <div className="p-8 text-slate-500">Login as admin with assigned hostels.</div>;
 
@@ -54,11 +38,10 @@ export function AdminMaintenancePage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
         {[
           { label: "Pending",       value: pending,      color: "bg-warning/10 text-warning",  icon: <Clock className="w-5 h-5" /> },
           { label: "In Progress",   value: inProgress,   color: "bg-primary/10 text-primary",  icon: <Wrench className="w-5 h-5" /> },
-          { label: "Needs Approval",value: needsApproval,color: "bg-error/10 text-error",      icon: <AlertTriangle className="w-5 h-5" /> },
         ].map(s => (
           <div key={s.label} className="stat-card">
             <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
@@ -98,7 +81,7 @@ export function AdminMaintenancePage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs sm:text-sm">
                 <thead className="bg-slate-50 dark:bg-slate-800">
-                  <tr>{["Title","Category","Priority","Status","Needs Approval","Action"].map(h => (
+                  <tr>{["Title","Category","Priority","Status"].map(h => (
                     <th key={h} className="text-left px-2 sm:px-5 py-2 sm:py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{h}</th>
                   ))}</tr>
                 </thead>
@@ -112,21 +95,6 @@ export function AdminMaintenancePage() {
                       </td>
                       <td className="px-2 sm:px-5 py-2 sm:py-4">
                         <span className={`badge ${STATUS_BADGE[m.status] ?? "badge-slate"} capitalize text-xs`}>{m.status?.replace(/_/g," ")}</span>
-                      </td>
-                      <td className="px-2 sm:px-5 py-2 sm:py-4">
-                        <span className={`badge ${m.requires_admin_approval ? "badge-warning" : "badge-slate"} text-xs`}>
-                          {m.requires_admin_approval ? "Yes" : "No"}
-                        </span>
-                      </td>
-                      <td className="px-2 sm:px-5 py-2 sm:py-4">
-                        {m.requires_admin_approval && (m.status === "open" || m.status === "pending") ? (
-                          <button onClick={() => approveMutation.mutate(m.id)} disabled={approveMutation.isPending}
-                            className="flex items-center gap-1 text-xs sm:text-xs font-semibold text-success hover:underline disabled:opacity-50 whitespace-nowrap">
-                            <CheckCircle className="w-3.5 h-3.5" /> Approve
-                          </button>
-                        ) : (
-                          m.requires_admin_approval ? "Already Approved" : "No approval needed"
-                        )}
                       </td>
                     </tr>
                   ))}

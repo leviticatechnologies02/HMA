@@ -40,7 +40,7 @@ export function StudentPaymentsPage() {
         ))}
       </div>
 
-      {isLoading && <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}</div>}
+      {isLoading && <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="skeleton h-20 rounded-2xl" />)}</div>}
 
       {!isLoading && (
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
@@ -48,23 +48,26 @@ export function StudentPaymentsPage() {
             <table className="w-full text-xs sm:text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {["Type", "Method", "Amount", "Status", "Due Date", "Paid At", "Receipt"].map(h => (
+                  {["Type", "Method", "Amount", "Balance", "Status", "Due Date", "Paid At", "Receipt", "Action"].map(h => (
                     <th key={h} className="text-left px-3 sm:px-5 py-2 sm:py-3 text-xs font-semibold text-slate-500 uppercase whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {payments.length === 0 && (
-                  <tr><td colSpan={7} className="px-3 sm:px-5 py-8 sm:py-12 text-center text-slate-500 text-xs sm:text-sm">No payments yet.</td></tr>
+                  <tr><td colSpan={9} className="px-3 sm:px-5 py-8 sm:py-12 text-center text-slate-500 text-xs sm:text-sm">No payments yet.</td></tr>
                 )}
                 {payments.map((p: any) => (
                   <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
                     <td className="px-3 sm:px-5 py-3 sm:py-4 capitalize text-dark truncate text-xs sm:text-sm">{p.payment_type?.replace(/_/g, " ")}</td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4 capitalize text-slate-600 truncate text-xs sm:text-sm">{p.payment_method}</td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4 font-semibold text-dark whitespace-nowrap text-xs sm:text-sm">₹{Number(p.amount).toLocaleString()}</td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 font-medium text-slate-600 whitespace-nowrap text-xs sm:text-sm">
+                      {p.remaining_balance !== undefined && p.remaining_balance !== null ? `₹${Number(p.remaining_balance).toLocaleString()}` : "—"}
+                    </td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4">
-                      <span className={`badge ${p.status === "captured" ? "badge-success" : p.status === "failed" ? "badge-error" : "badge-warning"} capitalize text-xs`}>
-                        {p.status}
+                      <span className={`badge ${p.status === "captured" || p.status === "success" || p.status === "paid" ? "badge-success" : p.status === "failed" ? "badge-error" : "badge-warning"} capitalize text-xs`}>
+                        {p.status === "success" || p.status === "paid" ? "Captured" : p.status}
                       </span>
                     </td>
                     <td className="px-3 sm:px-5 py-3 sm:py-4 text-slate-500 text-xs truncate">{p.due_date ? formatDate(p.due_date) : "—"}</td>
@@ -74,6 +77,16 @@ export function StudentPaymentsPage() {
                         <a href={p.receipt_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-primary text-xs hover:underline whitespace-nowrap">
                           View <ExternalLink className="w-3 h-3" />
                         </a>
+                      ) : "—"}
+                    </td>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      {(p.status === "pending" || p.status === "created" || (p.remaining_balance && p.remaining_balance > 0)) ? (
+                        <button
+                          className="px-3 py-1.5 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors whitespace-nowrap"
+                          onClick={() => alert("Payment integration to be implemented")}
+                        >
+                          Pay Now
+                        </button>
                       ) : "—"}
                     </td>
                   </tr>

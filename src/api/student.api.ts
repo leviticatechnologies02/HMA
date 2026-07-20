@@ -119,6 +119,7 @@ export type StudentPayment = {
   payer_name?: string | null;
   payer_email?: string | null;
   transaction_id?: string | null;
+  remaining_balance?: number | null;
 };
 
 export type StudentProfile = {

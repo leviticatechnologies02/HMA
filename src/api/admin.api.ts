@@ -545,7 +545,7 @@ export async function fetchAdminAttendanceSummary(
 }
 
 export async function fetchAdminPayments(userId: string, hostelId: string, hostelIds: string[]): Promise<StudentPayment[]> {
-  const response = await api.get<any>(`/payments/admin/hostels/${hostelId}/payments`, {
+  const response = await api.get<any>(`/admin/hostels/${hostelId}/payments`, {
     headers: buildAdminHeaders(userId, hostelIds)
   });
   const data = response.data;
