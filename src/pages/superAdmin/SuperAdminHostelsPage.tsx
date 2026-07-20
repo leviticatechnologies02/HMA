@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ImagePlus, X, Plus, Settings } from "lucide-react";
+import { Building2, Check, Download, Filter, MapPin, Pause, Trash2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   useCreateSuperAdminHostel,
@@ -12,7 +12,6 @@ import { addSuperAdminHostelImages } from "../../api/superAdmin.api";
 import { useAuthStore } from "../../store/authStore";
 import { HostelManageDrawer } from "../../components/superAdmin/HostelManageDrawer";
 import type { SuperAdminHostel } from "../../api/superAdmin.api";
-import { email } from "zod";
 
 const defaultForm = {
   name: "",
@@ -241,48 +240,54 @@ if (!/^\d{10}$/.test(phone)) {
         <h1 className="text-3xl font-heading font-bold text-dark">Super Admin Hostels</h1>
         <p className="text-slate-600">Create hostels and control approval or suspension status.</p>
       </div>
-      <div className="grid gap-6 xl:grid-cols-[460px_1fr]">
+      <div className="space-y-6">
         {/* ── Create Form ── */}
         <section className="rounded-2xl bg-white p-6 shadow-sm border border-slate-100 space-y-4">
-          <h2 className="text-xl font-semibold text-dark">Create Hostel</h2>
+          <h2 className="text-center text-xl font-semibold text-dark">Create Hostel</h2>
           <p className="text-xs text-slate-400">Fields marked * are required</p>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Hostel Name *</label>
-            <input className="input-field" placeholder="e.g. Green Valley Boys Hostel" value={form.name}
-              onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} />
-          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Hostel name *</label>
+              <input className="input-field" placeholder="e.g. Green Valley Boys Hostel" value={form.name}
+                onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} />
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Slug * <span className="normal-case font-normal text-slate-400">(URL-friendly ID)</span></label>
-            <input className="input-field" placeholder="e.g. green-valley-boys-hostel" value={form.slug}
-              onChange={(e) => setForm((c) => ({ ...c, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") }))} />
-          </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Slug * <span className="font-normal text-slate-400">(URL-friendly ID)</span></label>
+              <input className="input-field" placeholder="e.g. green-valley-boys-hostel" value={form.slug}
+                onChange={(e) => setForm((c) => ({ ...c, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") }))} />
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Description * <span className="normal-case font-normal text-slate-400">(min 10 chars)</span></label>
-            <textarea className="input-field min-h-20" placeholder="Describe the hostel facilities, location, highlights..." value={form.description}
-              onChange={(e) => setForm((c) => ({ ...c, description: e.target.value }))} />
-          </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Description * <span className="font-normal text-slate-400">(min 10 chars)</span></label>
+              <textarea className="input-field min-h-20" placeholder="Describe the hostel facilities, location, highlights..." value={form.description}
+                onChange={(e) => setForm((c) => ({ ...c, description: e.target.value }))} />
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Hostel Type *</label>
-            <select className="input-field" value={form.hostel_type}
-              onChange={(e) => setForm((c) => ({ ...c, hostel_type: e.target.value }))}>
-              <option value="boys">Boys</option>
-              <option value="girls">Girls</option>
-              <option value="co-living">Co-living</option>
-            </select>
-          </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Hostel type *</label>
+              <select className="input-field" value={form.hostel_type}
+                onChange={(e) => setForm((c) => ({ ...c, hostel_type: e.target.value }))}>
+                <option value="boys">Boys</option>
+                <option value="girls">Girls</option>
+                <option value="co-living">Co-living</option>
+              </select>
+            </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">FULL  Address *</label>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Email *</label>
+              <input className="input-field" placeholder="hostel@email.com" value={form.email}
+                onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Full address *</label>
               <input className="input-field" placeholder="Street / Area" value={form.address_line1}
                 onChange={(e) => setForm((c) => ({ ...c, address_line1: e.target.value }))} />
             </div>
             <div className="relative">
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">City *</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">City *</label>
               <input
                 className="input-field"
                 placeholder="Type city name..."
@@ -310,12 +315,12 @@ if (!/^\d{10}$/.test(phone)) {
               )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">State * <span className="normal-case font-normal text-slate-400">(auto-filled)</span></label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">State * <span className="font-normal text-slate-400">(auto-filled)</span></label>
               <input className="input-field bg-slate-50" placeholder="Auto-filled from city" value={form.state}
                 onChange={(e) => setForm((c) => ({ ...c, state: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+              <label className="block text-xs font-semibold text-slate-500 mb-1">
                 Pincode *
                 {pincodeLoading && <span className="ml-2 normal-case font-normal text-slate-400">Looking up...</span>}
                 {pincodeError && <span className="ml-2 normal-case font-normal text-error">{pincodeError}</span>}
@@ -332,29 +337,24 @@ if (!/^\d{10}$/.test(phone)) {
               )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Phone *</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">Phone *</label>
               <input
-  className="input-field"
-  placeholder="9876543210"
-  type="tel"
-  inputMode="numeric"
-  maxLength={10}
-  value={form.phone}
-  onChange={(e) => {
-    const phone = e.target.value.replace(/\D/g, "").slice(0, 10);
+                className="input-field"
+                placeholder="9876543210"
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                value={form.phone}
+                onChange={(e) => {
+                  const phone = e.target.value.replace(/\D/g, "").slice(0, 10);
 
-    setForm((c) => ({
-      ...c,
-      phone,
-    }));
-  }}
-/>
+                  setForm((c) => ({
+                    ...c,
+                    phone,
+                  }));
+                }}
+              />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Email *</label>
-              <input className="input-field" placeholder="hostel@email.com" value={form.email}
-                onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} />
-</div>
             {/* Map location picker — replaces lat/lng text inputs */}
             
           </div>
@@ -379,191 +379,181 @@ if (!/^\d{10}$/.test(phone)) {
             </label>
           </div>
 
-          <button
-            className="btn-primary w-full disabled:opacity-60"
-            disabled={submitting || !form.name.trim() || !form.slug.trim()}
-            type="button"
-            onClick={handleCreate}
-          >
-            {submitting ? "Creating..." : "Create Hostel"}
-          </button>
+          <div className="flex justify-center pt-2">
+            <button
+              className="btn-primary min-w-48 justify-center disabled:opacity-60"
+              disabled={submitting || !form.name.trim() || !form.slug.trim()}
+              type="button"
+              onClick={handleCreate}
+            >
+              {submitting ? "Creating..." : "Create Hostel"}
+            </button>
+          </div>
         </section>
 
         {/* ── Registry ── */}
-        <section className="rounded-2xl bg-white p-6 shadow-sm border border-slate-100">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-dark">Hostel Registry</h2>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+        <section className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+          <div className="grid grid-cols-1 items-center gap-4 border-b border-slate-100 p-5 sm:grid-cols-[1fr_auto_1fr] sm:p-6">
+            <div className="text-center sm:col-start-2">
+              <h2 className="text-xl font-semibold text-dark">Hostel Registry</h2>
+              <p className="mt-0.5 text-sm text-slate-500">Review and manage all registered hostels.</p>
+            </div>
+            <span className="mx-auto w-fit rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary sm:col-start-3 sm:row-start-1 sm:mr-0">
               {hostelsQuery.data?.total ?? 0} hostels
             </span>
           </div>
-          <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-slate-600">Status:</label>
-              <select value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="input-field w-auto text-sm py-2">
-                <option value="">All</option>
-                <option value="pending_approval">Pending Approval</option>
-                <option value="active">Active</option>
-                <option value="rejected">Rejected</option>
-                <option value="suspended">Suspended</option>
-              </select>
+
+          <div className="p-4 sm:p-6">
+            <div className="mb-5 flex flex-col gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex w-full items-center gap-2 sm:w-auto">
+                <Filter size={16} className="shrink-0 text-slate-400" />
+                <label htmlFor="hostel-status-filter" className="text-sm font-medium text-slate-600">Status</label>
+                <select
+                  id="hostel-status-filter"
+                  value={statusFilter}
+                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                  className="input-field min-w-0 flex-1 bg-white py-2 text-sm sm:w-48 sm:flex-none"
+                >
+                  <option value="">All hostels</option>
+                  <option value="pending_approval">Pending approval</option>
+                  <option value="active">Active</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                disabled={(hostelsQuery.data?.items.length ?? 0) === 0}
+                onClick={() => {
+                  const items = hostelsQuery.data?.items ?? [];
+                  if (!items.length) return;
+                  const csv = ["Name,City,State,Type,Status,Email,Phone"].concat(
+                    items.map(h => `"${h.name}","${h.city}","${h.state}","${h.hostel_type}","${h.status}","${h.email}","${h.phone}"`)
+                  ).join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a"); a.href = url; a.download = "hostels.csv"; a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:border-primary/30 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              >
+                <Download size={16} />
+                Export CSV
+              </button>
             </div>
-            {/* Export CSV */}
-            <button
-              onClick={() => {
-                const items = hostelsQuery.data?.items ?? [];
-                if (!items.length) return;
-                const csv = ["Name,City,State,Type,Status,Email,Phone"].concat(
-                  items.map(h => `"${h.name}","${h.city}","${h.state}","${h.hostel_type}","${h.status}","${h.email}","${h.phone}"`)
-                ).join("\n");
-                const blob = new Blob([csv], { type: "text/csv" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a"); a.href = url; a.download = "hostels.csv"; a.click();
-                URL.revokeObjectURL(url);
-              }}
-              className="flex items-center gap-1.5 text-xs text-slate-600 border border-slate-200 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors">
-              ⬇ Export CSV
-            </button>
-          </div>
-          <div className="space-y-4">
-            {hostelsQuery.isLoading && [1, 2, 3].map((i) => (
-              <div key={i} className="skeleton h-32 rounded-xl" />
-            ))}
-            {hostelsQuery.data?.items.map((hostel) => (
-              <article key={hostel.id} className="rounded-xl border border-slate-200 overflow-hidden">
-                {/* Image strip if available */}
-                <div className="h-28 bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
-                  {hostel.images?.[0]?.url && (
-                    <img
-                      src={hostel.images[0].url}
-                      alt={hostel.name}
-                      className="w-full h-full object-cover opacity-60"
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-                    <div>
-                      <h3 className="font-semibold text-white">{hostel.name}</h3>
-                      <p className="text-white/70 text-xs mt-0.5">{hostel.city}, {hostel.state} · {hostel.hostel_type}</p>
-                    </div>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${STATUS_BADGE[hostel.status] ?? "bg-slate-100 text-slate-500"}`}>
+
+            <div className="grid gap-5 lg:grid-cols-2">
+              {hostelsQuery.isLoading && [1, 2, 3, 4].map((i) => (
+                <div key={i} className="skeleton h-80 rounded-2xl" />
+              ))}
+              {hostelsQuery.data?.items.map((hostel) => (
+                <article key={hostel.id} className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-lg hover:shadow-slate-200/60">
+                  <div className="relative h-44 overflow-hidden bg-gradient-to-br from-primary/15 to-secondary/15">
+                    {hostel.images?.[0]?.url ? (
+                      <img
+                        src={hostel.images[0].url}
+                        alt={hostel.name}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-primary/30">
+                        <Building2 size={48} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/15 to-transparent" />
+                    <span className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-xs font-semibold capitalize shadow-sm ${STATUS_BADGE[hostel.status] ?? "bg-slate-100 text-slate-500"}`}>
                       {hostel.status.replace(/_/g, " ")}
                     </span>
+                    <div className="absolute bottom-4 left-4 right-4 min-w-0">
+                      <h3 className="truncate text-lg font-semibold text-white">{hostel.name}</h3>
+                      <p className="mt-1 flex items-center gap-1.5 truncate text-sm text-white/80">
+                        <MapPin size={14} className="shrink-0" />
+                        {hostel.city}, {hostel.state}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <p className="text-sm text-slate-600 line-clamp-2">{hostel.description}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
 
-  {hostel.status === "pending_approval" && (
-    <>
-      <button
-        className="btn-primary text-xs px-3 py-1.5"
-        type="button"
-        disabled={statusMutation.isPending}
-        onClick={() =>
-          statusMutation.mutate(
-            { hostelId: hostel.id, action: "approve" },
-            {
-              onSuccess: () => toast.success("Hostel approved"),
-              onError: () => toast.error("Failed to approve"),
-            }
-          )
-        }
-      >
-        Approve
-      </button>
+                  <div className="flex flex-1 flex-col p-4 sm:p-5">
+                    <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium capitalize text-slate-600">
+                        {hostel.hostel_type.replace(/-/g, " ")}
+                      </span>
+                      {hostel.email && <span className="max-w-full truncate text-slate-500">{hostel.email}</span>}
+                    </div>
+                    <p className="line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{hostel.description}</p>
 
-      <button
-        className="rounded-xl border border-error/30 text-error text-xs px-3 py-1.5 hover:bg-error/5 transition-colors"
-        type="button"
-        disabled={statusMutation.isPending}
-        onClick={() => {
-          setRejectingHostelId(hostel.id);
-          setRejectReason("");
-        }}
-      >
-        Reject
-      </button>
+                    <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+                      {hostel.status === "pending_approval" && (
+                        <>
+                          <button
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
+                            type="button"
+                            disabled={statusMutation.isPending}
+                            onClick={() => statusMutation.mutate(
+                              { hostelId: hostel.id, action: "approve" },
+                              { onSuccess: () => toast.success("Hostel approved"), onError: () => toast.error("Failed to approve") }
+                            )}
+                          >
+                            <Check size={14} /> Approve
+                          </button>
+                          <button
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-error/30 px-3 py-2 text-xs font-medium text-error transition-colors hover:bg-error/5 disabled:opacity-50"
+                            type="button"
+                            disabled={statusMutation.isPending}
+                            onClick={() => { setRejectingHostelId(hostel.id); setRejectReason(""); }}
+                          >
+                            <XCircle size={14} /> Reject
+                          </button>
+                        </>
+                      )}
 
-      <button
-        className="rounded-xl border border-slate-300 text-slate-600 text-xs px-3 py-1.5 hover:bg-slate-50 transition-colors"
-        type="button"
-        disabled={statusMutation.isPending}
-        onClick={() =>
-          statusMutation.mutate(
-            { hostelId: hostel.id, action: "suspend" },
-            {
-              onSuccess: () => toast.success("Hostel suspended"),
-              onError: () => toast.error("Failed to suspend"),
-            }
-          )
-        }
-      >
-        Suspend
-      </button>
-    </>
-  )}
-<button
-  className="rounded-xl border border-red-500 text-red-600 text-xs px-3 py-1.5 hover:bg-red-50 transition-colors"
-  type="button"
-  onClick={() =>
-    setShowDeleteConfirm({
-      show: true,
-      hostel,
-    })
-  }
->
-  Delete
-</button>
+                      {(hostel.status === "pending_approval" || hostel.status === "active") && (
+                        <button
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                          type="button"
+                          disabled={statusMutation.isPending}
+                          onClick={() => statusMutation.mutate(
+                            { hostelId: hostel.id, action: "suspend" },
+                            { onSuccess: () => toast.success("Hostel suspended"), onError: () => toast.error("Failed to suspend") }
+                          )}
+                        >
+                          <Pause size={14} /> Suspend
+                        </button>
+                      )}
 
-  {hostel.status === "active" && (
-    <button
-      className="rounded-xl border border-slate-300 text-slate-600 text-xs px-3 py-1.5 hover:bg-slate-50 transition-colors"
-      type="button"
-      disabled={statusMutation.isPending}
-      onClick={() =>
-        statusMutation.mutate(
-          { hostelId: hostel.id, action: "suspend" },
-          {
-            onSuccess: () => toast.success("Hostel suspended"),
-            onError: () => toast.error("Failed to suspend"),
-          }
-        )
-      }
-    >
-      Suspend
-    </button>
-  )}
+                      {hostel.status === "rejected" && <span className="mr-auto text-xs font-medium text-error">Hostel rejected</span>}
+                      {hostel.status === "suspended" && <span className="mr-auto text-xs font-medium text-slate-500">Hostel suspended</span>}
 
-  {hostel.status === "rejected" && (
-    <span className="text-xs font-medium text-error">
-      Hostel Rejected
-    </span>
-  )}
+                      <button
+                        className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
+                        type="button"
+                        onClick={() => setShowDeleteConfirm({ show: true, hostel })}
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
 
-  {hostel.status === "suspended" && (
-    <span className="text-xs font-medium text-slate-500">
-      Hostel Suspended
-    </span>
-  )}
-
-</div>
-                </div>
-              </article>
-            ))}
             {!hostelsQuery.isLoading && (hostelsQuery.data?.items.length ?? 0) === 0 && (
-              <p className="text-sm text-slate-500 py-8 text-center">No hostels found.</p>
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 py-14 text-center">
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                  <Building2 size={22} />
+                </div>
+                <p className="font-medium text-slate-700">No hostels found</p>
+                <p className="mt-1 text-sm text-slate-500">Try selecting a different status filter.</p>
+              </div>
             )}
+
             {(hostelsQuery.data?.total ?? 0) > 10 && (
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" className="rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Prev</button>
-                <span className="text-sm text-slate-500">Page {page}</span>
-                <button type="button" className="rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50"
+              <div className="mt-5 flex items-center justify-center gap-3 border-t border-slate-100 pt-5 sm:justify-end">
+                <button type="button" className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</button>
+                <span className="text-sm font-medium text-slate-500">Page {page}</span>
+                <button type="button" className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
                   onClick={() => setPage((p) => p + 1)} disabled={page * 10 >= (hostelsQuery.data?.total ?? 0)}>Next</button>
               </div>
             )}
