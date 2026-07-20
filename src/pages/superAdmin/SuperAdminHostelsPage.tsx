@@ -162,7 +162,7 @@ export function SuperAdminHostelsPage() {
   const handleCreate = async () => {
     if (!form.name.trim() || !form.slug.trim()) return;
 
-    // Client-side validation matching backend schema
+    
     const errors: string[] = [];
     if (form.description.trim().length < 10) errors.push("Description must be at least 10 characters");
   const address = form.address_line1.trim();
@@ -358,10 +358,6 @@ if (!/^\d{10}$/.test(phone)) {
             {/* Map location picker — replaces lat/lng text inputs */}
             
           </div>
-
-         
-
-
           
 
           <div className="flex items-center gap-4 pt-1">

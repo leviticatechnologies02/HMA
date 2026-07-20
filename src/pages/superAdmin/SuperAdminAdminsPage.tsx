@@ -21,6 +21,8 @@ export function SuperAdminAdminsPage() {
     if (!selectedHostel) return;
     try {
       await assignMutation.mutateAsync({ adminId, hostelId: selectedHostel, isPrimary: false });
+      await hostelsQ.refetch();
+console.log(hostelsQ.data);
       toast.success("Hostel assigned");
       setAssigningAdmin(null);
       setSelectedHostel("");
@@ -29,8 +31,19 @@ export function SuperAdminAdminsPage() {
 
   if (!userId) return <div className="p-8 text-slate-500">Please login as super admin.</div>;
 
-  const admins = adminsQ.data ?? [];
-  const hostels = hostelsQ.data ?? [];
+ 
+ const admins = adminsQ.data ?? [];
+const allHostels = hostelsQ.data ?? [];
+
+const assignedEmails = admins.map((admin: any) =>
+  admin.email?.toLowerCase()
+);
+
+const hostels = allHostels.filter(
+  (hostel: any) =>
+    hostel.status === "active" && // Only approved hostels
+    !assignedEmails.includes(hostel.hostel_admin_email?.toLowerCase())
+);
 
   return (
     <div className="space-y-6">

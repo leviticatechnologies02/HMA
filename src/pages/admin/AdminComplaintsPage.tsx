@@ -88,10 +88,29 @@ export function AdminComplaintsPage() {
             <div key={c.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 hover:border-primary/20 dark:hover:border-primary/30 transition-all cursor-pointer" onClick={() => openModal(c)}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-dark dark:text-white">{c.title}</h3>
-                    <span className="font-mono text-xs text-slate-400 dark:text-slate-500">{c.complaint_number}</span>
-                  </div>
+                  <div className="space-y-1">
+
+  {/* Title + Complaint Number */}
+  <div className="flex items-center gap-2 flex-wrap">
+    <h3 className="font-semibold text-dark dark:text-white">
+      {c.title}
+    </h3>
+
+    <span className="font-mono text-xs text-slate-400 dark:text-slate-500">
+      {c.complaint_number}
+    </span>
+  </div>
+
+  {/* Raised By */}
+  <p className="text-sm text-slate-500 dark:text-slate-400">
+    Raised by:
+    <span className="ml-1 font-medium">
+      {c.student_name}
+    </span>
+  </p>
+
+</div>
+ 
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 capitalize">{c.category} · {c.priority}</p>
                   <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{c.description}</p>
                   {c.sla_deadline && (

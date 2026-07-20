@@ -144,11 +144,29 @@ export function RegisterHostelPage() {
 
     const errors: string[] = [];
     if (form.description.trim().length < 10) errors.push("Description must be at least 10 characters");
-    if (!form.address_line1.trim()) errors.push("Address is required");
+    const address = form.address_line1.trim();
+
+if (!address) {
+  errors.push("Full address is required");
+} else {
+  const hasNumber = /\d/.test(address);
+
+  const words = address.match(/[A-Za-z]+/g) || [];
+
+  if (!hasNumber || words.length < 2) {
+    errors.push(
+      "Enter a valid address like 'Plot 18 Jubilee Hills'"
+    );
+  }
+}
     if (!form.city.trim()) errors.push("City is required");
     if (!form.state.trim()) errors.push("State is required");
     if (form.pincode.trim().length < 3) errors.push("Pincode must be at least 3 characters");
-    if (form.phone.trim().length < 5) errors.push("Phone must be at least 5 characters");
+    const phone = form.phone.trim();
+
+if (!/^\d{10}$/.test(phone)) {
+  errors.push("Phone number must contain exactly 10 digits");
+}
     if (form.email.trim().length < 5 || !form.email.includes("@")) errors.push("Valid email is required");
     if (errors.length > 0) {
       toast.error(errors[0]);
@@ -216,7 +234,7 @@ export function RegisterHostelPage() {
  
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Address Line 1 *</label>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">FULL ADDRESS *</label>
             <input className="input-field" placeholder="Street / Area" value={form.address_line1}
               onChange={(e) => setForm((c) => ({ ...c, address_line1: e.target.value }))} />
           </div>
@@ -272,8 +290,22 @@ export function RegisterHostelPage() {
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Phone *</label>
-            <input className="input-field" placeholder="+91 9008700000" value={form.phone}
-              onChange={(e) => setForm((c) => ({ ...c, phone: e.target.value }))} />
+            <input
+  className="input-field"
+  placeholder="9876543210"
+  type="tel"
+  inputMode="numeric"
+  maxLength={10}
+  value={form.phone}
+  onChange={(e) => {
+    const phone = e.target.value.replace(/\D/g, "").slice(0, 10);
+
+    setForm((c) => ({
+      ...c,
+      phone,
+    }));
+  }}
+/>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Email *</label>
@@ -281,55 +313,7 @@ export function RegisterHostelPage() {
               onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} />
           </div>
  
-          <div className="col-span-2">
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
-              Location on Map
-              <span className="ml-2 normal-case font-normal text-slate-400">
-                {form.latitude && form.longitude
-                  ? `📍 ${form.latitude.toFixed(4)}, ${form.longitude.toFixed(4)}`
-                  : "Auto-set from city — enter pincode or select city"}
-              </span>
-            </label>
-            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-[#2D2D4A] h-48 bg-slate-100 dark:bg-[#0D0D1A]">
-              {(form.latitude !== 0 && form.longitude !== 0) ? (
-                <iframe
-                  key={`${form.latitude}-${form.longitude}`}
-                  title="Hostel Location"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${form.longitude - 0.02},${form.latitude - 0.02},${form.longitude + 0.02},${form.latitude + 0.02}&layer=mapnik&marker=${form.latitude},${form.longitude}`}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-                  Select a city or enter a pincode to see the map
-                </div>
-              )}
-            </div>
-            {(form.latitude !== 0 && form.longitude !== 0) && (
-              <a
-                href={`https://www.openstreetmap.org/?mlat=${form.latitude}&mlon=${form.longitude}#map=15/${form.latitude}/${form.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 text-xs text-primary hover:underline inline-block"
-              >
-                Open in OpenStreetMap to verify →
-              </a>
-            )}
- 
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">Latitude</label>
-                <input className="input-field text-xs py-2" placeholder="e.g. 17.3850" type="number" value={form.latitude || ""}
-                  onChange={(e) => setForm((c) => ({ ...c, latitude: Number(e.target.value) }))} />
-              </div>
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">Longitude</label>
-                <input className="input-field text-xs py-2" placeholder="e.g. 78.4867" type="number" value={form.longitude || ""}
-                  onChange={(e) => setForm((c) => ({ ...c, longitude: Number(e.target.value) }))} />
-              </div>
-            </div>
-          </div>
+        
         </div>
  
  

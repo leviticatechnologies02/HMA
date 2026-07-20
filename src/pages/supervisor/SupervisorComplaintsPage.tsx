@@ -70,12 +70,30 @@ export function SupervisorComplaintsPage() {
                 <div key={complaint.id} className="p-5 space-y-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-dark">{complaint.title}</h3>
-                        <span className="font-mono text-xs text-slate-400">{complaint.complaint_number}</span>
-                      </div>
+                     <div className="space-y-1">
+
+  {/* Title Row */}
+  <div className="flex items-center gap-2 flex-wrap">
+    <h3 className="font-semibold text-dark mt-2">
+      {complaint.title}
+    </h3>
+
+    <span className="font-mono text-xs text-slate-400 mt-1">
+      {complaint.complaint_number}
+    </span>
+  </div>
+
+  {/* Raised By Row */}
+  <p className="text-sm text-slate-500 mt-1">
+    Raised by:
+    <span className="ml-1 font-medium">
+      {complaint.student_name}
+    </span>
+  </p>
+
+</div>
                       <p className="mt-1 text-xs text-slate-500 capitalize">{complaint.category} · {complaint.priority}</p>
-                      <p className={`mt-1 text-xs font-medium ${sla.isOverdue ? "text-error" : "text-slate-400"}`}>
+                      <p className={`mt-2 text-xs font-medium ${sla.isOverdue ? "text-error" : "text-slate-400"}`}>
                         SLA: {sla.label} · Due {sla.dueAt? formatDate(sla.dueAt) : "N/A"}
                       </p>
                       <p className="mt-2 text-sm text-slate-600">{complaint.description}</p>
