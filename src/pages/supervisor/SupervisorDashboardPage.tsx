@@ -25,8 +25,19 @@ export function SupervisorDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-dark">Supervisor Dashboard</h1>
-        <p className="mt-1 text-slate-500">Monitor students, complaints, attendance, and maintenance.</p>
+        <div className="flex items-center gap-3 mb-1">
+          <h1 className="text-3xl font-heading font-bold text-dark">Supervisor Dashboard</h1>
+          {data?.hostel_names && data.hostel_names.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {data.hostel_names.map((name: string, i: number) => (
+                <span key={i} className="px-3 py-1 bg-primary/10 text-primary text-sm font-semibold rounded-lg border border-primary/20">
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <p className="text-slate-500">Monitor students, complaints, attendance, and maintenance.</p>
       </div>
 
       {/* Stats */}

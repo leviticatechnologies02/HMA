@@ -145,6 +145,7 @@ export type SupervisorDashboard = {
   maintenance_requests: number;
   notices: number;
   hostels: number;
+  hostel_names: string[];
 };
 
 export type ChangePasswordPayload = {

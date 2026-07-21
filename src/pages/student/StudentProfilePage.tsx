@@ -23,8 +23,8 @@ export function StudentProfilePage() {
   const { data, isLoading, isError } = useStudentProfile(userId);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: "", phone: "" });
-  const [showLeave, setShowLeave] = useState(false);
-  const [leaveForm, setLeaveForm] = useState({ from_date: "", to_date: "", reason: "" });
+  // const [showLeave, setShowLeave] = useState(false);
+  // const [leaveForm, setLeaveForm] = useState({ from_date: "", to_date: "", reason: "" });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -58,6 +58,7 @@ export function StudentProfilePage() {
     onError: (e: any) => toast.error(e?.response?.data?.detail ?? "Update failed"),
   });
 
+/*
   const leaveM = useMutation({
     mutationFn: (payload: { from_date: string; to_date: string; reason: string }) =>
       api.post("/student/leave-request", payload).then(r => r.data),
@@ -68,7 +69,7 @@ export function StudentProfilePage() {
     },
     onError: (e: any) => toast.error(e?.response?.data?.detail ?? "Failed to submit leave request"),
   });
-
+*/
   const changePasswordM = useMutation({
     mutationFn: (payload: { old_password: string; new_password: string; confirm_password: string }) =>
       api.post("/student/change-password", payload).then(r => r.data),
@@ -250,10 +251,12 @@ export function StudentProfilePage() {
             className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-dark hover:border-primary hover:text-primary transition-all">
             <Edit2 className="w-3.5 h-3.5" /> Edit
           </button>
+          {/* 
           <button onClick={() => setShowLeave(true)}
             className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-warning/30 text-xs sm:text-sm font-medium text-warning hover:bg-warning/5 transition-all">
             <LogOut className="w-3.5 h-3.5" /> Leave Request
           </button>
+          */}
         </div>
       </div>
 
@@ -311,7 +314,7 @@ export function StudentProfilePage() {
       )}
 
       {/* Leave Request Form */}
-      {showLeave && (() => {
+      {/* showLeave && (() => {
         const today = new Date().toISOString().split('T')[0];
         const fromDateError = leaveForm.from_date && leaveForm.from_date < today ? "From date cannot be in the past" : "";
         const toDateError = leaveForm.to_date && leaveForm.from_date && leaveForm.to_date < leaveForm.from_date ? "To date must be after from date" : "";
@@ -345,7 +348,7 @@ export function StudentProfilePage() {
           </div>
         </div>
         );
-      })()}
+      })() */}
 
       {/* Contact info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

@@ -27,7 +27,7 @@ const defaultForm = {
   latitude: 0,
   longitude: 0,
   phone: "",
-  email:"",
+  email: "",
   website: "",
   is_featured: false,
   is_public: true,
@@ -48,14 +48,15 @@ export function SuperAdminHostelsPage() {
   const [rejectingHostelId, setRejectingHostelId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{
-  show: boolean;
-  hostel: SuperAdminHostel | null;
-}>({
-  show: false,
-  hostel: null,
-});
+    show: boolean;
+    hostel: SuperAdminHostel | null;
+  }>({
+    show: false,
+    hostel: null,
+  });
   const [imageUrls, setImageUrls] = useState<string[]>(["", "", ""]);
   const [submitting, setSubmitting] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [managingHostel, setManagingHostel] = useState<SuperAdminHostel | null>(null);
   const [citySearch, setCitySearch] = useState("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
@@ -74,37 +75,37 @@ export function SuperAdminHostelsPage() {
 
   // City data: city → { state, lat, lng }
   const CITY_DATA: Record<string, { state: string; lat: number; lng: number }> = {
-    "Hyderabad":      { state: "Telangana",       lat: 17.3850, lng: 78.4867 },
-    "Bangalore":      { state: "Karnataka",        lat: 12.9716, lng: 77.5946 },
-    "Bengaluru":      { state: "Karnataka",        lat: 12.9716, lng: 77.5946 },
-    "Mumbai":         { state: "Maharashtra",      lat: 19.0760, lng: 72.8777 },
-    "Pune":           { state: "Maharashtra",      lat: 18.5204, lng: 73.8567 },
-    "Delhi":          { state: "Delhi",            lat: 28.6139, lng: 77.2090 },
-    "New Delhi":      { state: "Delhi",            lat: 28.6139, lng: 77.2090 },
-    "Chennai":        { state: "Tamil Nadu",       lat: 13.0827, lng: 80.2707 },
-    "Kolkata":        { state: "West Bengal",      lat: 22.5726, lng: 88.3639 },
-    "Ahmedabad":      { state: "Gujarat",          lat: 23.0225, lng: 72.5714 },
-    "Jaipur":         { state: "Rajasthan",        lat: 26.9124, lng: 75.7873 },
-    "Surat":          { state: "Gujarat",          lat: 21.1702, lng: 72.8311 },
-    "Lucknow":        { state: "Uttar Pradesh",    lat: 26.8467, lng: 80.9462 },
-    "Nagpur":         { state: "Maharashtra",      lat: 21.1458, lng: 79.0882 },
-    "Indore":         { state: "Madhya Pradesh",   lat: 22.7196, lng: 75.8577 },
-    "Bhopal":         { state: "Madhya Pradesh",   lat: 23.2599, lng: 77.4126 },
-    "Visakhapatnam":  { state: "Andhra Pradesh",   lat: 17.6868, lng: 83.2185 },
-    "Patna":          { state: "Bihar",            lat: 25.5941, lng: 85.1376 },
-    "Vadodara":       { state: "Gujarat",          lat: 22.3072, lng: 73.1812 },
-    "Coimbatore":     { state: "Tamil Nadu",       lat: 11.0168, lng: 76.9558 },
-    "Kochi":          { state: "Kerala",           lat:  9.9312, lng: 76.2673 },
-    "Thiruvananthapuram": { state: "Kerala",       lat:  8.5241, lng: 76.9366 },
-    "Chandigarh":     { state: "Chandigarh",       lat: 30.7333, lng: 76.7794 },
-    "Guwahati":       { state: "Assam",            lat: 26.1445, lng: 91.7362 },
-    "Bhubaneswar":    { state: "Odisha",           lat: 20.2961, lng: 85.8245 },
-    "Dehradun":       { state: "Uttarakhand",      lat: 30.3165, lng: 78.0322 },
-    "Ranchi":         { state: "Jharkhand",        lat: 23.3441, lng: 85.3096 },
-    "Mysuru":         { state: "Karnataka",        lat: 12.2958, lng: 76.6394 },
-    "Mysore":         { state: "Karnataka",        lat: 12.2958, lng: 76.6394 },
-    "Goa":            { state: "Goa",              lat: 15.2993, lng: 74.1240 },
-    "Panaji":         { state: "Goa",              lat: 15.4909, lng: 73.8278 },
+    "Hyderabad": { state: "Telangana", lat: 17.3850, lng: 78.4867 },
+    "Bangalore": { state: "Karnataka", lat: 12.9716, lng: 77.5946 },
+    "Bengaluru": { state: "Karnataka", lat: 12.9716, lng: 77.5946 },
+    "Mumbai": { state: "Maharashtra", lat: 19.0760, lng: 72.8777 },
+    "Pune": { state: "Maharashtra", lat: 18.5204, lng: 73.8567 },
+    "Delhi": { state: "Delhi", lat: 28.6139, lng: 77.2090 },
+    "New Delhi": { state: "Delhi", lat: 28.6139, lng: 77.2090 },
+    "Chennai": { state: "Tamil Nadu", lat: 13.0827, lng: 80.2707 },
+    "Kolkata": { state: "West Bengal", lat: 22.5726, lng: 88.3639 },
+    "Ahmedabad": { state: "Gujarat", lat: 23.0225, lng: 72.5714 },
+    "Jaipur": { state: "Rajasthan", lat: 26.9124, lng: 75.7873 },
+    "Surat": { state: "Gujarat", lat: 21.1702, lng: 72.8311 },
+    "Lucknow": { state: "Uttar Pradesh", lat: 26.8467, lng: 80.9462 },
+    "Nagpur": { state: "Maharashtra", lat: 21.1458, lng: 79.0882 },
+    "Indore": { state: "Madhya Pradesh", lat: 22.7196, lng: 75.8577 },
+    "Bhopal": { state: "Madhya Pradesh", lat: 23.2599, lng: 77.4126 },
+    "Visakhapatnam": { state: "Andhra Pradesh", lat: 17.6868, lng: 83.2185 },
+    "Patna": { state: "Bihar", lat: 25.5941, lng: 85.1376 },
+    "Vadodara": { state: "Gujarat", lat: 22.3072, lng: 73.1812 },
+    "Coimbatore": { state: "Tamil Nadu", lat: 11.0168, lng: 76.9558 },
+    "Kochi": { state: "Kerala", lat: 9.9312, lng: 76.2673 },
+    "Thiruvananthapuram": { state: "Kerala", lat: 8.5241, lng: 76.9366 },
+    "Chandigarh": { state: "Chandigarh", lat: 30.7333, lng: 76.7794 },
+    "Guwahati": { state: "Assam", lat: 26.1445, lng: 91.7362 },
+    "Bhubaneswar": { state: "Odisha", lat: 20.2961, lng: 85.8245 },
+    "Dehradun": { state: "Uttarakhand", lat: 30.3165, lng: 78.0322 },
+    "Ranchi": { state: "Jharkhand", lat: 23.3441, lng: 85.3096 },
+    "Mysuru": { state: "Karnataka", lat: 12.2958, lng: 76.6394 },
+    "Mysore": { state: "Karnataka", lat: 12.2958, lng: 76.6394 },
+    "Goa": { state: "Goa", lat: 15.2993, lng: 74.1240 },
+    "Panaji": { state: "Goa", lat: 15.4909, lng: 73.8278 },
   };
 
   const allCities = Object.keys(CITY_DATA);
@@ -162,32 +163,32 @@ export function SuperAdminHostelsPage() {
   const handleCreate = async () => {
     if (!form.name.trim() || !form.slug.trim()) return;
 
-    
+
     const errors: string[] = [];
     if (form.description.trim().length < 10) errors.push("Description must be at least 10 characters");
-  const address = form.address_line1.trim();
+    const address = form.address_line1.trim();
 
-if (!address) {
-  errors.push("Full address is required");
-} else {
-  const hasNumber = /\d/.test(address);
+    if (!address) {
+      errors.push("Full address is required");
+    } else {
+      const hasNumber = /\d/.test(address);
 
-  const words = address.match(/[A-Za-z]+/g) || [];
+      const words = address.match(/[A-Za-z]+/g) || [];
 
-  if (!hasNumber || words.length < 2) {
-    errors.push(
-      "Enter a valid address like 'Plot 18 Jubilee Hills'"
-    );
-  }
-}
+      if (!hasNumber || words.length < 2) {
+        errors.push(
+          "Enter a valid address like 'Plot 18 Jubilee Hills'"
+        );
+      }
+    }
     if (!form.city.trim()) errors.push("City is required");
     if (!form.state.trim()) errors.push("State is required");
     if (form.pincode.trim().length < 3) errors.push("Pincode must be at least 3 characters");
-   const phone = form.phone.trim();
+    const phone = form.phone.trim();
 
-if (!/^\d{10}$/.test(phone)) {
-  errors.push("Phone number must contain exactly 10 digits");
-}
+    if (!/^\d{10}$/.test(phone)) {
+      errors.push("Phone number must contain exactly 10 digits");
+    }
     if (form.email.trim().length < 5 || !form.email.includes("@")) errors.push("Valid email is required");
     if (errors.length > 0) {
       toast.error(errors[0]);
@@ -216,6 +217,7 @@ if (!/^\d{10}$/.test(phone)) {
       toast.success(`Hostel "${hostel.name}" created${validImages.length ? ` with ${validImages.length} image(s)` : ""}`);
       setForm(defaultForm);
       setImageUrls(["", "", ""]);
+      setShowCreateForm(false);
     } catch (err: any) {
       // Show the actual backend validation error
       const detail = err?.response?.data?.detail;
@@ -236,156 +238,181 @@ if (!/^\d{10}$/.test(phone)) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-heading font-bold text-dark">Super Admin Hostels</h1>
-        <p className="text-slate-600">Create hostels and control approval or suspension status.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-heading font-bold text-dark">Super Admin Hostels</h1>
+          <p className="text-slate-600">Create hostels and control approval or suspension status.</p>
+        </div>
+        <button
+          className="btn-primary flex items-center gap-2 whitespace-nowrap"
+          onClick={() => setShowCreateForm(true)}
+        >
+          <Building2 size={16} /> Create Hostel
+        </button>
       </div>
       <div className="space-y-6">
-        {/* ── Create Form ── */}
-        <section className="rounded-2xl bg-white p-6 shadow-sm border border-slate-100 space-y-4">
-          <h2 className="text-center text-xl font-semibold text-dark">Create Hostel</h2>
-          <p className="text-xs text-slate-400">Fields marked * are required</p>
+        {/* ── Create Form Modal ── */}
+        {showCreateForm && (
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-3xl my-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+              <button
+                onClick={() => setShowCreateForm(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <XCircle size={24} />
+              </button>
+              <h2 className="text-center text-xl font-semibold text-dark">Create Hostel</h2>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Hostel name *</label>
-              <input className="input-field" placeholder="e.g. Green Valley Boys Hostel" value={form.name}
-                onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} />
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Slug * <span className="font-normal text-slate-400">(URL-friendly ID)</span></label>
-              <input className="input-field" placeholder="e.g. green-valley-boys-hostel" value={form.slug}
-                onChange={(e) => setForm((c) => ({ ...c, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") }))} />
-            </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Hostel name *</label>
+                  <input className="input-field" placeholder="e.g. Green Valley Boys Hostel" value={form.name}
+                    onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} />
+                </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Description * <span className="font-normal text-slate-400">(min 10 chars)</span></label>
-              <textarea className="input-field min-h-20" placeholder="Describe the hostel facilities, location, highlights..." value={form.description}
-                onChange={(e) => setForm((c) => ({ ...c, description: e.target.value }))} />
-            </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Slug * <span className="font-normal text-slate-400">(URL-friendly ID)</span></label>
+                  <input className="input-field" placeholder="e.g. green-valley-boys-hostel" value={form.slug}
+                    onChange={(e) => setForm((c) => ({ ...c, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") }))} />
+                </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Hostel type *</label>
-              <select className="input-field" value={form.hostel_type}
-                onChange={(e) => setForm((c) => ({ ...c, hostel_type: e.target.value }))}>
-                <option value="boys">Boys</option>
-                <option value="girls">Girls</option>
-                <option value="co-living">Co-living</option>
-              </select>
-            </div>
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Description * <span className="font-normal text-slate-400">(min 10 chars)</span></label>
+                  <textarea className="input-field min-h-20" placeholder="Describe the hostel facilities, location, highlights..." value={form.description}
+                    onChange={(e) => setForm((c) => ({ ...c, description: e.target.value }))} />
+                </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Email *</label>
-              <input className="input-field" placeholder="hostel@email.com" value={form.email}
-                onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} />
-            </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Hostel type *</label>
+                  <select className="input-field" value={form.hostel_type}
+                    onChange={(e) => setForm((c) => ({ ...c, hostel_type: e.target.value }))}>
+                    <option value="boys">Boys</option>
+                    <option value="girls">Girls</option>
+                    <option value="co-living">Co-living</option>
+                  </select>
+                </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Full address *</label>
-              <input className="input-field" placeholder="Street / Area" value={form.address_line1}
-                onChange={(e) => setForm((c) => ({ ...c, address_line1: e.target.value }))} />
-            </div>
-            <div className="relative">
-              <label className="block text-xs font-semibold text-slate-500 mb-1">City *</label>
-              <input
-                className="input-field"
-                placeholder="Type city name..."
-                value={citySearch || form.city}
-                autoComplete="off"
-                onChange={(e) => {
-                  setCitySearch(e.target.value);
-                  setForm((c) => ({ ...c, city: e.target.value }));
-                  setShowCitySuggestions(true);
-                }}
-                onFocus={() => setShowCitySuggestions(true)}
-                onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
-              />
-              {showCitySuggestions && filteredCities.length > 0 && (
-                <ul className="absolute z-20 left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-                  {filteredCities.map((city) => (
-                    <li key={city}
-                      className="px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/5 hover:text-primary flex items-center justify-between"
-                      onMouseDown={() => handleCitySelect(city)}>
-                      <span>{city}</span>
-                      <span className="text-xs text-slate-400">{CITY_DATA[city]?.state}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">State * <span className="font-normal text-slate-400">(auto-filled)</span></label>
-              <input className="input-field bg-slate-50" placeholder="Auto-filled from city" value={form.state}
-                onChange={(e) => setForm((c) => ({ ...c, state: e.target.value }))} />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">
-                Pincode *
-                {pincodeLoading && <span className="ml-2 normal-case font-normal text-slate-400">Looking up...</span>}
-                {pincodeError && <span className="ml-2 normal-case font-normal text-error">{pincodeError}</span>}
-              </label>
-              <input
-                className="input-field"
-                placeholder="e.g. 500001"
-                value={form.pincode}
-                maxLength={6}
-                onChange={(e) => handlePincodeChange(e.target.value)}
-              />
-              {!pincodeError && !pincodeLoading && form.pincode.length === 6 && form.city && (
-                <p className="mt-1 text-xs text-success">✓ City and State auto-filled from pincode</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">Phone *</label>
-              <input
-                className="input-field"
-                placeholder="9876543210"
-                type="tel"
-                inputMode="numeric"
-                maxLength={10}
-                value={form.phone}
-                onChange={(e) => {
-                  const phone = e.target.value.replace(/\D/g, "").slice(0, 10);
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Email *</label>
+                  <input className="input-field" placeholder="hostel@email.com" value={form.email}
+                    onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} />
+                </div>
 
-                  setForm((c) => ({
-                    ...c,
-                    phone,
-                  }));
-                }}
-              />
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Full address *</label>
+                  <input className="input-field" placeholder="Street / Area" value={form.address_line1}
+                    onChange={(e) => setForm((c) => ({ ...c, address_line1: e.target.value }))} />
+                </div>
+                <div className="relative">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">City *</label>
+                  <input
+                    className="input-field"
+                    placeholder="Type city name..."
+                    value={citySearch || form.city}
+                    autoComplete="off"
+                    onChange={(e) => {
+                      setCitySearch(e.target.value);
+                      setForm((c) => ({ ...c, city: e.target.value }));
+                      setShowCitySuggestions(true);
+                    }}
+                    onFocus={() => setShowCitySuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                  />
+                  {showCitySuggestions && filteredCities.length > 0 && (
+                    <ul className="absolute z-20 left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                      {filteredCities.map((city) => (
+                        <li key={city}
+                          className="px-4 py-2.5 text-sm cursor-pointer hover:bg-primary/5 hover:text-primary flex items-center justify-between"
+                          onMouseDown={() => handleCitySelect(city)}>
+                          <span>{city}</span>
+                          <span className="text-xs text-slate-400">{CITY_DATA[city]?.state}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">State * <span className="font-normal text-slate-400">(auto-filled)</span></label>
+                  <input className="input-field bg-slate-50" placeholder="Auto-filled from city" value={form.state}
+                    onChange={(e) => setForm((c) => ({ ...c, state: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">
+                    Pincode *
+                    {pincodeLoading && <span className="ml-2 normal-case font-normal text-slate-400">Looking up...</span>}
+                    {pincodeError && <span className="ml-2 normal-case font-normal text-error">{pincodeError}</span>}
+                  </label>
+                  <input
+                    className="input-field"
+                    placeholder="e.g. 500001"
+                    value={form.pincode}
+                    maxLength={6}
+                    onChange={(e) => handlePincodeChange(e.target.value)}
+                  />
+                  {!pincodeError && !pincodeLoading && form.pincode.length === 6 && form.city && (
+                    <p className="mt-1 text-xs text-success">✓ City and State auto-filled from pincode</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Phone *</label>
+                  <input
+                    className="input-field"
+                    placeholder="9876543210"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={form.phone}
+                    onChange={(e) => {
+                      const phone = e.target.value.replace(/\D/g, "").slice(0, 10);
+
+                      setForm((c) => ({
+                        ...c,
+                        phone,
+                      }));
+                    }}
+                  />
+                </div>
+                {/* Map location picker — replaces lat/lng text inputs */}
+
+              </div>
+
+
+              <div className="flex items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="checkbox" checked={form.is_public}
+                    onChange={(e) => setForm((c) => ({ ...c, is_public: e.target.checked }))}
+                    className="w-4 h-4 accent-primary" />
+                  Public listing
+                </label>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="checkbox" checked={form.is_featured}
+                    onChange={(e) => setForm((c) => ({ ...c, is_featured: e.target.checked }))}
+                    className="w-4 h-4 accent-primary" />
+                  Featured
+                </label>
+              </div>
+
+              <div className="flex justify-center pt-4 gap-3">
+                <button
+                  className="btn-outline min-w-32 justify-center"
+                  type="button"
+                  onClick={() => setShowCreateForm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn-primary min-w-48 justify-center disabled:opacity-60"
+                  disabled={submitting || !form.name.trim() || !form.slug.trim()}
+                  type="button"
+                  onClick={handleCreate}
+                >
+                  {submitting ? "Creating..." : "Create Hostel"}
+                </button>
+              </div>
             </div>
-            {/* Map location picker — replaces lat/lng text inputs */}
-            
           </div>
-          
-
-          <div className="flex items-center gap-4 pt-1">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={form.is_public}
-                onChange={(e) => setForm((c) => ({ ...c, is_public: e.target.checked }))}
-                className="w-4 h-4 accent-primary" />
-              Public listing
-            </label>
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={form.is_featured}
-                onChange={(e) => setForm((c) => ({ ...c, is_featured: e.target.checked }))}
-                className="w-4 h-4 accent-primary" />
-              Featured
-            </label>
-          </div>
-
-          <div className="flex justify-center pt-2">
-            <button
-              className="btn-primary min-w-48 justify-center disabled:opacity-60"
-              disabled={submitting || !form.name.trim() || !form.slug.trim()}
-              type="button"
-              onClick={handleCreate}
-            >
-              {submitting ? "Creating..." : "Create Hostel"}
-            </button>
-          </div>
-        </section>
+        )}
 
         {/* ── Registry ── */}
         <section className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
@@ -581,64 +608,64 @@ if (!/^\d{10}$/.test(phone)) {
         </div>
       )}
 
-{showDeleteConfirm.show && (
- <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      {showDeleteConfirm.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="w-[90%] max-w-[400px] rounded-2xl bg-white shadow-2xl">
             <div className="px-8 pt-8">
               <h2 className="text-[22px] font-bold text-slate-900">
-          Delete Hostel
-        </h2>
+                Delete Hostel
+              </h2>
 
-        <p className="mt-3 text-[16px] text-slate-600">
-          Are you sure you want to delete Hostel{" "}
-          <span className="font-semibold text-[#182238]">
-            {showDeleteConfirm.hostel?.name}
-          </span>
-          ?
-        </p>
-      </div>
+              <p className="mt-3 text-[16px] text-slate-600">
+                Are you sure you want to delete Hostel{" "}
+                <span className="font-semibold text-[#182238]">
+                  {showDeleteConfirm.hostel?.name}
+                </span>
+                ?
+              </p>
+            </div>
 
-      <div className="flex justify-end gap-3 px-5 pt-8 pb-6 sm:px-8 sm:pt-10 sm:pb-8">
+            <div className="flex justify-end gap-3 px-5 pt-8 pb-6 sm:px-8 sm:pt-10 sm:pb-8">
 
-        <button
-          onClick={() =>
-            setShowDeleteConfirm({
-              show: false,
-              hostel: null,
-            })
-          }
-          className="h-11 w-28 sm:h-12 sm:w-32 rounded-xl border border-[#D5DCE8] bg-white text-sm sm:text-base font-medium text-[#42526B]"
-        >
-          Cancel
-        </button>
+              <button
+                onClick={() =>
+                  setShowDeleteConfirm({
+                    show: false,
+                    hostel: null,
+                  })
+                }
+                className="h-11 w-28 sm:h-12 sm:w-32 rounded-xl border border-[#D5DCE8] bg-white text-sm sm:text-base font-medium text-[#42526B]"
+              >
+                Cancel
+              </button>
 
-        <button
-          onClick={() => {
-            if (!showDeleteConfirm.hostel) return;
+              <button
+                onClick={() => {
+                  if (!showDeleteConfirm.hostel) return;
 
-            deleteMutation.mutate(showDeleteConfirm.hostel.id, {
-              onSuccess: () => {
-                toast.success("Hostel deleted");
+                  deleteMutation.mutate(showDeleteConfirm.hostel.id, {
+                    onSuccess: () => {
+                      toast.success("Hostel deleted");
 
-                setShowDeleteConfirm({
-                  show: false,
-                  hostel: null,
-                });
-              },
-              onError: () => {
-                toast.error("Failed to delete hostel");
-              },
-            });
-          }}
-         className="h-11 w-28 sm:h-12 sm:w-32 rounded-xl bg-[#EB2424] text-sm sm:text-base font-semibold text-white"
-        >
-          Delete
-        </button>
+                      setShowDeleteConfirm({
+                        show: false,
+                        hostel: null,
+                      });
+                    },
+                    onError: () => {
+                      toast.error("Failed to delete hostel");
+                    },
+                  });
+                }}
+                className="h-11 w-28 sm:h-12 sm:w-32 rounded-xl bg-[#EB2424] text-sm sm:text-base font-semibold text-white"
+              >
+                Delete
+              </button>
 
-      </div>
-    </div>
-  </div>
-)}
+            </div>
+          </div>
+        </div>
+      )}
       {managingHostel && userId && (
         <HostelManageDrawer
           hostel={managingHostel}

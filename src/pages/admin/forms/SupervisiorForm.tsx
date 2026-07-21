@@ -53,53 +53,40 @@ function PasswordStrengthChecker({ password }: { password: string }) {
     );
 }
 
-const SupervisorSchema = Yup.object({
+const getSupervisorSchema = (isEdit: boolean) => Yup.object({
     full_name: Yup.string()
         .required("Full name is required")
         .min(2, "Full name must be at least 2 characters")
         .matches(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
     email: Yup.string()
-    .required("Email is required")
-    .matches(
-        /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
-        "Please enter a valid Gmail address"
-    ),
+        .required("Email is required")
+        .matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, "Please enter a valid email address"),
     phone: Yup.string()
-    .required("Phone number is required")
-    .matches(
-        /^[6-9]\d{9}$/,
-        "Enter a valid mobile number(+91)"
-    ),
-    password: Yup.string()
-        .when("$isEdit", {
-            is: false,
-            then: (schema) =>
-                schema
-                    .required("Password is required")
-                    .min(8, "Password must be at least 8 characters")
-                    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-                    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-                    .matches(/[0-9]/, "Password must contain at least one number")
-                    .matches(/[!@#$%^&*]/, "Password must contain at least one special character (!@#$%^&*)"),
-            otherwise: (schema) =>
-                schema
-                    .min(8, "Password must be at least 8 characters")
-                    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-                    .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-                    .matches(/[0-9]/, "Password must contain at least one number")
-                    .matches(/[!@#$%^&*]/, "Password must contain at least one special character (!@#$%^&*)"),
-        }),
-
-   
-         confirmPassword: Yup.string().when("password", {
-        is: (password: string) => password && password.length > 0,
-        then: (schema) =>
-            schema
-                .required("Confirm password is required")
-                .oneOf([Yup.ref("password")], "Passwords must match"),
-        otherwise: (schema) => schema.notRequired(),
-    }),
-
+        .required("Phone number is required")
+        .matches(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number (+91)"),
+    password: isEdit
+        ? Yup.string()
+            .min(8, "Password must be at least 8 characters")
+            .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+            .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+            .matches(/[0-9]/, "Password must contain at least one number")
+            .matches(/[!@#$%^&*]/, "Password must contain at least one special character (!@#$%^&*)")
+        : Yup.string()
+            .required("Password is required")
+            .min(8, "Password must be at least 8 characters")
+            .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+            .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+            .matches(/[0-9]/, "Password must contain at least one number")
+            .matches(/[!@#$%^&*]/, "Password must contain at least one special character (!@#$%^&*)"),
+    confirmPassword: isEdit
+        ? Yup.string().when("password", {
+            is: (password: string) => password && password.length > 0,
+            then: (schema) => schema.required("Confirm password is required").oneOf([Yup.ref("password")], "Passwords must match"),
+            otherwise: (schema) => schema.notRequired(),
+        })
+        : Yup.string()
+            .required("Confirm password is required")
+            .oneOf([Yup.ref("password")], "Passwords must match"),
 });
 
 const SupervisorFormModal = ({
@@ -144,7 +131,7 @@ const SupervisorFormModal = ({
             is_active: true,
         };
 
-    const handleSubmit = async (values: any, { resetForm }: any) => {
+    const handleSubmit = async (values: any, { resetForm, setErrors }: any) => {
         setFormError(null);
 
         try {
@@ -178,9 +165,35 @@ const SupervisorFormModal = ({
 
             onClose();
         } catch (err: any) {
-            setFormError(
-                err?.response?.data?.detail || "Something went wrong"
-            );
+            const detail = err?.response?.data?.detail;
+            
+            // Handle FastAPI validation errors (422) which return an array of issues
+            if (Array.isArray(detail)) {
+                const fieldErrors: Record<string, string> = {};
+                detail.forEach((errItem: any) => {
+                    const field = errItem.loc && errItem.loc.length > 0 ? errItem.loc[errItem.loc.length - 1] : null;
+                    if (field) {
+                        fieldErrors[field] = errItem.msg;
+                    }
+                });
+                
+                if (Object.keys(fieldErrors).length > 0) {
+                    setErrors(fieldErrors);
+                } else {
+                    setFormError("Validation error occurred on the server.");
+                }
+            } else if (typeof detail === "string") {
+                // E.g. "Email already registered"
+                if (detail.toLowerCase().includes("email")) {
+                    setErrors({ email: detail });
+                } else if (detail.toLowerCase().includes("phone")) {
+                    setErrors({ phone: detail });
+                } else {
+                    setFormError(detail);
+                }
+            } else {
+                setFormError(err.message || "An unexpected error occurred");
+            }
         }
     };
 
@@ -204,9 +217,8 @@ const SupervisorFormModal = ({
 
                 <Formik
                     initialValues={initialValues}
-                    validationSchema={SupervisorSchema}
+                    validationSchema={getSupervisorSchema(isEdit)}
                     onSubmit={handleSubmit}
-                    context={{ isEdit }}
                 >
                     {({
                         values,
@@ -395,8 +407,7 @@ const SupervisorFormModal = ({
                                     disabled={
                                         isSubmitting ||
                                         createMutation.isPending ||
-                                        updateMutation.isPending ||
-                                        !isValid
+                                        updateMutation.isPending
                                     }
                                     className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
