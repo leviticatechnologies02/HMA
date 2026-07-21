@@ -16,6 +16,7 @@ import {
   fetchStudentProfile,
   fetchStudentWaitlist,
   markStudentNoticeRead,
+  payRemainingStudentPayment,
 } from "../api/student.api";
 
 // retry: false prevents React Query from retrying 404s
@@ -159,4 +160,13 @@ export function useDeleteStudentComplaint(userId: string | null) {
       queryClient.invalidateQueries({ queryKey: ["student-complaints", userId] });
     },
   }); 
+}
+
+export function usePayRemainingPayment(userId: string | null) {
+  return useMutation({
+    mutationFn: (payload: { booking_id: string }) => {
+      if (!userId) throw new Error("Student login required.");
+      return payRemainingStudentPayment(userId, payload);
+    },
+  });
 }

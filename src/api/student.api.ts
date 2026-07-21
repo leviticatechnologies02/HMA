@@ -205,6 +205,13 @@ export async function fetchStudentPayments(userId: string) {
   return response.data;
 }
 
+export async function payRemainingStudentPayment(userId: string, payload: { booking_id: string }) {
+  const response = await api.post<any>("/student/payments/pay-remaining", payload, {
+    headers: buildStudentHeaders(userId)
+  });
+  return response.data;
+}
+
 export async function fetchStudentAttendance(userId: string) {
   const response = await api.get<AttendanceRecord[]>("/student/attendance", {
     headers: buildStudentHeaders(userId)
