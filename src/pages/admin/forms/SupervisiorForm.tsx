@@ -59,11 +59,17 @@ const SupervisorSchema = Yup.object({
         .min(2, "Full name must be at least 2 characters")
         .matches(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
     email: Yup.string()
-        .required("Email is required")
-        .email("Please enter a valid email address"),
+    .required("Email is required")
+    .matches(
+        /^[a-zA-Z0-9._%+-]+@gmail\.com$/,
+        "Please enter a valid Gmail address"
+    ),
     phone: Yup.string()
-        .required("Phone number is required")
-        .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits"),
+    .required("Phone number is required")
+    .matches(
+        /^[6-9]\d{9}$/,
+        "Enter a valid mobile number(+91)"
+    ),
     password: Yup.string()
         .when("$isEdit", {
             is: false,
@@ -83,6 +89,17 @@ const SupervisorSchema = Yup.object({
                     .matches(/[0-9]/, "Password must contain at least one number")
                     .matches(/[!@#$%^&*]/, "Password must contain at least one special character (!@#$%^&*)"),
         }),
+
+   
+         confirmPassword: Yup.string().when("password", {
+        is: (password: string) => password && password.length > 0,
+        then: (schema) =>
+            schema
+                .required("Confirm password is required")
+                .oneOf([Yup.ref("password")], "Passwords must match"),
+        otherwise: (schema) => schema.notRequired(),
+    }),
+
 });
 
 const SupervisorFormModal = ({
@@ -115,6 +132,7 @@ const SupervisorFormModal = ({
             email: editingItem.email || "",
             phone: editingItem.phone || "",
             password: "",
+            confirmPassword:"",
             is_active: editingItem.is_active ?? true,
         }
         : {
@@ -122,6 +140,7 @@ const SupervisorFormModal = ({
             email: "",
             phone: "",
             password: "",
+            confirmPassword:"",
             is_active: true,
         };
 
@@ -262,7 +281,10 @@ const SupervisorFormModal = ({
                                         type="tel"
                                         name="phone"
                                         value={values.phone}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+    e.target.value = e.target.value.replace(/\D/g, "");
+    handleChange(e);
+}}
                                         onBlur={handleBlur}
                                         className={`input-field w-full ${
                                             touched.phone && errors.phone
@@ -316,6 +338,31 @@ const SupervisorFormModal = ({
                                     )}
                                     <PasswordStrengthChecker password={passwordValue} />
                                 </div>
+                                <div>
+    <label className="block text-sm font-medium text-dark dark:text-white mb-1.5">
+        Confirm Password {!isEdit && <span className="text-red-500">*</span>}
+    </label>
+
+    <input
+        type={showPassword ? "text" : "password"}
+        name="confirmPassword"
+        value={values.confirmPassword}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className={`input-field w-full ${
+            touched.confirmPassword && errors.confirmPassword
+                ? "border-red-500 dark:border-red-500"
+                : ""
+        }`}
+        placeholder="Confirm password"
+    />
+
+    {touched.confirmPassword && errors.confirmPassword && (
+        <p className="text-xs text-red-500 mt-1">
+            {String(errors.confirmPassword)}
+        </p>
+    )}
+</div>
 
                                 {/* Active Status */}
                                 <div className="flex items-center gap-3 pt-2">

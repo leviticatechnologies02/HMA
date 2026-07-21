@@ -75,7 +75,7 @@ export function AdminStudentsPage() {
           <p className="mt-1 text-slate-500 dark:text-slate-400">{tenants.length} currently checked-in tenants.</p>
         </div>
         <button onClick={handleAddTenant} className="btn-primary flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Tenant
+          <Plus className="w-4 h-4" /> Add Student
         </button>
       </div>
 
@@ -102,7 +102,7 @@ export function AdminStudentsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 dark:bg-slate-800">
                   <tr>
-                    {["Tenants #", "Name", "Room", "Bed", "Check-in", "Status", "View", "Edit", "Delete"].map((h) => (
+                    {["STUDENTS #", "Name", "Room", "Bed", "Check-in", "Status", "View", "Edit", "Delete"].map((h) => (
                       <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{h}</th>
                     ))}
                   </tr>

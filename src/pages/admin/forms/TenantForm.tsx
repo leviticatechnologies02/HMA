@@ -334,7 +334,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
                 ? "Saving..."
                 : isEdit
                   ? "Update Tenant"
-                  : "Add Tenant"
+                  : "Add Student"
               }
             </button>
 

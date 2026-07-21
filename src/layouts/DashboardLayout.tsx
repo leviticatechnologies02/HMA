@@ -32,7 +32,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: "My Hostels", to: "/admin/my-hostels", icon: <Building2 className="w-4 h-4" /> },
   { label: "Inventory", to: "/admin/inventory", icon: <ClipboardList className="w-4 h-4" /> },
   { label: "Bookings", to: "/admin/bookings", icon: <BookOpen className="w-4 h-4" /> },
-  { label: "Tenants", to: "/admin/students", icon: <Users className="w-4 h-4" /> },
+  { label: "Students", to: "/admin/students", icon: <Users className="w-4 h-4" /> },
   { label: "Payments", to: "/admin/payments", icon: <CreditCard className="w-4 h-4" /> },
   { label: "Complaints", to: "/admin/complaints", icon: <MessageSquare className="w-4 h-4" /> },
   // { label: "Attendance", to: "/admin/attendance", icon: <UserCheck className="w-4 h-4" /> },
@@ -46,7 +46,7 @@ const ADMIN_NAV: NavItem[] = [
 
 const SUPERVISOR_NAV: NavItem[] = [
   { label: "Dashboard", to: "/supervisor/dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
-  { label: "Tenants", to: "/supervisor/students", icon: <Users className="w-4 h-4" /> },
+  { label: "Students", to: "/supervisor/students", icon: <Users className="w-4 h-4" /> },
   { label: "Complaints", to: "/supervisor/complaints", icon: <MessageSquare className="w-4 h-4" /> },
   // { label: "Attendance", to: "/supervisor/attendance", icon: <UserCheck className="w-4 h-4" /> },
   { label: "Maintenance", to: "/supervisor/maintenance", icon: <Wrench className="w-4 h-4" /> },

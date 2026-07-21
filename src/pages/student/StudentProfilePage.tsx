@@ -240,7 +240,7 @@ export function StudentProfilePage() {
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-xl sm:text-2xl font-heading font-bold text-dark">{p.full_name}</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Tenant · {p.student_number}</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Student· {p.student_number}</p>
           <div className="mt-2 flex items-center gap-2 flex-wrap">
             <span className={`badge ${STATUS_COLOR[p.status] ?? "badge-slate"} capitalize text-xs`}>{p.status?.replace(/_/g, " ")}</span>
           </div>
@@ -538,7 +538,7 @@ export function StudentProfilePage() {
       {/* Stay details */}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { label: "Tenant Number", value: p.student_number, icon: <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
+          { label: "Student Number", value: p.student_number, icon: <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
           { label: "Status", value: p.status?.replace(/_/g, " "), icon: <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />, badge: true, badgeClass: STATUS_COLOR[p.status] ?? "badge-slate" },
           { label: "Check-in Date", value: p.check_in_date ? formatDate(p.check_in_date) : "—" , icon: <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" /> },
           { label: "Check-out Date", value: p.check_out_date ? formatDate(p.check_out_date) : "Active stay", icon: <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" /> },
