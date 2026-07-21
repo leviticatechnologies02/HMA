@@ -39,24 +39,46 @@ const schema = z.object({
       (val) => val.trim().length >= 2,
       "Full name must be at least 2 characters",
     ),
+
   date_of_birth: z
     .string()
     .min(1, "Date of birth is required")
     .refine((val) => {
-      // Validate date format YYYY-MM-DD
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!dateRegex.test(val)) return false;
-      const date = new Date(val);
-      // Check if date is valid
-      if (isNaN(date.getTime())) return false;
+
+      const [year, month, day] = val.split("-").map(Number);
+
+      const currentYear = new Date().getFullYear();
+      if (year < 1900 || year > currentYear) return false;
+
+      if (month < 1 || month > 12) return false;
+
+      const daysInMonth = new Date(year, month, 0).getDate();
+      if (day < 1 || day > daysInMonth) return false;
+
+      const dob = new Date(year, month - 1, day);
+
+      if (
+        dob.getFullYear() !== year ||
+        dob.getMonth() !== month - 1 ||
+        dob.getDate() !== day
+      ) {
+        return false;
+      }
+
       const today = new Date();
-      const age = today.getFullYear() - date.getFullYear();
-      const monthDiff = today.getMonth() - date.getMonth();
-      const dayDiff = today.getDate() - date.getDate();
-      const actualAge =
-        monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
-      return actualAge >= 18;
-    }, "Must be at least 18 years old"),
+      if (dob >= today) return false;
+
+      let age = today.getFullYear() - year;
+      const m = today.getMonth() - (month - 1);
+
+      if (m < 0 || (m === 0 && today.getDate() < day)) {
+        age--;
+      }
+
+      return age >= 15;
+    }, "Please enter a valid Date of Birth"),
   gender: z
     .string()
     .min(1, "Gender is required")
@@ -81,33 +103,14 @@ const schema = z.object({
     )
     .refine((val) => val.trim().length >= 2, "Institution must be valid"),
   current_address: z
+
     .string()
-    .min(1, "Current address is required")
-    .regex(/^[a-zA-Z0-9\s,.\-#]+$/, "Address contains invalid characters")
-    .refine(
-      (value) => {
-        const parts = value
-          .split(",")
-          .map((part) => part.trim())
-          .filter(Boolean);
-
-        if (parts.length !== 4) return false;
-
-        const [street, city, state, pincode] = parts;
-
-        return (
-          street.length > 0 &&
-          city.length > 0 &&
-          state.length > 0 &&
-          /^\d{6}$/.test(pincode)
-        );
-      },
-      {
-        message:
-          "Please enter Street, City, State and a valid 6-digit Pincode separated by commas.",
-      },
-    ),
-
+    .min(5, "Current address is required")
+    .max(250, "Address is too long")
+    .regex(/^[a-zA-Z0-9\s,.\-/#()]+$/, "Address contains invalid characters")
+    .refine((value) => /\b\d{6}\b/.test(value), {
+      message: "Address must contain a valid 6-digit Pincode.",
+    }),
   id_type: z
     .string()
     .min(1, "ID type is required")
@@ -199,7 +202,7 @@ export function BookingDetailsPage() {
     trigger,
     getValues,
     watch,
-    formState: { errors },
+    formState: { errors, touchedFields },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
@@ -431,7 +434,7 @@ export function BookingDetailsPage() {
   const filterInstitutionInput = (value: string) =>
     value.replace(/[^a-zA-Z\s'-]/g, ""); // Letters only, no numbers
   const filterAddressInput = (value: string) =>
-    value.replace(/[^a-zA-Z0-9\s,.\-#]/g, "");
+    value.replace(/[^a-zA-Z0-9\s,.\-/#()]/g, "");
   const filterPhoneInput = (value: string) =>
     value.replace(/[^0-9]/g, "").slice(0, 10);
 
@@ -510,6 +513,15 @@ export function BookingDetailsPage() {
                   </label>
                   <input
                     type="date"
+                    max={
+                      new Date(
+                        new Date().getFullYear() - 15,
+                        new Date().getMonth(),
+                        new Date().getDate(),
+                      )
+                        .toISOString()
+                        .split("T")[0]
+                    }
                     {...register("date_of_birth")}
                     className={inputCls(errors.date_of_birth)}
                   />
@@ -597,7 +609,7 @@ export function BookingDetailsPage() {
                   {...register("current_address")}
                   rows={3}
                   className={inputCls(errors.current_address)}
-                  placeholder="Street, City, State, 6-digit Pincode"
+                  placeholder="Enter your complete address"
                   onInput={(e) => {
                     e.currentTarget.value = filterAddressInput(
                       e.currentTarget.value,
@@ -849,7 +861,7 @@ export function BookingDetailsPage() {
                     <div>
                       <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                       <p className="text-sm font-medium text-slate-500">
-                        Select an ID Type first
+                        Upload will be enabled after selecting an ID Type
                       </p>
                     </div>
                   ) : docUrl ? (
@@ -900,7 +912,7 @@ export function BookingDetailsPage() {
                   )}
                 </div>
 
-                {!selectedIdType && (
+                {touchedFields.id_type && !selectedIdType && (
                   <p className="mt-2 text-xs text-amber-600">
                     Please select an ID Type before uploading the document.
                   </p>
