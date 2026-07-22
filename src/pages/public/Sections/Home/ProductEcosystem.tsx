@@ -1,288 +1,257 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Smartphone, Monitor, BarChart3, ArrowRight, CheckCircle2, Users, Shield, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  Database,
+  Monitor,
+  RefreshCw,
+  ShieldCheck,
+  Smartphone,
+} from "lucide-react";
+
+const PRODUCT_BLOCKS = [
+  {
+    title: "Tenant mobile app",
+    subtitle: "For residents and tenants",
+    description: "A self-service experience that gives residents simple, around-the-clock access to essential hostel services.",
+    features: [
+      "Room booking and allocation",
+      "Secure online payments",
+      "Maintenance requests",
+      "Digital receipts and history",
+      "Mess menu and preferences",
+      "Instant announcements",
+    ],
+    image: "/img/Tenantapp.jpeg",
+    icon: Smartphone,
+    stat: "10,000+ active users",
+    cta: { label: "Explore app", to: "/aboutus#complete-digital-solution" },
+  },
+  {
+    title: "Admin dashboard",
+    subtitle: "For management and staff",
+    description: "A focused control center for monitoring occupancy, payments, teams, visitors, and resident documentation.",
+    features: [
+      "Role-based staff access",
+      "Live occupancy tracking",
+      "Payment reconciliation",
+      "Staff task monitoring",
+      "Visitor management",
+      "Kyc verification",
+    ],
+    image: "/img/AdminDashboard.jpeg",
+    icon: Monitor,
+    stat: "100+ management tools",
+    cta: { label: "Schedule a demo", to: "/contact" },
+  },
+  {
+    title: "Analytics & reporting",
+    subtitle: "For decision makers",
+    description: "Clear operational and financial insights that turn everyday hostel data into confident, timely decisions.",
+    features: [
+      "Financial dashboards",
+      "Occupancy forecasting",
+      "Resident feedback analysis",
+      "Resource utilization",
+      "Compliance audit trails",
+      "Custom reports",
+    ],
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+    icon: BarChart3,
+    stat: "99% reporting accuracy",
+    cta: { label: "Get started", to: "/register" },
+  },
+];
+
+const INTEGRATION_FEATURES = [
+  { label: "Real-time sync", icon: RefreshCw },
+  { label: "Unified database", icon: Database },
+  { label: "Secure access", icon: ShieldCheck },
+];
 
 function ProductEcosystem() {
-  const productBlocks = [
-    {
-      title: "Tenant Mobile App",
-      subtitle: "For Residents & Tenants",
-      desc: "Self-service portal for tenants to manage their hostel experience from anywhere. Complete independence with 24/7 access to essential services.",
-      features: [
-        "Room booking & allocation requests",
-        "Secure online fee payments (UPI/Cards/NetBanking)",
-        "Maintenance requests with photo upload",
-        "Digital receipts & payment history",
-        "Mess menu & meal preferences",
-        "Instant notifications & announcements"
-      ],
-      img: "/img/Tenantapp.jpeg",
-      mobileMockup: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=400&q=80",
-      icon: Smartphone,
-      color: "from-[#0d5c63] to-[#1b7f8e]",
-      gradient: "bg-gradient-to-br from-[#0d5c63] to-[#1b7f8e]",
-      cta: { label: "Explore features", to: "/aboutus#complete-digital-solution" },
-      stats: "10,000+ Active Users"
-    },
-    {
-      title: "Admin Dashboard",
-      subtitle: "For Management & Staff",
-      desc: "Centralized control panel providing complete oversight of hostel operations. Real-time monitoring and management tools for administrators.",
-      features: [
-        "Role-based access for Deans, Wardens, Caretakers",
-        "Live occupancy & vacancy tracking",
-        "Automated payment reconciliation",
-        "Staff task assignment & monitoring",
-        "Visitor management system",
-        "Document management & KYC verification"
-      ],
-      img: "/img/AdminDashboard.jpeg",
-      icon: Monitor,
-      color: "from-[#0d5c63] to-[#1b7f8e]",
-      gradient: "bg-gradient-to-br from-[#0d5c63] to-[#1b7f8e]",
-      cta: { label: "Schedule a Demo", to: "/contact" },
-      stats: "100+ Features"
-    },
-    {
-      title: "Analytics & Reporting",
-      subtitle: "For Decision Makers",
-      desc: "Comprehensive insights and visual analytics to drive informed decisions. Customizable reports and dashboards for strategic planning.",
-      features: [
-        "Real-time financial dashboards",
-        "Occupancy trends & forecasting",
-        "Tenant feedback analysis",
-        "Resource utilization reports",
-        "Audit trails & compliance logs",
-        "Custom report generation"
-      ],
-      img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-      icon: BarChart3,
-      color: "from-[#0d5c63] to-[#1b7f8e]",
-      gradient: "bg-gradient-to-br from-[#0d5c63] to-[#1b7f8e]",
-      cta: { label: "Get Started", to: "/register" },
-      stats: "99% Accuracy Rate"
-    },
-  ];
+  const shouldReduceMotion = useReducedMotion();
+  const [activeProduct, setActiveProduct] = useState(0);
+  const selectedProduct = PRODUCT_BLOCKS[activeProduct];
+  const SelectedIcon = selectedProduct.icon;
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.1 }
-    }
-  };
+  useEffect(() => {
+    const rotationTimer = window.setInterval(() => {
+      setActiveProduct((currentProduct) => (currentProduct + 1) % PRODUCT_BLOCKS.length);
+    }, 10_000);
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.7, ease: "easeOut" }
-    },
-    hover: {
-      scale: 1.05,
-      transition: { duration: 0.3, ease: "easeInOut" }
-    }
-  };
-
-  const getSideVariants = (direction = "left") => ({
-    hidden: {
-      opacity: 0,
-      x: direction === "left" ? -80 : 80,
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.7 },
-    },
-  });
+    return () => window.clearInterval(rotationTimer);
+  }, []);
 
   return (
-    <section className="bg-neutral px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+    <section className="relative overflow-hidden border-y border-slate-200 bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <div className="pointer-events-none absolute -left-44 top-24 h-80 w-80 rounded-full bg-primary/[0.05] blur-3xl" />
+      <div className="pointer-events-none absolute -right-44 bottom-10 h-80 w-80 rounded-full bg-secondary/[0.08] blur-3xl" />
 
-    
-    <motion.div className="text-center max-w-3xl mx-auto mb-16 lg:mb-12">
-      <div className="inline-flex items-center gap-2 bg-[#e6f4f3] text-[#0d5c63] px-4 py-2 rounded-full text-sm font-semibold mb-6">
-        <div className="w-2 h-2 bg-[#0d5c63] rounded-full"></div>
-        INTEGRATED PLATFORM
-      </div>
+      <div className="relative mx-auto max-w-7xl">
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 22 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.45 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mb-10 max-w-3xl text-center sm:mb-12"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-3.5 py-2 text-xs font-semibold text-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Integrated platform
+          </span>
+          <h2 className="mt-5 font-heading text-3xl font-bold tracking-tight text-dark sm:text-4xl lg:text-5xl">
+            One ecosystem. <span className="text-primary">Every hostel workflow.</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+            Three purpose-built experiences working together to simplify management and improve every resident interaction.
+          </p>
+        </motion.div>
 
-      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-dark mb-6">
-        Unified Hostel{" "}
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0d5c63] to-[#1b7f8e]">
-          Management System
-        </span>
-      </h2>
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 26 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50/70 p-2 shadow-[0_24px_70px_rgba(15,23,42,0.08)]"
+        >
+          <div className="grid gap-2 p-1 sm:grid-cols-3" role="tablist" aria-label="Product modules">
+            {PRODUCT_BLOCKS.map((product, index) => {
+              const Icon = product.icon;
+              const isActive = activeProduct === index;
+              return (
+                <button
+                  key={product.title}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveProduct(index)}
+                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all ${
+                    isActive
+                      ? "border-primary bg-primary text-white shadow-md shadow-primary/15"
+                      : "border-transparent bg-transparent text-slate-600 hover:border-slate-200 hover:bg-white hover:text-dark"
+                  }`}
+                >
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${isActive ? "bg-white/15" : "bg-white text-primary shadow-sm"}`}>
+                    <Icon className="h-4.5 w-4.5" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{product.title}</span>
+                    <span className={`mt-0.5 block truncate text-xs ${isActive ? "text-white/65" : "text-slate-400"}`}>{product.subtitle}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-      <p className="text-lg sm:text-xl text-slate-600 leading-relaxed px-4">
-        Three specialized modules working in perfect harmony to streamline every aspect of hostel administration and resident experience.
-      </p>
-    </motion.div>
-
-    
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      className="space-y-16 lg:space-y-20"
-    >
-      {productBlocks.map((block, index) => {
-        const Icon = block.icon;
-        const direction = index % 2 === 0 ? "left" : "right";
-
-        return (
-          <motion.div
-            key={index}
-            className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16"
-          >
-
-            
-            <motion.div
-              variants={getSideVariants(direction)}
-              className={`relative ${
-                index % 2 === 1 ? "lg:order-2" : ""
-              }`}
-            >
-              <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
-                <img
-                  src={block.img}
-                  alt=""
-                  className="w-full h-72 object-cover"
-                />
-              </div>
-
-              <div
-                className={`absolute -top-6 -right-6 w-16 h-16 ${block.gradient} rounded-2xl flex items-center justify-center shadow-xl border-4 border-white`}
+          <div className="mt-2 overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedProduct.title}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+                className="grid items-stretch lg:grid-cols-[0.88fr_1.12fr]"
               >
-                <Icon className="text-white w-7 h-7" />
-              </div>
-
-              <div className="absolute -bottom-3 left-6 bg-white px-4 py-2 rounded-lg shadow border">
-                <span className="text-sm font-semibold text-slate-700">
-                  {block.stats}
-                </span>
-              </div>
-            </motion.div>
-
-            
-            <motion.div
-              variants={getSideVariants(direction === "left" ? "right" : "left")}
-              className={`${index % 2 === 1 ? "lg:order-1" : ""}`}
-            >
-              <h3 className="text-3xl font-bold text-dark mb-4">
-                {block.title}
-              </h3>
-
-              <p className="text-lg text-slate-600 mb-6">
-                {block.desc}
-              </p>
-
-              
-              <div className="grid sm:grid-cols-2 gap-4 mb-8">
-                {block.features.map((feature, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 rounded-xl bg-[#dcebea] px-4 py-3 border-l-4 border-[#0d5c63] hover:bg-[#cfe3e1] transition duration-300 dark:bg-[#252540] dark:hover:bg-[#2D3548] dark:border-l-4 dark:border-[#0d5c63] dark:text-[#E2E8F0]"
-                  >
-                    <div className="flex items-center justify-center h-7 w-7 rounded-md bg-[#0d5c63]/10">
-                      <CheckCircle2 className="h-4 w-4 text-[#0d5c63]" />
+                <div className="flex flex-col p-6 sm:p-8 lg:p-10">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <SelectedIcon className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold text-primary">{selectedProduct.subtitle}</p>
+                      <p className="mt-1 text-xs text-slate-400">{selectedProduct.stat}</p>
                     </div>
-
-                    <p className="text-sm font-semibold text-dark leading-tight">
-                      {feature}
-                    </p>
                   </div>
+
+                  <h3 className="mt-5 font-heading text-3xl font-bold tracking-tight text-dark sm:text-4xl">{selectedProduct.title}</h3>
+                  <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">{selectedProduct.description}</p>
+
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    {selectedProduct.features.map((feature) => (
+                      <div key={feature} className="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5 text-xs font-medium leading-5 text-slate-600">
+                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link
+                    to={selectedProduct.cta.to}
+                    className="group mt-7 inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#09454a]"
+                  >
+                    {selectedProduct.cta.label}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </div>
+
+                <div className="relative min-h-[330px] overflow-hidden bg-[#eaf2f1] p-4 sm:min-h-[430px] sm:p-6 lg:min-h-full lg:p-8">
+                  <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+                  <div className="relative h-full overflow-hidden rounded-2xl border border-white bg-white p-2 shadow-2xl shadow-slate-900/15">
+                    <div className="flex h-9 items-center gap-1.5 border-b border-slate-100 px-3">
+                      <span className="h-2 w-2 rounded-full bg-red-300" />
+                      <span className="h-2 w-2 rounded-full bg-amber-300" />
+                      <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                      <span className="mx-auto h-4 w-32 rounded-full bg-slate-100" />
+                    </div>
+                    <img
+                      src={selectedProduct.image}
+                      alt={`${selectedProduct.title} interface preview`}
+                      className="h-[calc(100%-2.25rem)] w-full rounded-b-xl object-cover object-top"
+                    />
+                  </div>
+                  <div className="absolute bottom-7 right-7 inline-flex items-center gap-2 rounded-xl border border-white/50 bg-white/90 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-lg backdrop-blur">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-50" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+                    </span>
+                    Live and synchronized
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mt-6 overflow-hidden rounded-3xl bg-[#0d5c63] px-6 py-8 text-white shadow-xl shadow-primary/15 sm:px-8 lg:px-10"
+        >
+          <div className="absolute -right-24 -top-32 h-72 w-72 rounded-full border-[42px] border-white/[0.05]" />
+          <div className="relative grid items-center gap-7 lg:grid-cols-[1fr_auto]">
+            <div>
+              <p className="text-xs font-semibold text-white/60">Connected by design</p>
+              <h3 className="mt-2 max-w-2xl font-heading text-2xl font-bold sm:text-3xl">All modules stay perfectly synchronized.</h3>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
+                A single source of truth keeps teams, residents, payments, and reports accurate across every device.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                {INTEGRATION_FEATURES.map(({ label, icon: FeatureIcon }) => (
+                  <span key={label} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-white/90">
+                    <FeatureIcon className="h-3.5 w-3.5" />
+                    {label}
+                  </span>
                 ))}
               </div>
-
-              
-              <Link
-                to={block.cta.to}
-                className="inline-flex items-center gap-2 bg-[#0d5c63] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#09454a]"
-              >
-                {block.cta.label}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
-
-          </motion.div>
-        );
-      })}
-    </motion.div>
-
-    
-<div className="mt-16 bg-gradient-to-r from-[#e6f4f3] to-[#f0fbfa] rounded-2xl p-8 lg:p-12 border border-[#cfe8e6] dark:from-[#1A1A2E] dark:to-[#1A1A2E] dark:border-[#2D2D4A]">
-  <div className="grid lg:grid-cols-3 gap-6 items-center">
-    
-    
-    <div className="lg:col-span-2">
-      <h3 className="text-2xl sm:text-3xl font-bold text-dark mb-4 dark:text-[#E2E8F0]">
-        Seamless Integration Across All Platforms
-      </h3>
-
-      <p className="text-slate-600 text-base sm:text-lg leading-relaxed dark:text-[#B0B8C8]">
-        All modules share a single database ensuring real-time synchronization.
-        Changes made in one module instantly reflect across all others.
-      </p>
-
-      
-     <div className="mt-6 flex flex-wrap gap-3">
-  {[
-    "Real-time Sync",
-    "Single Sign-On",
-    "Unified Database",
-    "API Access",
-    "Auto Backup",
-    "SSL Security",
-  ].map((tag, i) => (
-    <div
-      key={i}
-      className="group flex items-center gap-2 px-4 py-2 rounded-lg border border-[#cfe8e6] bg-[#f0fbfa] text-[#0d5c63] text-sm font-semibold shadow-sm cursor-pointer
-      transition-all duration-300 ease-out
-      hover:-translate-y-1 hover:shadow-lg hover:shadow-[#0d5c63]/25 hover:border-[#0d5c63]/40 hover:bg-white
-      dark:bg-[#252540] dark:border-[#2D2D4A] dark:text-[#0d5c63] dark:hover:bg-[#2D3548]"
-    >
-      
-      <div className="flex items-center justify-center h-5 w-5 rounded-md bg-[#0d5c63]/10 transition-all duration-300 group-hover:bg-[#0d5c63]/20">
-        <CheckCircle2 className="h-3.5 w-3.5 text-[#0d5c63] transition-transform duration-300 group-hover:scale-110" />
+            </div>
+            <Link
+              to="/contact"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:bg-slate-50"
+            >
+              View platform
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </motion.div>
       </div>
-
-      
-      <span className="transition-colors duration-300 group-hover:text-dark">
-        {tag}
-      </span>
-    </div>
-  ))}
-</div>
-    </div>
-
-    
-    <div className="text-center lg:text-right">
-      <Link
-        to="/contact"
-        className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#0d5c63] to-[#1b7f8e] text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-      >
-        View Platform Features
-        <ArrowRight className="w-5 h-5" />
-      </Link>
-    </div>
-
-  </div>
-</div>
-
-  </div>
-</section>
+    </section>
   );
 }
 

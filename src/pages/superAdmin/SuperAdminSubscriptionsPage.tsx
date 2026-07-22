@@ -17,6 +17,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
 import { formatDate } from "../../utils/formatters";
 import toast from "react-hot-toast";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 
 const STATUS_BADGE: Record<string, string> = {
   active: "badge-success",
@@ -289,15 +290,13 @@ export function SuperAdminSubscriptionsPage() {
               onChange={(e) => setHostelSearch(e.target.value)}
               className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
-            <input
-              type="date"
+            <ModernDatePicker
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"
               title="Filter by start date"
             />
-            <input
-              type="date"
+            <ModernDatePicker
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20"

@@ -5,6 +5,7 @@ import { useCreateSupervisorAttendance, useSupervisorAttendance } from "../../ho
 import { useSupervisorStudents } from "../../hooks/useSupervisorStudents";
 import { useAuthStore } from "../../store/authStore";
 import { getApiErrorMessage } from "../../utils/apiErrors";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 
 type AttendanceStatus = "present" | "absent" | "leave";
 
@@ -95,7 +96,7 @@ export function SupervisorAttendancePage() {
           }} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <input type="date" value={selectedDate} max={today}
+          <ModernDatePicker value={selectedDate} max={today}
             onChange={(e) => { setSelectedDate(e.target.value); setRecords({}); }}
             className="input-field w-auto text-sm font-medium" />
           <button onClick={() => {

@@ -11,6 +11,7 @@ import { useHostelDetail } from "../../hooks/useHostels";
 import { fetchHostelRooms, type Room } from "../../api/public.api";
 import { useBookingStore } from "../../store/bookingStore";
 import { formatDate } from "../../utils/formatters";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 
 export function BookingSelectPage() {
   const navigate = useNavigate();
@@ -248,8 +249,7 @@ export function BookingSelectPage() {
                 <Calendar className="w-4 h-4 inline mr-1 text-primary" />
                 Check-in
               </label>
-              <input
-                type="date"
+              <ModernDatePicker
                 value={checkInDate}
                 min={today}
                 onChange={(e) => {
@@ -264,8 +264,7 @@ export function BookingSelectPage() {
                 <Calendar className="w-4 h-4 inline mr-1 text-slate-400" />
                 Check-out
               </label>
-              <input
-                type="date"
+              <ModernDatePicker
                 value={checkOutDate}
                 min={minCheckOut}
                 onChange={(e) => setCheckOutDate(e.target.value)}

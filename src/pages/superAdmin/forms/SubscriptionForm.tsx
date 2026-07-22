@@ -12,6 +12,7 @@ import {
   useUpdateSuperAdminSubscription
 } from "../../../hooks/useSuperAdminData";
 import { getApiErrorMessage } from "../../../utils/apiErrors";
+import { ModernDatePicker } from "../../../components/common/ModernDatePicker";
 
 interface SubscriptionFormProps {
   editingItem?: any;
@@ -292,8 +293,7 @@ const SubscriptionForm = ({
   <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
     Start Date *
   </label>
-  <input
-    type="date"
+  <ModernDatePicker
     name="start_date"
     value={values.start_date}
     onChange={handleChange}
@@ -313,8 +313,7 @@ const SubscriptionForm = ({
     End Date
   </label>
 
-  <input
-    type="date"
+  <ModernDatePicker
     value={
       values.start_date && selectedPlan
         ? (() => {

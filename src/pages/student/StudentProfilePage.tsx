@@ -9,6 +9,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../api/axiosInstance";
 import toast from "react-hot-toast";
 import { formatDate } from "../../utils/formatters";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 
 const STATUS_COLOR: Record<string, string> = {
   active: "badge-success",
@@ -326,12 +327,12 @@ export function StudentProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">From Date</label>
-              <input type="date" min={today} className={`input-field text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${fromDateError ? "border-red-500 dark:border-red-500" : ""}`} value={leaveForm.from_date} onChange={e => setLeaveForm(f => ({ ...f, from_date: e.target.value }))} />
+              <ModernDatePicker min={today} className={`text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${fromDateError ? "border-red-500 dark:border-red-500" : ""}`} value={leaveForm.from_date} onChange={e => setLeaveForm(f => ({ ...f, from_date: e.target.value }))} />
               {fromDateError && <p className="text-xs text-red-500 mt-1">{fromDateError}</p>}
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">To Date</label>
-              <input type="date" min={leaveForm.from_date || today} className={`input-field text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${toDateError ? "border-red-500 dark:border-red-500" : ""}`} value={leaveForm.to_date} onChange={e => setLeaveForm(f => ({ ...f, to_date: e.target.value }))} />
+              <ModernDatePicker min={leaveForm.from_date || today} className={`text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${toDateError ? "border-red-500 dark:border-red-500" : ""}`} value={leaveForm.to_date} onChange={e => setLeaveForm(f => ({ ...f, to_date: e.target.value }))} />
               {toDateError && <p className="text-xs text-red-500 mt-1">{toDateError}</p>}
             </div>
             <div className="col-span-1 sm:col-span-2">

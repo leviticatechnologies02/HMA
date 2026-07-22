@@ -19,6 +19,7 @@ import {
   useInitiateBooking,
 } from "../../hooks/useBooking";
 import { useAuthStore } from "../../store/authStore";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 import {
   createStudentPresignedUploadUrl,
   uploadFileToPresignedUrl,
@@ -511,8 +512,7 @@ export function BookingDetailsPage() {
                   <label className="block text-sm font-medium text-dark mb-1.5">
                     Date of Birth *
                   </label>
-                  <input
-                    type="date"
+                  <ModernDatePicker
                     max={
                       new Date(
                         new Date().getFullYear() - 15,

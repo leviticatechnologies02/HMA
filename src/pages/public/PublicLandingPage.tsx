@@ -19,7 +19,7 @@ export function PublicLandingPage() {
       <HowItWorks />
       <ProductEcosystem />
       <WhyChooseUs />
-      <CTASection />  
+      {/* <CTASection />   */}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useInitiateBooking } from "../../hooks/useBooking";
 import { useCreateBookingPayment } from "../../hooks/useBookingPayment";
 import { useAuthStore } from "../../store/authStore";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 
 const bookingSchema = z.object({
   hostel_id: z.string().min(1, "Hostel ID is required"),
@@ -95,11 +96,11 @@ export function BookingPage() {
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium">Check-in Date</label>
-          <input type="date" {...register("check_in_date")} className="w-full rounded-xl border border-slate-300 px-4 py-3" />
+          <ModernDatePicker {...register("check_in_date")} className="rounded-xl border-slate-300 px-4 py-3" />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium">Check-out Date</label>
-          <input type="date" {...register("check_out_date")} className="w-full rounded-xl border border-slate-300 px-4 py-3" />
+          <ModernDatePicker {...register("check_out_date")} className="rounded-xl border-slate-300 px-4 py-3" />
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium">Booking Advance</label>

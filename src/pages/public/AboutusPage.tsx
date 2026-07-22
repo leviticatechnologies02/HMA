@@ -39,7 +39,7 @@ const AboutApp = () => {
         <div className="relative mx-auto max-w-5xl space-y-6 rounded-3xl border border-white/50 bg-white/18 p-10 text-center shadow-[0_30px_80px_rgba(6,40,45,0.18)] backdrop-blur-2xl transition-all duration-500 hover:border-white/60 hover:bg-white/24">
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
 
-          <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">
+          <h1 className="relative font-heading text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">
             About <span className="text-accent">Leviticanestora</span>
           </h1>
 
@@ -70,7 +70,7 @@ const AboutApp = () => {
         <div className="max-w-7xl mx-auto">
           {/* Hero Content */}
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="-mt-2 text-5xl sm:text-6xl md:text-7xl lg:text-[4.2rem] xl:text-[4.8rem] font-extrabold leading-[0.95] tracking-tight text-slate-900 dark:text-white">
+            <h2 className="-mt-2 font-heading text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-slate-900 dark:text-white">
               Smart Hostel <br />
               <span className="text-primary">Management System</span>
             </h2>
@@ -96,7 +96,7 @@ const AboutApp = () => {
           </div>
 
           {/* Feature Cards */}
-          <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 title: "Admissions",
@@ -131,22 +131,35 @@ const AboutApp = () => {
                   "Send instant notifications to all students and staff.",
                 icon: <Bell className="w-5 h-5 text-primary" />,
               },
-            ].map((item) => (
+            ].map((item, index) => (
               <div
                 key={item.title}
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[28px] p-6 min-h-[220px] shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                className="group relative flex min-h-[180px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-primary/[0.04] p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 dark:border-slate-700 dark:from-slate-800 dark:via-slate-800 dark:to-primary/10"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-                  {item.icon}
+                <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/10 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-105">
+                    {item.icon}
+                  </div>
+                  <span className="font-heading text-xs font-semibold tracking-[0.18em] text-slate-300 dark:text-slate-600">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
 
-                <h4 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+                <h4 className="mb-2 font-heading text-xl font-bold text-slate-900 dark:text-white">
                   {item.title}
                 </h4>
 
-                <p className="text-[15px] leading-7 text-slate-600 dark:text-slate-300">
+                <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
                   {item.description}
                 </p>
+
+                <div className="mt-auto pt-4">
+                  <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500 transition-colors group-hover:bg-primary/10 group-hover:text-primary dark:bg-slate-700 dark:text-slate-400">
+                    Smart workflow
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -164,7 +177,7 @@ const AboutApp = () => {
                     <Rocket className="h-8 w-8 text-white" />
                   </div>
 
-                  <h3 className="text-3xl font-bold tracking-tight leading-tight text-white">
+                  <h3 className="font-heading text-3xl font-bold tracking-tight leading-tight text-white">
                     Our Approach
                   </h3>
 
@@ -193,7 +206,7 @@ const AboutApp = () => {
                   <span>OUR STORY</span>
                 </div>
 
-                <h2 className="text-4xl sm:text-5xl font-bold text-dark dark:text-white leading-tight tracking-tight">
+                <h2 className="font-heading text-4xl sm:text-5xl font-bold text-dark dark:text-white leading-tight tracking-tight">
                   Built by <span className="text-primary"> People</span> Who
                   Understand
                   <span className="text-primary"> Hostels</span>
@@ -233,7 +246,7 @@ const AboutApp = () => {
                 <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-dark dark:text-white">
                   ✨ Core Strengths
                 </div>
-                <h4 className="text-2xl font-bold text-dark dark:text-white lg:text-3xl">
+                <h4 className="font-heading text-2xl font-bold text-dark dark:text-white lg:text-3xl">
                   Our Values & Vision
                 </h4>
               </div>
@@ -322,7 +335,7 @@ const AboutApp = () => {
                               {item.icon}
                             </span>
                           </div>
-                          <h4 className="text-dark font-semibold text-base mb-2">
+                          <h4 className="font-heading text-dark font-semibold text-base mb-2">
                             {item.title}
                           </h4>
                           <p className="text-slate-600 text-sm leading-relaxed">
@@ -348,7 +361,7 @@ const AboutApp = () => {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 space-y-4">
-            <h2 className="text-4xl sm:text-5xl font-bold text-dark dark:text-white tracking-tight">
+            <h2 className="font-heading text-4xl sm:text-5xl font-bold text-dark dark:text-white tracking-tight">
               Complete <span className="text-primary"> Digital</span> Solution
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
@@ -419,7 +432,7 @@ const AboutApp = () => {
                     >
                       <Icon className="text-white text-3xl" />
                     </div>
-                    <h3 className="text-2xl font-bold text-dark dark:text-white mb-4 leading-tight">
+                    <h3 className="font-heading text-2xl font-bold text-dark dark:text-white mb-4 leading-tight">
                       {card.title}
                     </h3>
                     <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed text-base">
@@ -466,7 +479,7 @@ const AboutApp = () => {
               <Calendar className="text-2xl text-white" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl font-bold leading-tight text-white">
+              <h3 className="font-heading text-xl sm:text-2xl font-bold leading-tight text-white">
                 Day Wise Room Booking Available
               </h3>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
@@ -506,7 +519,7 @@ const AboutApp = () => {
             </div>
           </div>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-dark dark:text-white leading-tight tracking-tight">
+          <h2 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-dark dark:text-white leading-tight tracking-tight">
             Ready to <span className="text-primary"> Modernize</span> <br />{" "}
             <span className="text-primary"> Your</span> Hostel?
           </h2>

@@ -7,6 +7,7 @@ import { useAdminRooms, useAdminBeds, useAddAdminStudentDirect, useUpdateAdminSt
 import { useAuthStore } from "../../../store/authStore";
 import toast from "react-hot-toast";
 import { useHostelSwitcher } from "../../../components/admin/useHostelSwitcher";
+import { ModernDatePicker } from "../../../components/common/ModernDatePicker";
 
 interface TenantFormProps {
   editingItem?: any;
@@ -286,8 +287,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
 
             <div>
               <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Check-in Date *</label>
-              <input
-                type="date"
+              <ModernDatePicker
                 name="check_in_date"
                 value={values.check_in_date}
                 onChange={handleChange}
@@ -298,8 +298,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
 
             <div>
               <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Check-out Date *</label>
-              <input
-                type="date"
+              <ModernDatePicker
                 name="check_out_date"
                 value={values.check_out_date}
                 onChange={handleChange}

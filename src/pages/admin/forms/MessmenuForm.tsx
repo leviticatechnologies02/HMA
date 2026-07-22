@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import { useCreateAdminMessMenu, useUpdateAdminMessMenu } from "../../../hooks/useAdminData";
 import { useAuthStore } from "../../../store/authStore";
 import toast from "react-hot-toast";
+import { ModernDatePicker } from "../../../components/common/ModernDatePicker";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEALS = ["breakfast", "lunch", "snacks", "dinner"];
@@ -130,8 +131,7 @@ const AdminMessMenuForm = ({ editingItem, onClose }: Props) => {
             {/* Week Start */}
             <div>
               <label className="text-sm font-medium">Week Start * (Today or Future)</label>
-              <input
-                type="date"
+              <ModernDatePicker
                 name="week_start_date"
                 min={today}
                 value={values.week_start_date}

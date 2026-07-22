@@ -6,6 +6,7 @@ import { useAuthStore } from "../../store/authStore";
 import { FOOD_IMAGES, getFoodImage } from "../../utils/images";
 import { getApiErrorMessage } from "../../utils/apiErrors";
 import { useModal } from ".././../context/ModalContext";
+import { ModernDatePicker } from "../../components/common/ModernDatePicker";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const MEALS = ["breakfast", "lunch", "snacks", "dinner"] as const;
@@ -102,7 +103,7 @@ export function AdminMessMenuPage() {
         </div>
         <div className="flex items-center gap-3">
           <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Week of:</label>
-          <input type="date" value={weekStart}
+          <ModernDatePicker value={weekStart}
             onChange={(e) => setWeekStart(e.target.value)}
             className="input-field w-auto text-sm" />
         </div>

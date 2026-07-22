@@ -1,6 +1,7 @@
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { MapPin, Star, SlidersHorizontal, ChevronRight, Building2, ChevronLeft, LayoutGrid, List, ArrowUpDown, Heart } from "lucide-react";
 import { useState, useCallback } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { useHostels, usePublicCities } from "../../hooks/useHostels";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import type { PublicHostelsQueryParams } from "../../api/public.api";
@@ -31,6 +32,7 @@ const SORT_OPTIONS = [
 ];
 
 export function PublicHostelListPage() {
+  const shouldReduceMotion = useReducedMotion();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser();
@@ -112,28 +114,58 @@ export function PublicHostelListPage() {
   return (
     <>
     <div className="min-h-screen bg-neutral">
-      {/* Header */}
-      <div className="bg-dark py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h1 className="text-4xl font-heading font-bold text-white">Find Your Hostel</h1>
-          <p className="mt-2 text-slate-400">
-            {isLoading ? "Loading..." : `${total} properties available`}
-            {filters.city ? ` in ${filters.city}` : ""}
-          </p>
-          <div className="mt-6 flex gap-3 max-w-2xl">
-            <div className="flex-1">
-              <SearchAutocomplete placeholder="Search city or hostel name..." />
+      {/* Search header */}
+      <div
+        className="relative isolate flex min-h-[440px] items-center overflow-visible border-b border-slate-200 py-14 sm:min-h-[480px] sm:py-16"
+      >
+        <motion.div
+          className="absolute inset-0 -z-20 bg-cover bg-center"
+          style={{ backgroundImage: "url('/img/Heroo_1.png')" }}
+          initial={shouldReduceMotion ? false : { scale: 1.06 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/70 via-slate-950/55 to-slate-950/45" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-slate-950/35 to-transparent" />
+
+        <div className="mx-auto w-full max-w-4xl px-4 text-center sm:px-6">
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span className="inline-flex rounded-full border border-white/25 bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
+              Find your next stay
+            </span>
+            <h1 className="mt-4 text-3xl font-heading font-bold tracking-tight text-white drop-shadow-sm sm:text-5xl">Find Your Hostel</h1>
+            <p className="mt-2 text-sm text-white/80 sm:text-base">
+              {isLoading ? "Loading..." : `${total} properties available`}
+              {filters.city ? ` in ${filters.city}` : ""}
+            </p>
+          </motion.div>
+          <motion.div
+            className="mx-auto mt-8 max-w-3xl rounded-2xl border border-white/40 bg-white/95 p-2 shadow-2xl shadow-black/20 backdrop-blur-md"
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="min-w-0 flex-1">
+                <SearchAutocomplete placeholder="Search city or hostel name..." />
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-medium transition-all ${
+                  showFilters
+                    ? "border-primary bg-primary text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-primary/30 hover:text-primary"
+                }`}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters {activeFilterCount > 0 && <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-primary">{activeFilterCount}</span>}
+              </button>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                showFilters ? "bg-primary border-primary text-white" : "border-white/20 text-white hover:bg-white/10"
-              }`}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filters {activeFilterCount > 0 && <span className="bg-white text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">{activeFilterCount}</span>}
-            </button>
-          </div>
+          </motion.div>
         </div>
       </div>
 

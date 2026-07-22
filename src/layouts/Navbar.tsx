@@ -67,6 +67,16 @@ export function Navbar() {
     setIsMobileOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
+    const closeMenuOnDesktop = (event: MediaQueryListEvent | MediaQueryList) => {
+      if (event.matches) setIsMobileOpen(false);
+    };
+    closeMenuOnDesktop(desktopQuery);
+    desktopQuery.addEventListener("change", closeMenuOnDesktop);
+    return () => desktopQuery.removeEventListener("change", closeMenuOnDesktop);
+  }, []);
+
   const dashboardPath =
     role === "super_admin"
       ? "/super-admin/dashboard"
@@ -82,8 +92,8 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-[100] w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-lg dark:bg-[#0D0D1A]/90"
-          : "bg-transparent"
+          ? "bg-white shadow-lg dark:bg-[#0D0D1A] lg:bg-white/90 lg:backdrop-blur-xl lg:dark:bg-[#0D0D1A]/90"
+          : "bg-white shadow-sm dark:bg-[#0D0D1A] lg:bg-transparent lg:shadow-none lg:dark:bg-transparent"
       }`}
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -96,7 +106,7 @@ export function Navbar() {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           <NavLink to="/" label="Home" current={location.pathname === "/"} />
           <NavLink
             to="/hostels"
@@ -123,7 +133,7 @@ export function Navbar() {
           />
         </nav>
         {/* Desktop Auth */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <_DarkToggle />
           {userId ? (
             <>
@@ -191,9 +201,12 @@ export function Navbar() {
         </div>
 
         <button
-          className="md:hidden p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors dark:text-[#E2E8F0]"
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          aria-label="Toggle menu"
+          type="button"
+          className="relative z-[110] flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm transition-colors hover:border-primary/20 hover:bg-primary/5 hover:text-primary lg:hidden dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-white/10"
+          onClick={() => setIsMobileOpen((open) => !open)}
+          aria-label={isMobileOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={isMobileOpen}
+          aria-controls="mobile-navigation"
         >
           {isMobileOpen ? (
             <X className="w-5 h-5" />
@@ -203,7 +216,7 @@ export function Navbar() {
         </button>
 
         {isMobileOpen && (
-          <div className="fixed top-20 left-0 right-0 bottom-0 z-[99] md:hidden bg-white dark:bg-[#0D0D1A] border-t border-gray-200 dark:border-white/10 animate-slide-up flex flex-col overflow-hidden">
+          <div id="mobile-navigation" className="fixed top-20 left-0 right-0 bottom-0 z-[99] lg:hidden bg-white dark:bg-[#0D0D1A] border-t border-gray-200 dark:border-white/10 animate-slide-up flex flex-col overflow-hidden">
             {/* Scrollable Navigation */}
             <div className="flex-1 overflow-y-auto px-5 py-5">
               <MobileNavLink

@@ -120,7 +120,7 @@ export default function Contact() {
   return (
 
     <div className="min-h-screen bg-[#F8FBFA] ">
-      <section className="relative overflow-hidden bg-white">
+      <section className="relative overflow-hidden border-b border-slate-200 bg-white">
 
 
         <div className="absolute inset-0 bg-gradient-to-r from-white via-[#F8FBFA] to-[#EEFDF7]"></div>
@@ -147,16 +147,16 @@ export default function Contact() {
         <div className="absolute top-40 left-1/2 h-2 w-2 rounded-full bg-white/70 animate-pulse"></div>
 
 
-        <div className="relative z-20 mx-auto flex flex-col-reverse lg:flex-row min-h-screen max-w-[1600px]">
+        <div className="relative z-20 mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:min-h-[680px] lg:grid-cols-[1.02fr_0.98fr] lg:gap-14 lg:px-8 lg:pb-20 lg:pt-12">
 
 
 
-          <div className="w-full lg:w-1/2 px-6 sm:px-8 md:px-10 lg:px-14 pt-10 lg:pt-8 pb-12 lg:pb-16 text-center lg:text-left">
+          <div className="w-full text-center lg:text-left">
 
 
 
 
-            <div className="inline-flex items-center gap-3 rounded-full border border-emerald-300/30 bg-white/5 px-5 py-3 backdrop-blur-md shadow-lg mx-auto lg:mx-0">
+            <div className="mx-auto inline-flex items-center gap-2.5 rounded-full border border-primary/15 bg-white px-4 py-2 text-sm shadow-sm lg:mx-0">
               <span className="relative flex h-3 w-3">
 
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
@@ -165,9 +165,9 @@ export default function Contact() {
 
               </span>
 
-              <span className="font-semibold tracking-wide text-black ">
+              <span className="font-semibold text-slate-700">
 
-                24/7 Support Available
+                Support available around the clock
 
               </span>
 
@@ -175,13 +175,13 @@ export default function Contact() {
 
 
 
-            <h1 className="mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight lg:leading-none text-black">
+            <h1 className="mt-7 font-heading text-4xl font-bold leading-[1.08] tracking-tight text-dark sm:text-5xl lg:text-6xl">
 
-              Contact{" "}
+              Let’s build a better{" "}
 
               <span className="text-primary">
 
-                HostelMS
+                hostel experience.
 
               </span>
 
@@ -189,33 +189,32 @@ export default function Contact() {
 
 
 
-            <p className="mt-6 lg:mt-8 max-w-xl mx-auto lg:mx-0 text-base sm:text-lg lg:text-xl leading-7 lg:leading-9 text-slate-600">
+            <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg lg:mx-0">
 
-              Reach out for bookings, onboarding help, product support,
-              or a personalized walkthrough of how HostelMS can simplify
-              your property management.
+              Talk with our product specialists about onboarding, support, or a
+              personalized walkthrough designed around your property.
 
             </p>
 
 
 
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
 
-              <div className="group rounded-2xl border border-slate/10 bg-white/5 p-5 backdrop-blur-none transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300/40 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(16,185,129,.15)]">
+              <div className="group rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5">
 
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/30">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 transition-transform duration-300 group-hover:scale-105">
 
-                  <MessageCircle className="h-6 w-6 text-emerald-300" />
+                  <MessageCircle className="h-5 w-5 text-primary" />
 
                 </div>
 
-                <h3 className="font-bold text-slate-600">
+                <h3 className="text-sm font-semibold text-dark">
 
                   Fast replies
 
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-1 text-xs leading-5 text-slate-500">
 
                   Response within 24 hours
 
@@ -223,21 +222,21 @@ export default function Contact() {
 
               </div>
 
-              <div className="group rounded-2xl border border-slate/10 bg-white/5 p-5 backdrop-blur-none transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300/40 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(16,185,129,.15)]">
+              <div className="group rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5">
 
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/30">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 transition-transform duration-300 group-hover:scale-105">
 
-                  <Users className="h-6 w-6 text-emerald-300" />
+                  <Users className="h-5 w-5 text-primary" />
 
                 </div>
 
-                <h3 className="font-bold text-slate-600">
+                <h3 className="text-sm font-semibold text-dark">
 
                   Expert team
 
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-1 text-xs leading-5 text-slate-500">
 
                   Product & onboarding support
 
@@ -245,21 +244,21 @@ export default function Contact() {
 
               </div>
 
-              <div className="group rounded-2xl border border-slate/10 bg-white/5 p-5 backdrop-blur-none transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300/40 hover:bg-white/10 hover:shadow-[0_20px_40px_rgba(16,185,129,.15)]">
+              <div className="group rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5">
 
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-400/30">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 transition-transform duration-300 group-hover:scale-105">
 
-                  <CalendarDays className="h-6 w-6 text-emerald-300" />
+                  <CalendarDays className="h-5 w-5 text-primary" />
 
                 </div>
 
-                <h3 className="font-bold text-slate-600">
+                <h3 className="text-sm font-semibold text-dark">
 
                   Free consult
 
                 </h3>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-1 text-xs leading-5 text-slate-500">
 
                   Tailored demo for your hostel
 
@@ -271,21 +270,21 @@ export default function Contact() {
 
 
 
-            <div className="relative z-50 mt-10 lg:mt-14 flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+            <div className="relative z-50 mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
 
               <a
                 href="#contact-form"
-                className="relative z-50 flex items-center gap-3 rounded-2xl bg-[#0A6B72] px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[#08585E] hover:shadow-xl hover:scale-105"
+                className="relative z-50 flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-primary/15 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#08585E]"
               >
                 <Send className="h-5 w-5" />
-                Contact Us
+                Contact us
               </a>
 
               <Link to="/register">
                 <button
-                  className="relative z-50 w-full sm:w-auto rounded-2xl border-2 border-[#0A6B72] bg-white px-6 py-3 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-[#0A6B72] shadow-md transition-all duration-300 hover:bg-[#0A6B72] hover:text-white hover:shadow-lg hover:scale-105"
+                  className="relative z-50 w-full rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-dark shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:text-primary sm:w-auto"
                 >
-                  Request Demo
+                  Request demo
                 </button>
               </Link>
             </div>
@@ -294,33 +293,16 @@ export default function Contact() {
 
 
 
-          <div className="relative w-full lg:w-1/2 h-[520px] sm:h-[650px] lg:h-[850px] flex items-center justify-center overflow-hidden">
+          <div className="relative mx-auto flex h-[300px] w-full max-w-[480px] items-center justify-center overflow-hidden rounded-[2rem] border border-primary/10 bg-[#eaf7f5] p-5 shadow-[0_30px_80px_rgba(15,83,88,0.12)] sm:h-[380px] sm:p-7 lg:h-[420px]">
 
-            <div className="absolute inset-0 overflow-hidden rounded-r-[34px] -z-10">
+            <div className="absolute inset-0 -z-10 overflow-hidden">
 
-              <img
-                src="/img/Touch1.jpg"
-                alt="Support"
-                className="
-    absolute
-    top-0
-    right-0
-    w-[115%]
-    h-full
-    object-cover
-    object-right
-    opacity-95
-    scale-[1.08]
-    pointer-events-none
-  "
-              />
-
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/10 to-white/50" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-transparent to-primary/10" />
 
             </div>
 
 
-            <div className="absolute left-8 top-12 opacity-5">
+            <div className="hidden">
 
               <svg
                 width="340"
@@ -341,42 +323,28 @@ export default function Contact() {
 
 
 
-              <div className="absolute w-[320px] h-[320px] rounded-full border border-[#5EEAD4]/60"></div>
+              <div className="absolute h-[76%] w-[76%] rounded-full border border-primary/10"></div>
 
-              <div className="absolute w-[400px] h-[400px] rounded-full border border-[#5EEAD4]/40"></div>
+              <div className="absolute h-[92%] w-[92%] rounded-full border border-primary/[0.06]"></div>
 
-              <div className="absolute w-[480px] h-[480px] rounded-full border border-[#5EEAD4]/30"></div>
+              <div className="hidden"></div>
 
-              <div className="absolute w-[560px] h-[560px] rounded-full border border-[#5EEAD4]/20"></div>
+              <div className="hidden"></div>
 
 
 
-              <div className="absolute h-[320px] w-[320px] rounded-full bg-emerald-300/20 blur-[80px]"></div>
+              <div className="absolute h-72 w-72 rounded-full bg-primary/15 blur-[90px]"></div>
 
 
 
 
               <div
-                className="
-  relative
-  flex
-  h-[240px]
-  w-[240px]
-  sm:h-[300px]
-  sm:w-[300px]
-  lg:h-[360px]
-  lg:w-[360px]
-  items-center
-  justify-center
-  rounded-full
-  bg-white
-  shadow-[0_30px_80px_rgba(0,0,0,0.15)]
-"
+                className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[1.5rem] border-[6px] border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.16)] sm:border-8"
               >
                 <img
                   src="/img/contact-icon.png"
-                  alt="Contact"
-                  className="w-[105%] h-[105%] object-contain"
+                  alt="Contact and support"
+                  className="h-full w-full object-cover"
                 />
 
               </div>
@@ -386,7 +354,7 @@ export default function Contact() {
 
 
 
-            <div className="absolute top-12 right-8 hidden lg:grid grid-cols-5 gap-4 opacity-70">
+            <div className="hidden">
               {Array.from({ length: 25 }).map((_, index) => (
                 <div
                   key={`top-${index}`}
@@ -396,7 +364,7 @@ export default function Contact() {
             </div>
 
 
-            <div className="absolute bottom-24 left-8 grid grid-cols-5 gap-4 opacity-70">
+            <div className="hidden">
               {Array.from({ length: 20 }).map((_, index) => (
                 <div
                   key={`bottom-${index}`}
@@ -407,12 +375,12 @@ export default function Contact() {
 
 
 
-            <div className="absolute bottom-0 right-0 h-56 w-80 rounded-full bg-cyan-400/10 blur-[120px]" />
+            <div className="absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-primary/10 blur-[80px]" />
 
 
 
             <svg
-              className="absolute bottom-0 right-0 w-[260px] sm:w-[360px] lg:w-[700px] opacity-40"
+              className="hidden"
               viewBox="0 0 600 180"
               fill="none"
             >
