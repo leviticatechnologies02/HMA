@@ -49,12 +49,22 @@ const AdminSchema = Yup.object({
         .required("Password is required"),
     otherwise: (schema) => schema,
   }),
+
+  confirmPassword: Yup.string().when("isEdit", {
+    is: false,
+    then: (schema) =>
+      schema
+        .required("Confirm Password is required")
+        .oneOf([Yup.ref("password")], "Passwords must match"),
+    otherwise: (schema) => schema,
+  }),
 });
 
 const AdminForm = ({ editingItem, onClose, onSuccess }: AdminFormProps) => {
   const userId = useAuthStore((s) => s.userId);
   const createMutation = useCreateSuperAdminAdmin(userId);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const isEdit = Boolean(editingItem);
 
@@ -64,9 +74,17 @@ const AdminForm = ({ editingItem, onClose, onSuccess }: AdminFormProps) => {
         email: editingItem.email || "",
         phone: editingItem.phone || "",
         password: "",
+        confirmPassword: "",
         isEdit: true,
       }
-    : { full_name: "", email: "", phone: "", password: "", isEdit: false };
+    : {
+        full_name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        isEdit: false,
+      };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     if (!userId) {
@@ -90,8 +108,17 @@ const AdminForm = ({ editingItem, onClose, onSuccess }: AdminFormProps) => {
       resetForm();
       onSuccess?.();
       onClose?.();
-    } catch (err) {
-      toast.error("Failed to create admin");
+    } catch (err: any) {
+      console.log("API Error:", err);
+      console.log("Response:", err?.response);
+
+      const message =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.response?.data?.detail ||
+        "Failed to create admin";
+
+      toast.error(message);
     }
   };
 
@@ -216,6 +243,44 @@ const AdminForm = ({ editingItem, onClose, onSuccess }: AdminFormProps) => {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+              Confirm Password {isEdit ? "(disabled)" : "*"}
+            </label>
+
+            <div className="relative">
+              <input
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={values.confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                className={`input-field w-full text-sm pr-10 ${
+                  touched.confirmPassword && errors.confirmPassword
+                    ? "border-red-500 border-2"
+                    : ""
+                }`}
+                placeholder="Re-enter password"
+                disabled={isEdit}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={isEdit}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {touched.confirmPassword && errors.confirmPassword && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.confirmPassword as string}
+              </p>
+            )}
           </div>
 
           {isEdit && (
