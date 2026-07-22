@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Users, Plus, X, Building2, Mail, Phone, CheckCircle,UserMinus } from "lucide-react";
-import { useAssignSuperAdminAdminHostel, useSuperAdminAdmins, useSuperAdminHostels, useUnassignSuperAdminAdminHostel } from "../../hooks/useSuperAdminData";
+import { Users, Plus, X, Building2, Mail, Phone, CheckCircle, UserMinus, Trash2 } from "lucide-react";
+import { useAssignSuperAdminAdminHostel, useSuperAdminAdmins, useSuperAdminHostels, useUnassignSuperAdminAdminHostel, useDeleteSuperAdminAdmin } from "../../hooks/useSuperAdminData";
 import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
 import toast from "react-hot-toast";
@@ -11,9 +11,21 @@ export function SuperAdminAdminsPage() {
   const hostelsQ = useSuperAdminHostels(userId);
   const assignMutation = useAssignSuperAdminAdminHostel(userId);
   const unassignMutation = useUnassignSuperAdminAdminHostel(userId);
+  const deleteMutation = useDeleteSuperAdminAdmin(userId);
   const { openModal } = useModal();
+
+  const handleDeleteAdmin = async (adminId: string) => {
+    try {
+      await deleteMutation.mutateAsync(adminId);
+      toast.success("Admin deleted successfully");
+      setDeletingAdmin(null);
+    } catch {
+      toast.error("Failed to delete admin");
+    }
+  };
   
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
+  const [deletingAdmin, setDeletingAdmin] = useState<string | null>(null);
   const [selectedHostel, setSelectedHostel] = useState("");
 
   
@@ -186,6 +198,15 @@ const hostels = allHostels.filter(
       <UserMinus className="w-4 h-4" />
       <span>{unassignMutation.isPending ? "Unassigning..." : "Unassign"}</span>
     </button>
+    
+    <button
+      onClick={() => setDeletingAdmin(a.id)}
+      disabled={deleteMutation.isPending}
+      className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${deleteMutation.isPending ? "text-red-300 cursor-not-allowed" : "text-red-500 hover:text-red-600"}`}
+    >
+      <Trash2 className="w-4 h-4" />
+      <span>{deleteMutation.isPending ? "Deleting..." : "Delete"}</span>
+    </button>
 
   </div>
 </td>
@@ -269,6 +290,39 @@ const hostels = allHostels.filter(
     </div>
   </div>
 )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingAdmin && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl w-full max-w-md shadow-xl overflow-hidden">
+            <div className="p-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Delete Admin?</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
+                Are you sure you want to delete this admin? This action cannot be undone.
+              </p>
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => setDeletingAdmin(null)}
+                  className="flex-1 btn-outline"
+                  disabled={deleteMutation.isPending}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeleteAdmin(deletingAdmin)}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-xl font-medium transition-colors disabled:opacity-50"
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

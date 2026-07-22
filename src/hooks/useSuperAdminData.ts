@@ -6,6 +6,7 @@ import {
   unassignSuperAdminAdminHostel,
   cancelSuperAdminSubscription,
   createSuperAdminAdmin,
+  deleteSuperAdminAdmin,
   createSuperAdminHostel,
   createSuperAdminSubscription,
   createSubscriptionFromPlan,
@@ -150,6 +151,20 @@ export function useCreateSuperAdminAdmin(userId: string | null) {
 
   return useMutation({
     mutationFn: (payload: SuperAdminAdminPayload) => createSuperAdminAdmin(userId!, payload),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["super-admin-admins", userId] }),
+        queryClient.invalidateQueries({ queryKey: ["super-admin-dashboard", userId] })
+      ]);
+    }
+  });
+}
+
+export function useDeleteSuperAdminAdmin(userId: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (adminId: string) => deleteSuperAdminAdmin(userId!, adminId),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["super-admin-admins", userId] }),

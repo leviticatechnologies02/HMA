@@ -197,6 +197,13 @@ export async function createSuperAdminAdmin(userId: string, payload: SuperAdminA
   return response.data;
 }
 
+export async function deleteSuperAdminAdmin(userId: string, adminId: string) {
+  const response = await api.delete<{ message: string }>(`/super-admin/admins/${adminId}`, {
+    headers: buildSuperAdminHeaders(userId)
+  });
+  return response.data;
+}
+
 export async function assignSuperAdminAdminHostels(userId: string, adminId: string, hostelIds: string[]) {
   const response = await api.post<{ admin_id: string; hostel_ids: string[] }>(
     `/super-admin/admins/${adminId}/assign-hostels`,
