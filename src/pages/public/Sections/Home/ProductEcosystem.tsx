@@ -16,7 +16,8 @@ const PRODUCT_BLOCKS = [
   {
     title: "Student mobile app",
     subtitle: "For residents and students",
-    description: "A self-service experience that gives residents simple, around-the-clock access to essential hostel services.",
+    description:
+      "A self-service experience that gives residents simple, around-the-clock access to essential hostel services.",
     features: [
       "Room booking and allocation",
       "Secure online payments",
@@ -25,7 +26,7 @@ const PRODUCT_BLOCKS = [
       "Mess menu and preferences",
       "Instant announcements",
     ],
-    image: "/img/Tenantapp.jpeg",
+    image: "/img/studentmobileapp.png",
     icon: Smartphone,
     stat: "10,000+ active users",
     cta: { label: "Explore app", to: "/aboutus#complete-digital-solution" },
@@ -33,7 +34,8 @@ const PRODUCT_BLOCKS = [
   {
     title: "Admin dashboard",
     subtitle: "For management and staff",
-    description: "A focused control center for monitoring occupancy, payments, teams, visitors, and resident documentation.",
+    description:
+      "A focused control center for monitoring occupancy, payments, teams, visitors, and resident documentation.",
     features: [
       "Role-based staff access",
       "Live occupancy tracking",
@@ -42,7 +44,7 @@ const PRODUCT_BLOCKS = [
       "Visitor management",
       "Kyc verification",
     ],
-    image: "/img/AdminDashboard.jpeg",
+    image: "/img/Admindashboard.png",
     icon: Monitor,
     stat: "100+ management tools",
     cta: { label: "Schedule a demo", to: "/contact" },
@@ -50,7 +52,8 @@ const PRODUCT_BLOCKS = [
   {
     title: "Analytics & reporting",
     subtitle: "For decision makers",
-    description: "Clear operational and financial insights that turn everyday hostel data into confident, timely decisions.",
+    description:
+      "Clear operational and financial insights that turn everyday hostel data into confident, timely decisions.",
     features: [
       "Financial dashboards",
       "Occupancy forecasting",
@@ -59,7 +62,7 @@ const PRODUCT_BLOCKS = [
       "Compliance audit trails",
       "Custom reports",
     ],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+    image: "/img/analytics&reporting.png",
     icon: BarChart3,
     stat: "99% reporting accuracy",
     cta: { label: "Get started", to: "/register" },
@@ -80,7 +83,9 @@ function ProductEcosystem() {
 
   useEffect(() => {
     const rotationTimer = window.setInterval(() => {
-      setActiveProduct((currentProduct) => (currentProduct + 1) % PRODUCT_BLOCKS.length);
+      setActiveProduct(
+        (currentProduct) => (currentProduct + 1) % PRODUCT_BLOCKS.length,
+      );
     }, 10_000);
 
     return () => window.clearInterval(rotationTimer);
@@ -104,10 +109,12 @@ function ProductEcosystem() {
             Integrated platform
           </span>
           <h2 className="mt-5 font-heading text-3xl font-bold tracking-tight text-dark sm:text-4xl lg:text-5xl">
-            One ecosystem. <span className="text-primary">Every hostel workflow.</span>
+            One ecosystem.{" "}
+            <span className="text-primary">Every hostel workflow.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-            Three purpose-built experiences working together to simplify management and improve every resident interaction.
+            Three purpose-built experiences working together to simplify
+            management and improve every resident interaction.
           </p>
         </motion.div>
 
@@ -118,7 +125,11 @@ function ProductEcosystem() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50/70 p-2 shadow-[0_24px_70px_rgba(15,23,42,0.08)]"
         >
-          <div className="grid gap-2 p-1 sm:grid-cols-3" role="tablist" aria-label="Product modules">
+          <div
+            className="grid gap-2 p-1 sm:grid-cols-3"
+            role="tablist"
+            aria-label="Product modules"
+          >
             {PRODUCT_BLOCKS.map((product, index) => {
               const Icon = product.icon;
               const isActive = activeProduct === index;
@@ -135,12 +146,20 @@ function ProductEcosystem() {
                       : "border-transparent bg-transparent text-slate-600 hover:border-slate-200 hover:bg-white hover:text-dark"
                   }`}
                 >
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${isActive ? "bg-white/15" : "bg-white text-primary shadow-sm"}`}>
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${isActive ? "bg-white/15" : "bg-white text-primary shadow-sm"}`}
+                  >
                     <Icon className="h-4.5 w-4.5" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold">{product.title}</span>
-                    <span className={`mt-0.5 block truncate text-xs ${isActive ? "text-white/65" : "text-slate-400"}`}>{product.subtitle}</span>
+                    <span className="block truncate text-sm font-semibold">
+                      {product.title}
+                    </span>
+                    <span
+                      className={`mt-0.5 block truncate text-xs ${isActive ? "text-white/65" : "text-slate-400"}`}
+                    >
+                      {product.subtitle}
+                    </span>
                   </span>
                 </button>
               );
@@ -163,17 +182,28 @@ function ProductEcosystem() {
                       <SelectedIcon className="h-5 w-5" />
                     </span>
                     <div>
-                      <p className="text-xs font-semibold text-primary">{selectedProduct.subtitle}</p>
-                      <p className="mt-1 text-xs text-slate-400">{selectedProduct.stat}</p>
+                      <p className="text-xs font-semibold text-primary">
+                        {selectedProduct.subtitle}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        {selectedProduct.stat}
+                      </p>
                     </div>
                   </div>
 
-                  <h3 className="mt-5 font-heading text-3xl font-bold tracking-tight text-dark sm:text-4xl">{selectedProduct.title}</h3>
-                  <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">{selectedProduct.description}</p>
+                  <h3 className="mt-5 font-heading text-3xl font-bold tracking-tight text-dark sm:text-4xl">
+                    {selectedProduct.title}
+                  </h3>
+                  <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
+                    {selectedProduct.description}
+                  </p>
 
                   <div className="mt-6 grid gap-3 sm:grid-cols-2">
                     {selectedProduct.features.map((feature) => (
-                      <div key={feature} className="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5 text-xs font-medium leading-5 text-slate-600">
+                      <div
+                        key={feature}
+                        className="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5 text-xs font-medium leading-5 text-slate-600"
+                      >
                         <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                         {feature}
                       </div>
@@ -227,14 +257,22 @@ function ProductEcosystem() {
           <div className="absolute -right-24 -top-32 h-72 w-72 rounded-full border-[42px] border-white/[0.05]" />
           <div className="relative grid items-center gap-7 lg:grid-cols-[1fr_auto]">
             <div>
-              <p className="text-xs font-semibold text-white/60">Connected by design</p>
-              <h3 className="mt-2 max-w-2xl font-heading text-2xl font-bold sm:text-3xl">All modules stay perfectly synchronized.</h3>
+              <p className="text-xs font-semibold text-white/60">
+                Connected by design
+              </p>
+              <h3 className="mt-2 max-w-2xl font-heading text-2xl font-bold sm:text-3xl">
+                All modules stay perfectly synchronized.
+              </h3>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
-                A single source of truth keeps teams, residents, payments, and reports accurate across every device.
+                A single source of truth keeps teams, residents, payments, and
+                reports accurate across every device.
               </p>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {INTEGRATION_FEATURES.map(({ label, icon: FeatureIcon }) => (
-                  <span key={label} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-white/90">
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-medium text-white/90"
+                  >
                     <FeatureIcon className="h-3.5 w-3.5" />
                     {label}
                   </span>
