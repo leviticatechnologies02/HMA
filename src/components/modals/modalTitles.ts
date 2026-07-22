@@ -34,8 +34,8 @@ export const modalTitles: Record<ModalType, ModalTitleConfig> = {
     edit: "Update Booking",
   },
   tenant: {
-    create: "Add Tenant",
-    edit: "Edit Tenant",
+    create: "Add Student",
+    edit: "Edit Student",
   },
   supervisor: {
     create: "Add Supervisor",

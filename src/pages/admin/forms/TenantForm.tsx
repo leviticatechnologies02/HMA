@@ -143,7 +143,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
           {/* Info Banner */}
           <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
             {isEdit
-              ? "Edit Tenant details. Leave password empty to keep current password."
+              ? "Edit Student details. Leave password empty to keep current password."
               : "Creates a new user account and immediately checks them in. Use for walk-in or offline registrations."
             }
           </div>
@@ -332,7 +332,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
               {addMutation.isPending || isSubmitting
                 ? "Saving..."
                 : isEdit
-                  ? "Update Tenant"
+                  ? "Update Student"
                   : "Add Student"
               }
             </button>

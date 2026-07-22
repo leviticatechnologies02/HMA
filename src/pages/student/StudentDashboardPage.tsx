@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { BookOpen, CreditCard, MessageSquare, UserCheck, Bell, UtensilsCrossed, ArrowRight, User, ListOrdered } from "lucide-react";
 import {
+  useStudentProfile,
   useStudentBookings,
   useStudentComplaints,
   useStudentAttendance,
@@ -13,6 +14,7 @@ import { formatDate } from "../../utils/formatters";
 
 export function StudentDashboardPage() {
   const userId = useAuthStore((s) => s.userId);
+  const profileQ = useStudentProfile(userId);
   const bookingsQ = useStudentBookings(userId);
   const complaintsQ = useStudentComplaints(userId);
   const attendanceQ = useStudentAttendance(userId);
@@ -39,7 +41,9 @@ export function StudentDashboardPage() {
     <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-dark">My Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-dark">
+  Welcome, {profileQ.data?.full_name ?? "Student"}
+</h1>
           <p className="mt-1 text-xs sm:text-sm text-slate-500">Track your bookings, payments, and hostel activity.</p>
         </div>
         <Link to="/student/profile" className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-dark hover:border-primary hover:text-primary transition-all w-full sm:w-auto">
