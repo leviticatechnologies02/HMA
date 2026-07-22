@@ -83,7 +83,7 @@ export function AdminStudentsPage() {
         <div className="relative">
           <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-600" />
           <input value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-            placeholder="Search by name or tenant number..."
+            placeholder="Search by name or student number..."
             className="input-field pl-9 text-sm" />
         </div>
       </div>

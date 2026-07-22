@@ -14,8 +14,8 @@ import {
 
 const PRODUCT_BLOCKS = [
   {
-    title: "Tenant mobile app",
-    subtitle: "For residents and tenants",
+    title: "Student mobile app",
+    subtitle: "For residents and students",
     description: "A self-service experience that gives residents simple, around-the-clock access to essential hostel services.",
     features: [
       "Room booking and allocation",

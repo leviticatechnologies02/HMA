@@ -66,7 +66,7 @@ export function SupervisorStudentsPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or tenant number..."
+            placeholder="Search by name or student number..."
             className="input-field pl-9 text-sm"
           />
         </div>

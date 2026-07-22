@@ -277,7 +277,7 @@ const AboutApp = () => {
                     },
                     {
                       icon: <Heart />,
-                      title: "Tenant Comfort First",
+                      title: "Student Comfort First",
                       text: "We prioritize a secure, convenient living experience by ensuring reliable systems and transparent processes.",
                       type: "value",
                       color: "from-[#c79a3b] to-[#f0d9a7]",
@@ -393,7 +393,7 @@ const AboutApp = () => {
                 description:
                   "Separate portals for students, wardens, and admin staff with role-based permissions. Each user gets exactly what they need.",
                 features: [
-                  "Tenant portal",
+                  "Student portal",
                   "Warden dashboard",
                   "Admin controls",
                 ],
