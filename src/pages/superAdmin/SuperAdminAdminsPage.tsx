@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { Users, Plus, X, Building2, Mail, Phone, CheckCircle } from "lucide-react";
+import { Users, Plus, X, Building2, Mail, Phone, CheckCircle,UserMinus } from "lucide-react";
 import { useAssignSuperAdminAdminHostel, useSuperAdminAdmins, useSuperAdminHostels } from "../../hooks/useSuperAdminData";
 import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
@@ -150,17 +150,29 @@ const hostels = allHostels.filter(
 
                     {/* ACTION */}
                     <td className="px-4 sm:px-5 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => {
-                          setAssigningAdmin(a.id);
-                          setSelectedHostel("");
-                        }}
-                        className="text-xs text-primary font-semibold hover:underline flex items-center gap-1"
-                      >
-                        <Building2 className="w-3.5 h-3.5" />
-                        Assign
-                      </button>
-                    </td>
+  <div className="flex items-center gap-5">
+
+    <button
+      onClick={() => {
+        setAssigningAdmin(a.id);
+        setSelectedHostel("");
+      }}
+      className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+    >
+      <Building2 className="w-4 h-4" />
+      <span>Assign</span>
+    </button>
+
+    <button
+      
+      className="flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
+    >
+      <UserMinus className="w-4 h-4" />
+      <span>Unassign</span>
+    </button>
+
+  </div>
+</td>
 
                   </tr>
                 ))}

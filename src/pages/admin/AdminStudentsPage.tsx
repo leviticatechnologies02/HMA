@@ -71,7 +71,7 @@ export function AdminStudentsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-dark dark:text-white">Tenants</h1>
+          <h1 className="text-3xl font-heading font-bold text-dark dark:text-white">Students</h1>
           <p className="mt-1 text-slate-500 dark:text-slate-400">{tenants.length} currently checked-in tenants.</p>
         </div>
         <button onClick={handleAddTenant} className="btn-primary flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { Building2, Users, Star, TrendingUp, CheckCircle, Clock, XCircle, ArrowRight } from "lucide-react";
+import { Building2, TrendingUp, CheckCircle, Clock, XCircle, ArrowRight,PauseCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSuperAdminDashboard, useSuperAdminHostels, useSuperAdminSubscriptions } from "../../hooks/useSuperAdminData";
 import { useAuthStore } from "../../store/authStore";
@@ -16,11 +16,21 @@ export function SuperAdminDashboardPage() {
   const monthlyRevenue = subscriptions
     .filter((s) => s.status === "active")
     .reduce((sum, s) => sum + s.price_monthly, 0);
+   
+  const rejectedHostels = (hostelsQ.data ?? []).filter(
+  (h) => h.status === "rejected"
+).length;
+
+const suspendedHostels = (hostelsQ.data ?? []).filter(
+  (h) => h.status === "suspended"
+).length;  
 
   const stats = [
     { label: "Total Hostels", value: data?.total_hostels ?? data?.hostels ?? 0, icon: <Building2 className="w-5 h-5" />, color: "bg-primary/10 text-primary" },
     { label: "Pending Approval", value: data?.pending_approval_count ?? 0, icon: <Clock className="w-5 h-5" />, color: "bg-accent/20 text-warning" },
     { label: "Active Hostels", value: data?.active_hostels ?? 0, icon: <CheckCircle className="w-5 h-5" />, color: "bg-success/10 text-success" },
+    {label: "Rejected",value: rejectedHostels,icon: <XCircle className="w-5 h-5" />,color: "bg-red-100 text-red-600",},
+    {label: "Suspended",value: suspendedHostels,icon: <PauseCircle className="w-5 h-5" />,color: "bg-orange-100 text-orange-600",},
     { label: "Revenue (Month)", value: `₹${Math.round(monthlyRevenue).toLocaleString()}`, icon: <TrendingUp className="w-5 h-5" />, color: "bg-secondary/10 text-secondary" },
   ];
 
@@ -44,23 +54,35 @@ export function SuperAdminDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((s) => (
-          <div key={s.label} className="stat-card">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{s.label}</p>
-                <p className="mt-2 text-3xl font-heading font-bold text-dark">
-                  {isLoading ? <span className="skeleton inline-block w-12 h-8" /> : s.value}
-                </p>
-              </div>
-              <div className={`w-10 h-10 rounded-xl ${s.color} flex items-center justify-center`}>
-                {s.icon}
-              </div>
-            </div>
-          </div>
-        ))}
+<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+  {stats.map((s) => (
+    <div
+      key={s.label}
+      className="stat-card bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-700 shadow-sm"
+    >
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-slate-500">{s.label}</p>
+
+          <p className="mt-2 text-3xl font-heading font-bold text-dark dark:text-white">
+            {isLoading ? (
+              <span className="skeleton inline-block w-12 h-8" />
+            ) : (
+              s.value
+            )}
+          </p>
+        </div>
+
+        <div
+          className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.color}`}
+        >
+          {s.icon}
+        </div>
       </div>
+    </div>
+  ))}
+</div>
+
 
       {/* Recent Hostels — real data */}
  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">

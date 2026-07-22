@@ -45,7 +45,7 @@ const AboutApp = () => {
 
           <p className="relative text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
             Transforming hostel and PG management into a seamless digital
-            experience enabling smarter operations, happier tenants, and
+            experience enabling smarter operations, happier students, and
             effortless control.
           </p>
 
@@ -84,7 +84,7 @@ const AboutApp = () => {
 
               <p className="text-xl leading-9 text-slate-600 dark:text-slate-300">
                 From admissions to fee tracking, everything is centralized in
-                one secure system designed for administrators and tenants.
+                one secure system designed for administrators and students.
               </p>
 
               <Link to="/">
@@ -128,7 +128,7 @@ const AboutApp = () => {
               {
                 title: "Announcements",
                 description:
-                  "Send instant notifications to all tenants and staff.",
+                  "Send instant notifications to all students and staff.",
                 icon: <Bell className="w-5 h-5 text-primary" />,
               },
             ].map((item) => (
@@ -177,7 +177,7 @@ const AboutApp = () => {
                     </p>
 
                     <p className="text-white/90 leading-relaxed text-lg">
-                      We work closely with hostel owners, wardens, and tenants
+                      We work closely with hostel owners, wardens, and students
                       to ensure every feature genuinely improves daily
                       operations and living experience.
                     </p>
@@ -209,7 +209,7 @@ const AboutApp = () => {
                   </p>
 
                   <p className="text-lg leading-relaxed">
-                    Tenants struggled to access information, wardens spent hours
+                    Students struggled to access information, wardens spent hours
                     on routine tasks, and administrators lacked real-time
                     visibility into operations.
                   </p>
@@ -244,7 +244,7 @@ const AboutApp = () => {
                     {
                       icon: <Target />,
                       title: "Clear Focus",
-                      text: "Real hostel problems. We understand the day-to-day challenges faced by administrators and tenants.",
+                      text: "Real hostel problems. We understand the day-to-day challenges faced by administrators and students.",
                       type: "value",
                       color: "from-[#0d5c63] to-[#1b7f8e]",
                     },
@@ -363,7 +363,7 @@ const AboutApp = () => {
                 icon: Smartphone,
                 title: "Mobile-First Experience",
                 description:
-                  "Tenants can book rooms, pay fees, and manage everything from their phones. Real-time updates and notifications keep everyone connected.",
+                  "Students can book rooms, pay fees, and manage everything from their phones. Real-time updates and notifications keep everyone connected.",
                 features: [
                   "Mobile bookings",
                   "Push notifications",
@@ -378,7 +378,7 @@ const AboutApp = () => {
                 icon: Users,
                 title: "Smart User Management",
                 description:
-                  "Separate portals for tenants, wardens, and admin staff with role-based permissions. Each user gets exactly what they need.",
+                  "Separate portals for students, wardens, and admin staff with role-based permissions. Each user gets exactly what they need.",
                 features: [
                   "Tenant portal",
                   "Warden dashboard",
@@ -516,7 +516,7 @@ const AboutApp = () => {
           <p className="text-xl lg:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
             Join hostels that have replaced paperwork and manual tracking with a
             smart, centralized management system. Get better control, improved
-            communication, and a smoother experience for tenants and staff.
+            communication, and a smoother experience for students and staff.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
