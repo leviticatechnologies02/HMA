@@ -25,50 +25,87 @@ const AboutApp = () => {
   return (
     <main className="overflow-hidden bg-neutral dark:bg-slate-950">
       <section
-        className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 pt-20 pb-16 bg-dark"
-        style={{
-          backgroundImage:
-            'url("https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=600&fit=crop")',
-          backgroundAttachment: "fixed",
-        }}
-      >
-        <div className="absolute inset-0 bg-[#06282d]/45 backdrop-blur-[2px]"></div>
-        <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-[#9dd9d2] opacity-25 blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#f0d9a7] opacity-20 blur-3xl"></div>
+  className="relative min-h-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center justify-center px-5 sm:px-8 lg:px-10"
+  style={{
+    backgroundImage: 'url("/img/Heroo_1.png")',
+  }}
+>
+ 
+  <div className="absolute inset-0 bg-gradient-to-br from-[#06282d]/75 via-black/45 to-[#06282d]/75" />
 
-        <div className="relative mx-auto max-w-5xl space-y-6 rounded-3xl border border-white/50 bg-white/18 p-10 text-center shadow-[0_30px_80px_rgba(6,40,45,0.18)] backdrop-blur-2xl transition-all duration-500 hover:border-white/60 hover:bg-white/24">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+  
+  <div className="absolute -top-32 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-[120px]" />
+  <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-accent/20 blur-[120px]" />
 
-          <h1 className="relative font-heading text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">
-            About <span className="text-accent">Leviticanestora</span>
-          </h1>
+  
+  <div
+    className="relative z-10 w-full max-w-3xl rounded-[28px] border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.30)] px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12 text-center"
+  >
+   
+    <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-white/15 via-transparent to-white/5 pointer-events-none" />
+    <div className="relative inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2 backdrop-blur-xl">
+      <Users className="w-4 h-4 text-primary" />
+      <span className="text-xs sm:text-sm font-semibold tracking-widest text-white uppercase">
+        About Us
+      </span>
+    </div>
+    <h1 className="relative mt-6 font-heading text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold leading-tight">
+      <span className="text-white">About </span>
+      <span className="bg-gradient-to-r from-primary via-[#53d8cf] to-[#9df5ee] bg-clip-text text-transparent">
+        Leviticanestora
+      </span>
+    </h1>
+    <div className="mx-auto mt-5 h-1 w-24 rounded-full bg-gradient-to-r from-primary to-accent" />
 
-          <p className="relative text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            Transforming hostel and PG management into a seamless digital
-            experience enabling smarter operations, happier students, and
-            effortless control.
-          </p>
+    <p className="mx-auto mt-8 max-w-2xl text-base sm:text-lg lg:text-1xl leading-8 text-white/90">
+      Transforming hostel and PG management into a seamless digital
+      experience by enabling smarter operations, happier students,
+      secure administration, and effortless control.
+    </p>
 
-          <div className="relative flex flex-col sm:flex-row justify-center gap-4 pt-4">
-            <Link to="/register">
-              <button className="btn-primary px-5 py-3">Get Started</button>
-            </Link>
-            <Link to="/">
-              <button className="rounded-xl border-2 border-white px-3 py-2.5 font-semibold text-white transition hover:bg-white/20">
-                Learn More
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+
+      <Link to="/register">
+        <button
+          className="w-full sm:w-auto
+            rounded-2xl bg-primary px-8 py-4 font-semibold text-white shadow-xl transition hover:scale-105 hover:bg-primary/90"
+        >
+          Get Started
+        </button>
+      </Link>
+
+      <Link to="/contact">
+        <button
+          className="
+            w-full sm:w-auto
+            rounded-2xl
+            border
+            border-white/40
+            bg-white/10
+            backdrop-blur-xl
+            px-8
+            py-4
+            font-semibold
+            text-white
+            transition
+            hover:bg-white/20
+          "
+        >
+          Learn More
+        </button>
+      </Link>
+
+    </div>
+  </div>
+</section>
 
       <section className="relative overflow-hidden bg-white dark:bg-slate-900 py-20 px-4 sm:px-6 lg:px-8">
-        {/* Background Blur */}
+       
         <div className="absolute top-0 left-0 h-72 w-72 rounded-full bg-primary/5 blur-3xl"></div>
         <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl"></div>
 
         <div className="max-w-7xl mx-auto">
-          {/* Hero Content */}
+          
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="-mt-2 font-heading text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.05] tracking-tight text-slate-900 dark:text-white">
               Smart Hostel <br />
