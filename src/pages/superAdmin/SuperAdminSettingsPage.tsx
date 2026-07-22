@@ -1,5 +1,17 @@
 import { useState } from "react";
-import { User, Mail, Phone, CheckCircle, Clock, Lock, Eye, EyeOff, Edit3, Save, X } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  CheckCircle,
+  Clock,
+  Lock,
+  Eye,
+  EyeOff,
+  Edit3,
+  Save,
+  X,
+} from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -39,7 +51,10 @@ export function SuperAdminSettingsPage() {
       full_name: Yup.string()
         .required("Full name is required")
         .min(3, "Full name must be at least 3 characters")
-        .matches(/^[a-zA-Z\s]*$/, "Full name can only contain alphabetic characters and spaces"),
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "Full name can only contain alphabetic characters and spaces",
+        ),
       phone: Yup.string()
         .required("Phone number is required")
         .matches(/^\+?[0-9\s-]{10,15}$/, "Please enter a valid phone number"),
@@ -50,7 +65,10 @@ export function SuperAdminSettingsPage() {
         toast.success("Profile updated successfully!");
         setIsEditingProfile(false);
       } catch (error: any) {
-        const errorMsg = error?.response?.data?.detail || error?.message || "Failed to update profile";
+        const errorMsg =
+          error?.response?.data?.detail ||
+          error?.message ||
+          "Failed to update profile";
         toast.error(errorMsg);
       }
     },
@@ -69,7 +87,10 @@ export function SuperAdminSettingsPage() {
         .required("New password is required")
         .min(8, "Password must be at least 8 characters")
         .matches(/^[^\s]*$/, "Password cannot contain spaces")
-        .notOneOf([Yup.ref("current_password")], "New password must be different from current password"),
+        .notOneOf(
+          [Yup.ref("current_password")],
+          "New password must be different from current password",
+        ),
       confirm_password: Yup.string()
         .required("Please confirm your password")
         .oneOf([Yup.ref("new_password")], "Passwords do not match"),
@@ -91,7 +112,10 @@ export function SuperAdminSettingsPage() {
         setShowPasswordForm(false);
         setShowPasswords({ current: false, new: false, confirm: false });
       } catch (error: any) {
-        const errorMsg = error?.response?.data?.detail || error?.message || "Failed to update password";
+        const errorMsg =
+          error?.response?.data?.detail ||
+          error?.message ||
+          "Failed to update password";
         if (
           errorMsg.toLowerCase().includes("current password") ||
           errorMsg.toLowerCase().includes("incorrect") ||
@@ -129,8 +153,12 @@ export function SuperAdminSettingsPage() {
   if (isError || !profile) {
     return (
       <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 text-center">
-        <h2 className="text-red-700 dark:text-red-400 font-bold text-lg mb-2">Failed to load profile</h2>
-        <p className="text-red-600 dark:text-red-300 text-sm mb-4">There was an error fetching your super admin profile data.</p>
+        <h2 className="text-red-700 dark:text-red-400 font-bold text-lg mb-2">
+          Failed to load profile
+        </h2>
+        <p className="text-red-600 dark:text-red-300 text-sm mb-4">
+          There was an error fetching your super admin profile data.
+        </p>
       </div>
     );
   }
@@ -143,10 +171,16 @@ export function SuperAdminSettingsPage() {
           <User className="w-10 h-10 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-dark dark:text-white">{profile.full_name}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 capitalize">{profile.role?.replace(/_/g, " ")}</p>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-dark dark:text-white">
+            {profile.full_name}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 capitalize">
+            {profile.role?.replace(/_/g, " ")}
+          </p>
           <div className="mt-2 flex items-center gap-2 flex-wrap">
-            <span className="badge badge-primary capitalize text-xs">Super Admin</span>
+            <span className="badge badge-primary capitalize text-xs">
+              Super Admin
+            </span>
           </div>
         </div>
         <button
@@ -174,17 +208,25 @@ export function SuperAdminSettingsPage() {
         >
           <div className="flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-base text-dark dark:text-white">Edit Profile Details</h2>
+            <h2 className="font-bold text-base text-dark dark:text-white">
+              Edit Profile Details
+            </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Full Name</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="full_name"
                 pattern="[a-zA-Z\s]*"
-                className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${profileFormik.touched.full_name && profileFormik.errors.full_name ? "border-red-500" : ""
-                  }`}
+                className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${
+                  profileFormik.touched.full_name &&
+                  profileFormik.errors.full_name
+                    ? "border-red-500"
+                    : ""
+                }`}
                 placeholder="Enter full name"
                 value={profileFormik.values.full_name}
                 onChange={(e) => {
@@ -194,18 +236,26 @@ export function SuperAdminSettingsPage() {
                 onBlur={profileFormik.handleBlur}
                 disabled={updateProfileM.isPending}
               />
-              {profileFormik.touched.full_name && profileFormik.errors.full_name && (
-                <p className="text-xs text-red-500 mt-1">{profileFormik.errors.full_name}</p>
-              )}
+              {profileFormik.touched.full_name &&
+                profileFormik.errors.full_name && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {profileFormik.errors.full_name}
+                  </p>
+                )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Phone</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
+                Phone
+              </label>
               <input
                 type="text"
                 name="phone"
-                className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${profileFormik.touched.phone && profileFormik.errors.phone ? "border-red-500" : ""
-                  }`}
+                className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${
+                  profileFormik.touched.phone && profileFormik.errors.phone
+                    ? "border-red-500"
+                    : ""
+                }`}
                 placeholder="Enter phone number"
                 value={profileFormik.values.phone}
                 onChange={profileFormik.handleChange}
@@ -213,7 +263,9 @@ export function SuperAdminSettingsPage() {
                 disabled={updateProfileM.isPending}
               />
               {profileFormik.touched.phone && profileFormik.errors.phone && (
-                <p className="text-xs text-red-500 mt-1">{profileFormik.errors.phone}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {profileFormik.errors.phone}
+                </p>
               )}
             </div>
           </div>
@@ -232,7 +284,11 @@ export function SuperAdminSettingsPage() {
             </button>
             <button
               type="submit"
-              disabled={!profileFormik.isValid || !profileFormik.dirty || updateProfileM.isPending}
+              disabled={
+                !profileFormik.isValid ||
+                !profileFormik.dirty ||
+                updateProfileM.isPending
+              }
               className="flex-1 px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
             >
               {updateProfileM.isPending ? "Saving..." : "Save Changes"}
@@ -246,9 +302,13 @@ export function SuperAdminSettingsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5">
           <div className="flex items-center gap-2 mb-3">
             <Mail className="w-4 h-4 text-primary" />
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Email</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">
+              Email
+            </p>
           </div>
-          <p className="font-medium text-sm text-dark dark:text-white break-all">{profile.email}</p>
+          <p className="font-medium text-sm text-dark dark:text-white break-all">
+            {profile.email}
+          </p>
           <div className="flex items-center gap-1.5 mt-2">
             {profile.is_email_verified ? (
               <>
@@ -264,9 +324,13 @@ export function SuperAdminSettingsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5">
           <div className="flex items-center gap-2 mb-3">
             <Phone className="w-4 h-4 text-secondary" />
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Phone</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">
+              Phone
+            </p>
           </div>
-          <p className="font-medium text-sm text-dark dark:text-white">{profile.phone}</p>
+          <p className="font-medium text-sm text-dark dark:text-white">
+            {profile.phone}
+          </p>
           <div className="flex items-center gap-1.5 mt-2">
             {profile.is_phone_verified ? (
               <>
@@ -282,17 +346,25 @@ export function SuperAdminSettingsPage() {
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5">
           <div className="flex items-center gap-2 mb-3">
             <Clock className="w-4 h-4 text-primary" />
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Created At</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">
+              Created At
+            </p>
           </div>
-          <p className="font-medium text-sm text-dark dark:text-white">{profile.created_at ? formatDate(profile.created_at) : "N/A"}</p>
+          <p className="font-medium text-sm text-dark dark:text-white">
+            {profile.created_at ? formatDate(profile.created_at) : "N/A"}
+          </p>
         </div>
 
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5">
           <div className="flex items-center gap-2 mb-3">
             <Clock className="w-4 h-4 text-primary" />
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Last Updated</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">
+              Last Updated
+            </p>
           </div>
-          <p className="font-medium text-sm text-dark dark:text-white">{profile.updated_at ? formatDate(profile.updated_at) : "N/A"}</p>
+          <p className="font-medium text-sm text-dark dark:text-white">
+            {profile.updated_at ? formatDate(profile.updated_at) : "N/A"}
+          </p>
         </div>
       </div>
 
@@ -300,18 +372,26 @@ export function SuperAdminSettingsPage() {
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5">
         <div className="flex items-center gap-2 mb-4">
           <Lock className="w-5 h-5 text-primary" />
-          <h2 className="font-bold text-base text-dark dark:text-white">Security</h2>
+          <h2 className="font-bold text-base text-dark dark:text-white">
+            Security
+          </h2>
         </div>
 
         {!showPasswordForm && (
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Keep your account secure by regularly updating your password</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Keep your account secure by regularly updating your password
+            </p>
             <button
               type="button"
               onClick={() => {
                 setShowPasswordForm(true);
                 passwordFormik.resetForm();
-                setShowPasswords({ current: false, new: false, confirm: false });
+                setShowPasswords({
+                  current: false,
+                  new: false,
+                  confirm: false,
+                });
               }}
               disabled={passwordFormik.isSubmitting}
               className="text-xs px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
@@ -322,18 +402,25 @@ export function SuperAdminSettingsPage() {
         )}
 
         {showPasswordForm && (
-          <form onSubmit={passwordFormik.handleSubmit} className="space-y-4 mt-4">
+          <form
+            onSubmit={passwordFormik.handleSubmit}
+            className="space-y-4 mt-4"
+          >
             {/* Current Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Current Password</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
+                Current Password
+              </label>
               <div className="relative">
                 <input
                   type={showPasswords.current ? "text" : "password"}
                   name="current_password"
-                  className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${passwordFormik.touched.current_password && passwordFormik.errors.current_password
-                    ? "border-red-500"
-                    : ""
-                    }`}
+                  className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${
+                    passwordFormik.touched.current_password &&
+                    passwordFormik.errors.current_password
+                      ? "border-red-500"
+                      : ""
+                  }`}
                   placeholder="Enter current password"
                   value={passwordFormik.values.current_password}
                   onChange={passwordFormik.handleChange}
@@ -342,58 +429,100 @@ export function SuperAdminSettingsPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPasswords((s) => ({ ...s, current: !s.current }))}
+                  onClick={() =>
+                    setShowPasswords((s) => ({ ...s, current: !s.current }))
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                   disabled={passwordFormik.isSubmitting}
                 >
-                  {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.current ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              {passwordFormik.touched.current_password && passwordFormik.errors.current_password && (
-                <p className="text-xs text-red-500 mt-1">{passwordFormik.errors.current_password}</p>
-              )}
+              {passwordFormik.touched.current_password &&
+                passwordFormik.errors.current_password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {passwordFormik.errors.current_password}
+                  </p>
+                )}
             </div>
-
             {/* New Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">New Password</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
+                New Password
+              </label>
+
               <div className="relative">
                 <input
                   type={showPasswords.new ? "text" : "password"}
                   name="new_password"
-                  className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${passwordFormik.touched.new_password && passwordFormik.errors.new_password ? "border-red-500" : ""
-                    }`}
+                  className={`input-field w-full text-sm bg-white dark:bg-slate-700 border text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${
+                    passwordFormik.touched.new_password &&
+                    passwordFormik.errors.new_password
+                      ? "border-red-500"
+                      : "border-slate-200 dark:border-slate-600"
+                  }`}
                   placeholder="Enter new password (minimum 8 characters)"
                   value={passwordFormik.values.new_password}
                   onChange={passwordFormik.handleChange}
                   onBlur={passwordFormik.handleBlur}
                   disabled={passwordFormik.isSubmitting}
                 />
+
                 <button
                   type="button"
-                  onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}
+                  onClick={() =>
+                    setShowPasswords((prev) => ({
+                      ...prev,
+                      new: !prev.new,
+                    }))
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                   disabled={passwordFormik.isSubmitting}
                 >
-                  {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.new ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              {passwordFormik.touched.new_password && passwordFormik.errors.new_password && (
-                <p className="text-xs text-red-500 mt-1">{passwordFormik.errors.new_password}</p>
-              )}
+
+              {passwordFormik.touched.new_password &&
+                passwordFormik.errors.new_password && (
+                  <div className="mt-2 text-xs text-red-500">
+                    <p className="font-medium">
+                      Password must be at least 8 characters long and include:
+                    </p>
+
+                    <ul className="list-disc pl-5 mt-1 space-y-1">
+                      <li>At least 1 uppercase letter (A-Z)</li>
+                      <li>At least 1 lowercase letter (a-z)</li>
+                      <li>At least 1 number (0-9)</li>
+                      <li>At least 1 special character (!@#$%^&*)</li>
+                    </ul>
+                  </div>
+                )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">Confirm Password</label>
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5">
+                Confirm Password
+              </label>
               <div className="relative">
                 <input
                   type={showPasswords.confirm ? "text" : "password"}
                   name="confirm_password"
-                  className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${passwordFormik.touched.confirm_password && passwordFormik.errors.confirm_password
-                    ? "border-red-500"
-                    : ""
-                    }`}
+                  className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${
+                    passwordFormik.touched.confirm_password &&
+                    passwordFormik.errors.confirm_password
+                      ? "border-red-500"
+                      : ""
+                  }`}
                   placeholder="Confirm new password"
                   value={passwordFormik.values.confirm_password}
                   onChange={passwordFormik.handleChange}
@@ -402,16 +531,25 @@ export function SuperAdminSettingsPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}
+                  onClick={() =>
+                    setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                   disabled={passwordFormik.isSubmitting}
                 >
-                  {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.confirm ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              {passwordFormik.touched.confirm_password && passwordFormik.errors.confirm_password && (
-                <p className="text-xs text-red-500 mt-1">{passwordFormik.errors.confirm_password}</p>
-              )}
+              {passwordFormik.touched.confirm_password &&
+                passwordFormik.errors.confirm_password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {passwordFormik.errors.confirm_password}
+                  </p>
+                )}
             </div>
 
             {/* Action Buttons */}
@@ -421,7 +559,11 @@ export function SuperAdminSettingsPage() {
                 onClick={() => {
                   setShowPasswordForm(false);
                   passwordFormik.resetForm();
-                  setShowPasswords({ current: false, new: false, confirm: false });
+                  setShowPasswords({
+                    current: false,
+                    new: false,
+                    confirm: false,
+                  });
                 }}
                 disabled={passwordFormik.isSubmitting}
                 className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
@@ -430,10 +572,16 @@ export function SuperAdminSettingsPage() {
               </button>
               <button
                 type="submit"
-                disabled={!passwordFormik.isValid || !passwordFormik.dirty || passwordFormik.isSubmitting}
+                disabled={
+                  !passwordFormik.isValid ||
+                  !passwordFormik.dirty ||
+                  passwordFormik.isSubmitting
+                }
                 className="flex-1 px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
               >
-                {passwordFormik.isSubmitting ? "Updating..." : "Update Password"}
+                {passwordFormik.isSubmitting
+                  ? "Updating..."
+                  : "Update Password"}
               </button>
             </div>
           </form>
@@ -442,14 +590,22 @@ export function SuperAdminSettingsPage() {
 
       {/* Profile Summary Card */}
       <div className="bg-gradient-to-br from-primary/5 dark:from-primary/10 to-secondary/5 dark:to-secondary/10 rounded-2xl border border-primary/20 dark:border-primary/30 p-5">
-        <h2 className="font-bold text-base text-dark dark:text-white mb-3">Profile Summary</h2>
+        <h2 className="font-bold text-base text-dark dark:text-white mb-3">
+          Profile Summary
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Role</p>
-            <p className="font-semibold text-sm text-primary capitalize mt-1">{profile.role?.replace(/_/g, " ")}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">
+              Role
+            </p>
+            <p className="font-semibold text-sm text-primary capitalize mt-1">
+              {profile.role?.replace(/_/g, " ")}
+            </p>
           </div>
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Email Status</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">
+              Email Status
+            </p>
             <p className="font-semibold text-sm mt-1">
               {profile.is_email_verified ? (
                 <span className="text-success">✓ Verified</span>
@@ -459,7 +615,9 @@ export function SuperAdminSettingsPage() {
             </p>
           </div>
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Phone Status</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">
+              Phone Status
+            </p>
             <p className="font-semibold text-sm mt-1">
               {profile.is_phone_verified ? (
                 <span className="text-success">✓ Verified</span>
@@ -469,8 +627,12 @@ export function SuperAdminSettingsPage() {
             </p>
           </div>
           <div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">Account Type</p>
-            <p className="font-semibold text-sm text-primary mt-1">Super Admin</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">
+              Account Type
+            </p>
+            <p className="font-semibold text-sm text-primary mt-1">
+              Super Admin
+            </p>
           </div>
         </div>
       </div>
