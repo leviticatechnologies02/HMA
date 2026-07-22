@@ -83,6 +83,11 @@ export const ModernDatePicker = forwardRef<HTMLInputElement, ModernDatePickerPro
     new Date(initialMonth.getFullYear(), initialMonth.getMonth(), 1),
   );
 
+  const currentYear = new Date().getFullYear();
+  const minYear = minimumDate ? minimumDate.getFullYear() : currentYear - 100;
+  const maxYear = maximumDate ? maximumDate.getFullYear() : currentYear + 10;
+  const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => maxYear - i);
+
   useImperativeHandle(forwardedRef, () => inputRef.current as HTMLInputElement);
 
   useEffect(() => {
@@ -214,9 +219,36 @@ export const ModernDatePicker = forwardRef<HTMLInputElement, ModernDatePickerPro
           className="fixed z-[9999] max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/20 dark:border-slate-700 dark:bg-slate-900"
         >
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-semibold text-dark dark:text-white">
-              {new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(visibleMonth)}
-            </p>
+            <div className="flex items-center gap-1">
+              <select
+                value={visibleMonth.getMonth()}
+                onChange={(e) => {
+                  setVisibleMonth(new Date(visibleMonth.getFullYear(), parseInt(e.target.value), 1));
+                }}
+                className="text-sm font-semibold text-dark dark:text-white bg-transparent border-transparent hover:border-slate-200 dark:hover:border-slate-700 rounded py-1 pl-2 pr-6 focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer transition-colors"
+                aria-label="Select month"
+              >
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i} value={i} className="text-dark dark:text-white bg-white dark:bg-slate-900">
+                    {new Intl.DateTimeFormat("en-US", { month: "short" }).format(new Date(2000, i, 1))}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={visibleMonth.getFullYear()}
+                onChange={(e) => {
+                  setVisibleMonth(new Date(parseInt(e.target.value), visibleMonth.getMonth(), 1));
+                }}
+                className="text-sm font-semibold text-dark dark:text-white bg-transparent border-transparent hover:border-slate-200 dark:hover:border-slate-700 rounded py-1 pl-2 pr-6 focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer transition-colors"
+                aria-label="Select year"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year} className="text-dark dark:text-white bg-white dark:bg-slate-900">
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="flex items-center gap-1">
               <button type="button" onClick={() => moveMonth(-1)} className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800" aria-label="Previous month">
                 <ChevronLeft className="h-4 w-4" />
