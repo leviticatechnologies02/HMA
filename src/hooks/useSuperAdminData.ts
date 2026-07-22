@@ -3,6 +3,7 @@ import { deleteSuperAdminHostel } from "../api/superAdmin.api";
 import {
   assignSuperAdminAdminHostel,
   assignSuperAdminAdminHostels,
+  unassignSuperAdminAdminHostel,
   cancelSuperAdminSubscription,
   createSuperAdminAdmin,
   createSuperAdminHostel,
@@ -177,6 +178,18 @@ export function useAssignSuperAdminAdminHostel(userId: string | null) {
       assignSuperAdminAdminHostel(userId!, adminId, { hostel_id: hostelId, is_primary: isPrimary }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["super-admin-admins", userId] });
+    }
+  });
+}
+
+export function useUnassignSuperAdminAdminHostel(userId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ adminId, hostelId }: { adminId: string; hostelId: string }) =>
+      unassignSuperAdminAdminHostel(userId!, adminId, hostelId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["super-admin-admins", userId] });
+      await queryClient.invalidateQueries({ queryKey: ["super-admin-hostels", userId] });
     }
   });
 }

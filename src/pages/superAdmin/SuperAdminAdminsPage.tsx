@@ -1,6 +1,6 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Users, Plus, X, Building2, Mail, Phone, CheckCircle,UserMinus } from "lucide-react";
-import { useAssignSuperAdminAdminHostel, useSuperAdminAdmins, useSuperAdminHostels } from "../../hooks/useSuperAdminData";
+import { useAssignSuperAdminAdminHostel, useSuperAdminAdmins, useSuperAdminHostels, useUnassignSuperAdminAdminHostel } from "../../hooks/useSuperAdminData";
 import { useAuthStore } from "../../store/authStore";
 import { useModal } from "../../context/ModalContext";
 import toast from "react-hot-toast";
@@ -10,6 +10,7 @@ export function SuperAdminAdminsPage() {
   const adminsQ = useSuperAdminAdmins(userId);
   const hostelsQ = useSuperAdminHostels(userId);
   const assignMutation = useAssignSuperAdminAdminHostel(userId);
+  const unassignMutation = useUnassignSuperAdminAdminHostel(userId);
   const { openModal } = useModal();
   
   const [assigningAdmin, setAssigningAdmin] = useState<string | null>(null);
@@ -27,6 +28,20 @@ console.log(hostelsQ.data);
       setAssigningAdmin(null);
       setSelectedHostel("");
     } catch { toast.error("Failed to assign hostel"); }
+  };
+
+  const handleUnassign = async (adminId: string, email: string) => {
+    const allHostels = hostelsQ.data ?? [];
+    const assignedHostel = allHostels.find((h: any) => h.hostel_admin_email?.toLowerCase() === email?.toLowerCase());
+    if (!assignedHostel) {
+      toast.error("Admin is not assigned to any hostel");
+      return;
+    }
+    try {
+      await unassignMutation.mutateAsync({ adminId, hostelId: assignedHostel.id });
+      await hostelsQ.refetch();
+      toast.success("Hostel unassigned");
+    } catch { toast.error("Failed to unassign hostel"); }
   };
 
   if (!userId) return <div className="p-8 text-slate-500">Please login as super admin.</div>;
@@ -109,7 +124,7 @@ const hostels = allHostels.filter(
                   {["Name", "Email", "Phone", "Status", "Actions"].map((h) => (
                     <th
                       key={h}
-                      className="text-left px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap"
+                      className={`px-4 sm:px-5 py-3 text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap ${h === "Actions" ? "text-center" : "text-left"}`}
                     >
                       {h}
                     </th>
@@ -150,7 +165,7 @@ const hostels = allHostels.filter(
 
                     {/* ACTION */}
                     <td className="px-4 sm:px-5 py-4 whitespace-nowrap">
-  <div className="flex items-center gap-5">
+  <div className="flex items-center justify-center gap-5">
 
     <button
       onClick={() => {
@@ -164,11 +179,12 @@ const hostels = allHostels.filter(
     </button>
 
     <button
-      
-      className="flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-600 transition-colors"
+      onClick={() => handleUnassign(a.id, a.email)}
+      disabled={unassignMutation.isPending}
+      className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${unassignMutation.isPending ? "text-red-300 cursor-not-allowed" : "text-red-500 hover:text-red-600"}`}
     >
       <UserMinus className="w-4 h-4" />
-      <span>Unassign</span>
+      <span>{unassignMutation.isPending ? "Unassigning..." : "Unassign"}</span>
     </button>
 
   </div>

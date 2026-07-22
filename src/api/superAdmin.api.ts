@@ -219,6 +219,18 @@ export async function assignSuperAdminAdminHostel(
   return response.data;
 }
 
+export async function unassignSuperAdminAdminHostel(
+  userId: string,
+  adminId: string,
+  hostelId: string
+) {
+  const response = await api.delete<{ message: string }>(
+    `/super-admin/admins/${adminId}/hostels/${hostelId}`,
+    { headers: buildSuperAdminHeaders(userId) }
+  );
+  return response.data;
+}
+
 export async function fetchSuperAdminSubscriptions(
   userId: string,
   params?: { status?: string; tier?: string; hostel_name?: string; start_date?: string; end_date?: string }
