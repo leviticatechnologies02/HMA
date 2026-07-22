@@ -1,4 +1,4 @@
-﻿import { useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -277,11 +277,13 @@ export function BookingDetailsPage() {
     );
     const promise = initiateMutation
       .mutateAsync({
-        hostel_id: bookingStore.hostelId,
-        room_id: bookingStore.roomId,
-        booking_mode: bookingStore.bookingMode,
-        check_in_date: bookingStore.checkInDate,
-        check_out_date: bookingStore.checkOutDate,
+        hostel_id: String(bookingStore.hostelId),
+        room_id: String(bookingStore.roomId),
+        booking_mode: bookingStore.bookingMode!,
+        check_in_date: bookingStore.checkInDate?.split("T")[0]!,
+        check_out_date: bookingStore.checkOutDate?.split("T")[0]!,
+        total_nights: bookingStore.bookingMode === "daily" ? (bookingStore.duration || 0) : 0,
+        total_months: bookingStore.bookingMode === "monthly" ? (bookingStore.duration || 0) : 0,
         base_rent_amount: baseAmount,
         security_deposit: bookingStore.securityDeposit || 0,
         booking_advance: bookingStore.bookingAdvance || 0,
@@ -391,11 +393,13 @@ export function BookingDetailsPage() {
           (bookingStore.grandTotal || 0) - (bookingStore.securityDeposit || 0),
         );
         const initiated = await initiateMutation.mutateAsync({
-          hostel_id: bookingStore.hostelId!,
-          room_id: bookingStore.roomId!,
+          hostel_id: String(bookingStore.hostelId),
+          room_id: String(bookingStore.roomId),
           booking_mode: bookingStore.bookingMode!,
-          check_in_date: bookingStore.checkInDate!,
-          check_out_date: bookingStore.checkOutDate!,
+          check_in_date: bookingStore.checkInDate?.split("T")[0]!,
+          check_out_date: bookingStore.checkOutDate?.split("T")[0]!,
+          total_nights: bookingStore.bookingMode === "daily" ? (bookingStore.duration || 0) : 0,
+          total_months: bookingStore.bookingMode === "monthly" ? (bookingStore.duration || 0) : 0,
           base_rent_amount: baseAmount,
           security_deposit: bookingStore.securityDeposit || 0,
           booking_advance: bookingStore.bookingAdvance || 0,

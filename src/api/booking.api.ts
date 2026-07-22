@@ -7,6 +7,8 @@ export interface BookingInitiatePayload {
   booking_mode: "daily" | "monthly";
   check_in_date: string;
   check_out_date: string;
+  total_nights: number;
+  total_months: number;
   base_rent_amount: number;
   security_deposit: number;
   booking_advance: number;
