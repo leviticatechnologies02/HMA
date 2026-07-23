@@ -40,9 +40,11 @@ const SubscriptionForm = ({
   const { mutateAsync: createSubscription } = useCreateSubscriptionFromPlan(userId);
   const { mutateAsync: updateSubscription } = useUpdateSuperAdminSubscription(userId);
 
-  // ✅ Fetch hostels
-  const hostelsQ = useSuperAdminHostels(userId);
-  const hostels = hostelsQ?.data || [];
+  // ✅ Fetch hostels (excluding suspended and rejected for the dropdown)
+  const hostelsQ = useSuperAdminHostels(userId, true);
+  const hostels = (hostelsQ?.data || []).filter((h: any) => 
+    ["active", "approved", "verified"].includes(h.status?.toLowerCase() || "")
+  );
 
   // ✅ Fetch plans
   const plansQ = useSuperAdminPlans(userId, { status: "active" });

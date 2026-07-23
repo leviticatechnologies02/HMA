@@ -85,10 +85,10 @@ export function useSuperAdminDashboard(userId: string | null) {
   });
 }
 
-export function useSuperAdminHostels(userId: string | null) {
+export function useSuperAdminHostels(userId: string | null, excludeSuspendedRejected?: boolean) {
   return useQuery({
-    queryKey: ["super-admin-hostels", userId],
-    queryFn: () => fetchSuperAdminHostels(userId!),
+    queryKey: ["super-admin-hostels", userId, excludeSuspendedRejected],
+    queryFn: () => fetchSuperAdminHostels(userId!, excludeSuspendedRejected),
     enabled: Boolean(userId)
   });
 }

@@ -144,9 +144,14 @@ export async function fetchSuperAdminDashboard(userId: string) {
   return response.data;
 }
 
-export async function fetchSuperAdminHostels(userId: string) {
+export async function fetchSuperAdminHostels(userId: string, excludeSuspendedRejected?: boolean) {
+  const params: Record<string, any> = {};
+  if (excludeSuspendedRejected) {
+    params.exclude_suspended_rejected = true;
+  }
   const response = await api.get<SuperAdminHostel[]>("/super-admin/hostels", {
-    headers: buildSuperAdminHeaders(userId)
+    headers: buildSuperAdminHeaders(userId),
+    params
   });
   return response.data;
 }
