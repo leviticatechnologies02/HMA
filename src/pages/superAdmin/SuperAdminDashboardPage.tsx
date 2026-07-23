@@ -49,8 +49,8 @@ const suspendedHostels = (hostelsQ.data ?? []).filter(
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-dark">Platform Overview</h1>
-        <p className="mt-1 text-slate-500">Super Admin · StayEase Platform</p>
+        <h1 className="text-3xl font-heading font-bold text-dark">Welcome </h1>
+        <p className="mt-1 text-slate-500">Super Admin · Nestora Platform</p>
       </div>
 
       {/* Stats */}
