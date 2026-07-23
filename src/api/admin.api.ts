@@ -230,9 +230,20 @@ export async function createAdminRoom(
   return response.data;
 }
 
-export async function fetchAdminBeds(userId: string, roomId: string, hostelIds: string[]) {
+export async function fetchAdminBeds(
+  userId: string, 
+  roomId: string, 
+  hostelIds: string[],
+  checkInDate?: string,
+  checkOutDate?: string
+) {
+  const params: Record<string, string> = {};
+  if (checkInDate) params.check_in_date = checkInDate;
+  if (checkOutDate) params.check_out_date = checkOutDate;
+
   const response = await api.get<Bed[]>(`/admin/rooms/${roomId}/beds`, {
-    headers: buildAdminHeaders(userId, hostelIds)
+    headers: buildAdminHeaders(userId, hostelIds),
+    params
   });
   return response.data;
 }

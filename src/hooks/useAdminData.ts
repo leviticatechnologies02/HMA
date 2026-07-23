@@ -193,10 +193,16 @@ export function useUploadAdminHostelImages(
   });
 }
 
-export function useAdminBeds(userId: string | null, roomId: string | null, hostelIds: string[]) {
+export function useAdminBeds(
+  userId: string | null, 
+  roomId: string | null, 
+  hostelIds: string[],
+  checkInDate?: string | null,
+  checkOutDate?: string | null
+) {
   return useQuery({
-    queryKey: ["admin-beds", userId, roomId, hostelIds],
-    queryFn: () => fetchAdminBeds(userId!, roomId!, hostelIds),
+    queryKey: ["admin-beds", userId, roomId, hostelIds, checkInDate, checkOutDate],
+    queryFn: () => fetchAdminBeds(userId!, roomId!, hostelIds, checkInDate ?? undefined, checkOutDate ?? undefined),
     enabled: Boolean(userId && roomId && hostelIds.length)
   });
 }

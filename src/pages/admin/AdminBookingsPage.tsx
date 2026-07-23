@@ -41,6 +41,8 @@ export function AdminBookingsPage() {
   const [showCancel, setShowCancel] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
+  const [selectedRoomId, setSelectedRoomId] = useState("");
+
   const bookings = bookingsQ.data ?? [];
   const filtered = bookings.filter((b) => {
     const matchSearch = !search || b.booking_number.toLowerCase().includes(search.toLowerCase()) || b.full_name?.toLowerCase().includes(search.toLowerCase());
@@ -48,41 +50,66 @@ export function AdminBookingsPage() {
     return matchSearch && matchStatus;
   });
 
-  const bedsQ = useAdminBeds(userId, selected?.room_id ?? null, hostelIds);
+  const bedsQ = useAdminBeds(userId, selectedRoomId || null, hostelIds);
 
   const handleApprove = async () => {
     if (!selected || !selectedBedId) return;
-    await approveMutation.mutateAsync({ bookingId: selected.id, bedId: selectedBedId });
-    setSelected(null);
-    setSelectedBedId("");
+    try {
+      await approveMutation.mutateAsync({ bookingId: selected.id, bedId: selectedBedId });
+      toast.success("Booking approved and bed assigned.");
+      setSelected(null);
+      setSelectedBedId("");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to approve booking. Bed might be occupied for these dates.");
+    }
   };
 
   const handleReject = async () => {
     if (!selected) return;
-    await rejectMutation.mutateAsync({ bookingId: selected.id, payload: { reason: rejectReason } });
-    setSelected(null);
-    setRejectReason("");
-    setShowReject(false);
+    try {
+      await rejectMutation.mutateAsync({ bookingId: selected.id, payload: { reason: rejectReason } });
+      toast.success("Booking rejected.");
+      setSelected(null);
+      setRejectReason("");
+      setShowReject(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to reject booking.");
+    }
   };
 
   const handleCheckIn = async () => {
     if (!selected) return;
-    await checkInMutation.mutateAsync({ bookingId: selected.id });
-    setSelected(null);
+    try {
+      await checkInMutation.mutateAsync({ bookingId: selected.id });
+      toast.success("Guest checked in.");
+      setSelected(null);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to check in guest.");
+    }
   };
 
   const handleCheckOut = async () => {
     if (!selected) return;
-    await checkOutMutation.mutateAsync({ bookingId: selected.id });
-    setSelected(null);
+    try {
+      await checkOutMutation.mutateAsync({ bookingId: selected.id });
+      toast.success("Guest checked out.");
+      setSelected(null);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to check out guest.");
+    }
   };
 
   const handleCancel = async () => {
     if (!selected) return;
-    await cancelMutation.mutateAsync({ bookingId: selected.id, reason: cancelReason || undefined });
-    setSelected(null);
-    setCancelReason("");
-    setShowCancel(false);
+    try {
+      await cancelMutation.mutateAsync({ bookingId: selected.id, reason: cancelReason || undefined });
+      toast.success("Booking cancelled.");
+      setSelected(null);
+      setCancelReason("");
+      setShowCancel(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to cancel booking.");
+    }
   };
 
   const handleDownloadDocument = async (bookingId: string, bookingNumber: string) => {
@@ -212,7 +239,7 @@ export function AdminBookingsPage() {
                     </td>
                     <td className="px-5 py-4">
                       <button
-                        onClick={() => { setSelected(b); setSelectedBedId(""); setShowReject(false); setShowCancel(false); setCancelReason(""); }}
+                        onClick={() => { setSelected(b); setSelectedRoomId(b.room_id); setSelectedBedId(""); setShowReject(false); setShowCancel(false); setCancelReason(""); }}
                         className="text-xs text-primary font-semibold hover:underline"
                       >
                         Manage
@@ -262,18 +289,40 @@ export function AdminBookingsPage() {
 
               {(selected.status === "payment_pending" || selected.status === "pending_approval") && !showReject && (
                 <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-dark dark:text-white mb-2">Assign Bed</label>
-                    <select
-                      value={selectedBedId}
-                      onChange={(e) => setSelectedBedId(e.target.value)}
-                      className="input-field text-sm"
-                    >
-                      <option value="">Select a bed...</option>
-                      {bedsQ.data?.filter(b => b.status === "available").map(bed => (
-                        <option key={bed.id} value={bed.id}>{bed.bed_number} ({bed.status})</option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-dark dark:text-white mb-2">Assign Room</label>
+                      <select
+                        value={selectedRoomId}
+                        onChange={(e) => {
+                          setSelectedRoomId(e.target.value);
+                          setSelectedBedId("");
+                        }}
+                        className="input-field text-sm"
+                      >
+                        <option value="">Select a room...</option>
+                        {roomsQ.data?.map(room => (
+                          <option key={room.id} value={room.id}>
+                            {room.room_number} ({room.room_type})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-dark dark:text-white mb-2">Assign Bed</label>
+                      <select
+                        value={selectedBedId}
+                        onChange={(e) => setSelectedBedId(e.target.value)}
+                        className="input-field text-sm"
+                      >
+                        <option value="">Select a bed...</option>
+                        {bedsQ.data?.map(bed => (
+                          <option key={bed.id} value={bed.id}>
+                            {bed.bed_number} (Currently {bed.status})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div className="flex gap-3">
                     <button

@@ -128,12 +128,12 @@ export function AppRouter() {
             <Route path="/admin/mess-menu" element={<AdminMessMenuPage />} />
             <Route path="/admin/notices" element={<AdminNoticesPage />} />
             <Route path="/admin/payments" element={<AdminPaymentsPage />} />
-            <Route path="/admin/students" element={<AdminStudentsPage />} />
+            {/* <Route path="/admin/students" element={<AdminStudentsPage />} /> */}
             <Route path="/admin/maintenance" element={<AdminMaintenancePage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/supervisor/dashboard" element={<SupervisorDashboardPage />} />
-            {/* <Route path="/supervisor/attendance" element={<SupervisorAttendancePage />} /> */}
+            <Route path="/supervisor/attendance" element={<SupervisorAttendancePage />} />
             <Route path="/supervisor/complaints" element={<SupervisorComplaintsPage />} />
             <Route path="/supervisor/maintenance" element={<SupervisorMaintenancePage />} />
             <Route path="/supervisor/notices" element={<SupervisorNoticesPage />} />
