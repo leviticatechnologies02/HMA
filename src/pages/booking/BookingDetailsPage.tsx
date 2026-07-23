@@ -190,7 +190,7 @@ export function BookingDetailsPage() {
   const patchMutation = usePatchBookingApplicant();
   const initiateMutation = useInitiateBooking();
 
-  // Document upload state
+
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docUrl, setDocUrl] = useState<string>("");
   const [uploading, setUploading] = useState(false);
@@ -209,11 +209,11 @@ export function BookingDetailsPage() {
     mode: "onChange",
   });
 
-  // Watch all form values for real-time validation
+
   const watchedValues = watch();
   const selectedIdType = watch("id_type");
 
-  // Step validation helper
+
   const stepFieldConfigs = [
     {
       name: "Step 1 - Personal Info",
@@ -240,7 +240,7 @@ export function BookingDetailsPage() {
     },
   ];
 
-  // Check if current step fields are valid
+
   const isCurrentStepValid = useMemo(() => {
     const currentFields = stepFieldConfigs[step].fields;
     const hasErrors = currentFields.some(
@@ -255,7 +255,7 @@ export function BookingDetailsPage() {
     return !hasErrors && areFieldsFilled;
   }, [step, errors, watchedValues, getValues]);
 
-  // Fire booking initiation in background as soon as page loads
+
   const initiatedRef = useRef(false);
   const initiatePromiseRef = useRef<Promise<any> | null>(null);
 
@@ -296,12 +296,27 @@ export function BookingDetailsPage() {
         );
         return initiated;
       })
-      .catch(() => {
+      .catch((err) => {
         initiatedRef.current = false;
+
+        const detail = err?.response?.data?.detail;
+        if (detail) {
+          if (typeof detail === "string") {
+            if (detail.toLowerCase().includes("no beds available") || err.response.status === 409) {
+              toast.error("Beds are not available for the selected dates.");
+            } else {
+              toast.error(detail);
+            }
+          } else if (Array.isArray(detail)) {
+            toast.error(detail.map((d: any) => d.msg).join(", "));
+          }
+          navigate(-1);
+        }
+
         return null;
       });
     initiatePromiseRef.current = promise;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [userId]);
 
   const handleFileSelect = async (file: File) => {
@@ -323,7 +338,6 @@ export function BookingDetailsPage() {
       });
       setUploadProgress(70);
 
-      // Skip actual S3 PUT if it's a mock URL (S3 not configured in dev)
       const isMock =
         presigned.upload_url.includes("X-Amz-Mock=true") ||
         presigned.upload_url.includes("localhost");
@@ -335,7 +349,6 @@ export function BookingDetailsPage() {
       setDocUrl(presigned.file_url);
       toast.success("Document uploaded");
     } catch {
-      // Upload failed — store a placeholder so the form can still proceed
       setDocUrl(`local://${file.name}`);
       toast.success("Document saved locally");
     } finally {
@@ -379,7 +392,6 @@ export function BookingDetailsPage() {
       let currentBookingId = bookingStore.bookingId;
 
       if (!currentBookingId) {
-        // Wait for the background initiation if it's still in flight
         if (initiatePromiseRef.current) {
           const result = await initiatePromiseRef.current;
           currentBookingId = result?.booking_id ?? bookingStore.bookingId;
@@ -387,7 +399,6 @@ export function BookingDetailsPage() {
       }
 
       if (!currentBookingId) {
-        // Last resort: initiate now
         const baseAmount = Math.max(
           0,
           (bookingStore.grandTotal || 0) - (bookingStore.securityDeposit || 0),
@@ -433,11 +444,10 @@ export function BookingDetailsPage() {
   const inputCls = (err?: { message?: string }) =>
     `input-field ${err ? "border-error focus:ring-error/20" : ""}`;
 
-  // Filter functions for input validation
   const filterNameInput = (value: string) =>
     value.replace(/[^a-zA-Z\s'-]/g, "");
   const filterInstitutionInput = (value: string) =>
-    value.replace(/[^a-zA-Z\s'-]/g, ""); // Letters only, no numbers
+    value.replace(/[^a-zA-Z\s'-]/g, "");
   const filterAddressInput = (value: string) =>
     value.replace(/[^a-zA-Z0-9\s,.\-/#()]/g, "");
   const filterPhoneInput = (value: string) =>
@@ -455,18 +465,16 @@ export function BookingDetailsPage() {
           </p>
         </div>
 
-        {/* Progress bar */}
         <div className="flex items-center gap-2">
           {STEPS.map((s, i) => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
-                  i < step
-                    ? "bg-success text-white"
-                    : i === step
-                      ? "bg-primary text-white"
-                      : "bg-slate-200 text-slate-500"
-                }`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${i < step
+                  ? "bg-success text-white"
+                  : i === step
+                    ? "bg-primary text-white"
+                    : "bg-slate-200 text-slate-500"
+                  }`}
               >
                 {i < step ? <CheckCircle className="w-4 h-4" /> : i + 1}
               </div>
@@ -480,7 +488,6 @@ export function BookingDetailsPage() {
         </div>
 
         <form onSubmit={onSubmit}>
-          {/* Step 0 — Personal */}
           {step === 0 && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
               <h2 className="font-bold text-dark flex items-center gap-2">
@@ -629,7 +636,7 @@ export function BookingDetailsPage() {
             </div>
           )}
 
-          {/* Step 1 — Emergency */}
+
           {step === 1 && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
               <h2 className="font-bold text-dark flex items-center gap-2">
@@ -789,7 +796,6 @@ export function BookingDetailsPage() {
             </div>
           )}
 
-          {/* Step 2 — Identity & Document Upload */}
           {step === 2 && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <h2 className="font-bold text-dark flex items-center gap-2">
@@ -817,8 +823,6 @@ export function BookingDetailsPage() {
                   </p>
                 )}
               </div>
-
-              {/* Upload zone */}
               <div>
                 <label className="block text-sm font-medium text-dark mb-1.5">
                   Upload Document
@@ -841,13 +845,12 @@ export function BookingDetailsPage() {
                     if (f) handleFileSelect(f);
                   }}
                   className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all
-      ${
-        !selectedIdType
-          ? "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60"
-          : docUrl
-            ? "border-success bg-success/5 cursor-pointer"
-            : "border-slate-200 hover:border-primary/50 hover:bg-primary/5 cursor-pointer"
-      }`}
+      ${!selectedIdType
+                      ? "border-slate-200 bg-slate-100 cursor-not-allowed opacity-60"
+                      : docUrl
+                        ? "border-success bg-success/5 cursor-pointer"
+                        : "border-slate-200 hover:border-primary/50 hover:bg-primary/5 cursor-pointer"
+                    }`}
                 >
                   <input
                     ref={fileRef}
@@ -925,7 +928,7 @@ export function BookingDetailsPage() {
             </div>
           )}
 
-          {/* Navigation */}
+
           <div className="flex gap-4 mt-6">
             <button
               type="button"

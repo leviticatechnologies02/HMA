@@ -219,6 +219,7 @@ export function SuperAdminPlansPage() {
                     "Plan Name",
                     "Code",
                     "Price/Month",
+                    "Price/Yearly",
                     "Duration",
                     "Hostels",
                     "Status",
@@ -238,7 +239,7 @@ export function SuperAdminPlansPage() {
                 {filteredPlans.length === 0 && (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="px-5 py-12 text-center text-slate-500"
                     >
                       <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
@@ -257,6 +258,9 @@ export function SuperAdminPlansPage() {
                     <td className="px-5 py-4 text-slate-600">{p.code}</td>
                     <td className="px-5 py-4 font-semibold text-primary">
                       ₹{p.price_monthly.toLocaleString()}
+                    </td>
+                    <td className="px-5 py-4 font-semibold text-primary">
+                      ₹{p.price_yearly?.toLocaleString() || 0}
                     </td>
                     <td className="px-5 py-4 text-slate-600">
                       {p.duration_days} days
