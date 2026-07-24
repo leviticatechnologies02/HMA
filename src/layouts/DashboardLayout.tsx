@@ -155,6 +155,11 @@ export function DashboardLayout() {
   }, [location.pathname, role, setUser]);
 
   const nav = getNav(role);
+  const currentNavLabel = nav.find((n) => n.to === location.pathname)?.label ?? "Dashboard";
+
+  useEffect(() => {
+    document.title = `${currentNavLabel} | Levitica Nestora`;
+  }, [currentNavLabel]);
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -165,7 +170,7 @@ export function DashboardLayout() {
       className={`flex flex-col bg-dark text-white transition-all duration-300 ${mobile ? "w-72" : collapsed ? "w-16" : "w-64"
         } h-screen overflow-hidden`}
     >
-      {/* Logo */}
+
       <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${collapsed && !mobile ? "justify-center" : ""}`}>
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
           <Home className="w-4 h-4 text-white" />
@@ -188,7 +193,7 @@ export function DashboardLayout() {
         )}
       </div>
 
-      {/* Role badge */}
+
       {(!collapsed || mobile) && (
         <div className="px-4 py-3 border-b border-white/10">
           <span className="badge badge-primary text-xs">
@@ -197,7 +202,7 @@ export function DashboardLayout() {
         </div>
       )}
 
-      {/* Nav items */}
+
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto scrollbar-hide">
         {nav.map((item) => {
           const active = location.pathname === item.to;
@@ -216,7 +221,7 @@ export function DashboardLayout() {
         })}
       </nav>
 
-      {/* Bottom actions */}
+
       <div className="px-2 py-4 border-t border-white/10 space-y-1">
         <Link
           to="/"
@@ -248,12 +253,12 @@ export function DashboardLayout() {
         }
       `}</style>
       <div className="flex h-screen bg-neutral">
-        {/* Desktop sidebar */}
+
         <div className="hidden md:flex shrink-0">
           <Sidebar />
         </div>
 
-        {/* Mobile overlay */}
+
         {mobileOpen && (
           <div className="fixed inset-0 z-50 flex md:hidden">
             <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
@@ -263,9 +268,9 @@ export function DashboardLayout() {
           </div>
         )}
 
-        {/* Main content */}
+
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {/* Top bar */}
+
           <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-4">
             <button
               className="md:hidden p-1.5 sm:p-2 -ml-1.5 sm:-ml-0 rounded-xl hover:bg-slate-100 transition-colors shrink-0"
@@ -274,12 +279,12 @@ export function DashboardLayout() {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Breadcrumb */}
+
             <div className="flex-1 flex items-center gap-2 sm:gap-3 min-w-0">
               <p className="text-sm font-medium text-dark capitalize truncate hidden sm:block">
-                {nav.find((n) => n.to === location.pathname)?.label ?? "Dashboard"}
+                {currentNavLabel}
               </p>
-              {/* Hostel switcher for admin role */}
+
               {role === "hostel_admin" && (
                 <div className="shrink-0 min-w-0">
                   <HostelSwitcher />
@@ -288,7 +293,7 @@ export function DashboardLayout() {
             </div>
 
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-              {/* Dark mode toggle */}
+
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
@@ -306,7 +311,7 @@ export function DashboardLayout() {
             </div>
           </header>
 
-          {/* Page content */}
+
           <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
             <Outlet />
           </main>
