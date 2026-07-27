@@ -52,8 +52,7 @@ export function AdminBillingsPage() {
     );
   }
 
-  const activePlanCode = subscription?.plan_code;
-  const currentSelectedPlan = selectedPlan || plans.find(p => p.code === activePlanCode) || plans[0];
+  const currentSelectedPlan = selectedPlan || plans[0];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 text-slate-800">
@@ -65,10 +64,18 @@ export function AdminBillingsPage() {
       {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="card p-6 border border-slate-200">
-          <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2">CURRENT PLAN</p>
-          <p className="text-2xl font-bold text-dark">{subscription?.plan_name || "N/A"}</p>
-          <p className="text-xs text-slate-500 mt-1">{subscription?.cycle || "N/A"}</p>
-        </div>
+  <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2">
+    AVAILABLE PLAN
+  </p>
+
+  <p className="text-2xl font-bold text-dark">
+    {plans.length > 0 ? plans[0].name : "N/A"}
+  </p>
+
+  <p className="text-xs text-slate-500 mt-1">
+    ₹{plans.length > 0 ? plans[0].price : 0} • {plans.length > 0 ? plans[0].duration_days : 0} Days
+  </p>
+</div>
         <div className="card p-6 border border-slate-200">
           <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2">AMOUNT DUE</p>
           <p className="text-2xl font-bold text-dark">₹{subscription?.amount_due?.toLocaleString() || 0}</p>
@@ -97,7 +104,7 @@ export function AdminBillingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {plans.map((plan) => {
-              const isCurrent = plan.code === activePlanCode;
+              const isCurrent = subscription?.plan_name === plan.name;
               const isSelected = currentSelectedPlan?.id === plan.id;
               
               return (
@@ -124,8 +131,8 @@ export function AdminBillingsPage() {
 
   <div className="text-right">
     <p className="text-xl font-bold text-dark">
-      ₹{plan.price_monthly.toLocaleString()}
-    </p>
+  ₹{plan.price.toLocaleString()}
+</p>
   </div>
 </div>
 
@@ -188,11 +195,11 @@ export function AdminBillingsPage() {
           <div className="flex justify-between items-center mb-6">
             <span className="text-[13px] text-slate-500">Amount due</span>
             <span className="text-2xl font-bold text-dark">
-              ₹{currentSelectedPlan?.price_monthly.toLocaleString() || 0}
-            </span>
+  ₹{currentSelectedPlan?.price?.toLocaleString() || 0}
+</span>
           </div>
 
-          {currentSelectedPlan?.code === activePlanCode ? (
+          {currentSelectedPlan?.name === subscription?.plan_name ? (
             <button className="w-full py-2.5 bg-blue-300 text-white font-medium rounded-lg text-sm cursor-not-allowed">
               Current Plan Active
             </button>

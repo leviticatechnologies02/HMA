@@ -893,15 +893,21 @@ export type AdminBillingHistory = {
   invoice_url: string;
 };
 
-export type AdminPlan = {
+export interface AdminPlan {
   id: string;
   name: string;
-  code: string;
-  price_monthly: number;
-  price_yearly: number;
+  description: string;
   duration_days: number;
-  
-};
+  duration_type: string;
+  price: number;
+  price_yearly: number;
+  status: string;
+  features: {
+    feature_name: string;
+    feature_value: string;
+    is_included: boolean;
+  }[];
+}
 
 export async function fetchAdminSubscription(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminSubscription> {
   // Mock data for Admin Subscription
@@ -917,29 +923,15 @@ export async function fetchAdminSubscription(userId: string, hostelIds: string[]
   });
 }
 
-export async function fetchAdminPlans(userId: string, hostelIds: string[]): Promise<AdminPlan[]> {
-  // Mock data matching the Super Admin Plans fields
-  return Promise.resolve([
-    {
-      id: "plan_1",
-      name: "Starter",
-      code: "FREE",
-      price_monthly: 1,
-      price_yearly: 0,
-      duration_days: 30,
-      
-    },
-    {
-      id: "plan_2",
-      name: "Enterprise",
-      code: "BASIC",
-      price_monthly: 2,
-      price_yearly: 59990,
-      duration_days: 365,
-      
-    }
-    
-  ]);
+export async function fetchAdminPlans(
+  userId: string,
+  hostelIds: string[]
+): Promise<AdminPlan[]> {
+  const response = await api.get<AdminPlan[]>("/admin/plans", {
+    headers: buildAdminHeaders(userId, hostelIds),
+  });
+
+  return response.data;
 }
 
 export async function fetchAdminBillingHistory(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminBillingHistory[]> {

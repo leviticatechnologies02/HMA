@@ -52,7 +52,9 @@ export function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-dark">Admin Dashboard</h1>
+        <h1 className="text-3xl font-heading font-bold text-dark">
+  Welcome, {data?.hostel_admin_name ?? "Admin"} 
+</h1>
         <p className="mt-1 text-slate-500">
           {activeHostel ? (
             <>Showing data for <span className="font-semibold text-dark">{hostelLabel}</span></>
