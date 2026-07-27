@@ -894,7 +894,7 @@ export type AdminPlan = {
   price_monthly: number;
   price_yearly: number;
   duration_days: number;
-  hostel_limit: number;
+  
 };
 
 export async function fetchAdminSubscription(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminSubscription> {
@@ -916,40 +916,23 @@ export async function fetchAdminPlans(userId: string, hostelIds: string[]): Prom
   return Promise.resolve([
     {
       id: "plan_1",
-      name: "Free",
+      name: "Starter",
       code: "FREE",
-      price_monthly: 0,
+      price_monthly: 1,
       price_yearly: 0,
-      duration_days: 15,
-      hostel_limit: 1,
+      duration_days: 30,
+      
     },
     {
       id: "plan_2",
-      name: "Basic",
-      code: "BASIC",
-      price_monthly: 5999,
-      price_yearly: 59990,
-      duration_days: 30,
-      hostel_limit: 2,
-    },
-    {
-      id: "plan_3",
-      name: "Premium",
-      code: "PREMIUM",
-      price_monthly: 10499,
-      price_yearly: 104990,
-      duration_days: 30,
-      hostel_limit: 5,
-    },
-    {
-      id: "plan_4",
       name: "Enterprise",
-      code: "ENTERPRISE",
-      price_monthly: 29999,
-      price_yearly: 299990,
-      duration_days: 30,
-      hostel_limit: 15,
-    },
+      code: "BASIC",
+      price_monthly: 2,
+      price_yearly: 59990,
+      duration_days: 365,
+      
+    }
+    
   ]);
 }
 

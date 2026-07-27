@@ -109,42 +109,48 @@ export function AdminBillingsPage() {
                   onClick={() => handleSelectPlan(plan)}
                 >
                   <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h3 className="text-[17px] font-bold text-dark">{plan.name}</h3>
-                      <p className="text-[13px] text-slate-500 mt-0.5">{plan.duration_days}-day cycle</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-dark">₹{plan.price_monthly.toLocaleString()}</p>
-                      <p className="text-[11px] text-slate-500 mt-1 uppercase font-medium">{plan.hostel_limit} hostels</p>
-                    </div>
-                  </div>
+  <div>
+    {isCurrent && (
+      <span className="inline-flex items-center mb-2 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold uppercase">
+        Active
+      </span>
+    )}
 
-                  <div className="flex items-center justify-between text-[13px] text-slate-600 mb-6">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-blue-500" />
-                      <span>{plan.hostel_limit} Hostel{plan.hostel_limit > 1 ? 's' : ''} limit</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-blue-500" />
-                      <span>₹{plan.price_yearly.toLocaleString()} / year</span>
-                    </div>
-                  </div>
+    <h3 className="text-[17px] font-bold text-dark">{plan.name}</h3>
+    <p className="text-[13px] text-slate-500 mt-0.5">
+      {plan.duration_days}-day cycle
+    </p>
+  </div>
 
-                  {isCurrent ? (
-                    <button className="bg-blue-500 text-white w-32 py-1.5 rounded text-xs font-medium" disabled>
-                      Current plan
-                    </button>
-                  ) : (
-                    <button 
-                      className={`w-32 text-xs font-medium py-1.5 rounded border ${
-                        isSelected 
-                          ? "bg-blue-50 text-blue-600 border-blue-200" 
-                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                      }`}
-                    >
-                      Select
-                    </button>
-                  )}
+  <div className="text-right">
+    <p className="text-xl font-bold text-dark">
+      ₹{plan.price_monthly.toLocaleString()}
+    </p>
+  </div>
+</div>
+
+                 <div className="flex justify-end">
+  {isCurrent ? (
+    <button
+      className="bg-green-600 text-white px-5 py-2 rounded-md text-xs font-medium cursor-default"
+      disabled
+    >
+      Current Plan
+    </button>
+  ) : (
+    <button
+      className={`px-6 py-2 rounded-md text-xs font-medium border transition ${
+        isSelected
+          ? "bg-blue-600 text-white border-blue-600"
+          : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
+      }`}
+    >
+      Select
+    </button>
+  )}
+</div>
+
+                  
                   {plan.name === "Premium" && (
                     <span className="absolute top-4 right-4 text-[10px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-full">
                       POPULAR
