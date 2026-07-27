@@ -873,14 +873,18 @@ export async function updateAdminPaymentConfig(userId: string, hostelIds: string
 // ==================== BILLINGS (MOCKED APIs) ====================
 
 export type AdminSubscription = {
-  id: string;
+  has_subscription: boolean;
+  subscription_id: string;
+  plan_id: string;
   plan_name: string;
-  plan_code: string;
-  cycle: string;
-  amount_due: number;
+  billing_cycle: string;
+  start_date: string;
+  expiry_date: string;
+  amount: number;
+  status: string;
+  auto_renew: boolean;
   last_payment_date: string;
   last_payment_status: string;
-  is_active: boolean;
 };
 
 export type AdminBillingHistory = {
@@ -910,17 +914,11 @@ export interface AdminPlan {
 }
 
 export async function fetchAdminSubscription(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminSubscription> {
-  // Mock data for Admin Subscription
-  return Promise.resolve({
-    id: "sub_1234",
-    plan_name: "Premium",
-    plan_code: "PREMIUM",
-    cycle: "30-day billing cycle",
-    amount_due: 10499,
-    last_payment_date: "07 Jul 2026",
-    last_payment_status: "success",
-    is_active: true,
+  const response = await api.get<AdminSubscription>("/admin/subscription/current", {
+    headers: buildAdminHeaders(userId, hostelIds),
+    params: hostelId ? { hostel_id: hostelId } : undefined,
   });
+  return response.data;
 }
 
 export async function fetchAdminPlans(

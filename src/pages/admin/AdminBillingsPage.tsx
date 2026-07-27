@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Download, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
-import { 
-  useAdminSubscription, 
-  useAdminPlans, 
-  useAdminBillingHistory, 
-  useCreateAdminCheckout 
+import {
+  useAdminSubscription,
+  useAdminPlans,
+  useAdminBillingHistory,
+  useCreateAdminCheckout
 } from "../../hooks/useAdminData";
 import toast from "react-hot-toast";
 import { type AdminPlan } from "../../api/admin.api";
@@ -18,7 +18,7 @@ export function AdminBillingsPage() {
   const { data: subscription, isLoading: subLoading } = useAdminSubscription(userId, hostelIds, activeHostelId);
   const { data: plans = [], isLoading: plansLoading } = useAdminPlans(userId, hostelIds);
   const { data: history = [], isLoading: historyLoading } = useAdminBillingHistory(userId, hostelIds, activeHostelId);
-  
+
   const checkoutMutation = useCreateAdminCheckout(userId, hostelIds, activeHostelId);
 
   const [selectedPlan, setSelectedPlan] = useState<AdminPlan | null>(null);
@@ -52,7 +52,8 @@ export function AdminBillingsPage() {
     );
   }
 
-  const currentSelectedPlan = selectedPlan || plans[0];
+  const activePlanId = subscription?.plan_id;
+  const currentSelectedPlan = selectedPlan || plans.find(p => p.id === activePlanId) || plans[0];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 text-slate-800">
@@ -64,21 +65,13 @@ export function AdminBillingsPage() {
       {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="card p-6 border border-slate-200">
-  <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2">
-    AVAILABLE PLAN
-  </p>
-
-  <p className="text-2xl font-bold text-dark">
-    {plans.length > 0 ? plans[0].name : "N/A"}
-  </p>
-
-  <p className="text-xs text-slate-500 mt-1">
-    ₹{plans.length > 0 ? plans[0].price : 0} • {plans.length > 0 ? plans[0].duration_days : 0} Days
-  </p>
-</div>
+          <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2">CURRENT PLAN</p>
+          <p className="text-2xl font-bold text-dark">{subscription?.plan_name || "N/A"}</p>
+          <p className="text-xs text-slate-500 mt-1">{subscription?.billing_cycle || "N/A"}</p>
+        </div>
         <div className="card p-6 border border-slate-200">
           <p className="text-[11px] font-bold text-slate-500 tracking-wider uppercase mb-2">AMOUNT DUE</p>
-          <p className="text-2xl font-bold text-dark">₹{subscription?.amount_due?.toLocaleString() || 0}</p>
+          <p className="text-2xl font-bold text-dark">₹{subscription?.amount?.toLocaleString() || 0}</p>
           <p className="text-xs text-slate-500 mt-1">No upgrade selected</p>
         </div>
         <div className="card p-6 border border-slate-200">
@@ -104,60 +97,58 @@ export function AdminBillingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {plans.map((plan) => {
-              const isCurrent = subscription?.plan_name === plan.name;
+              const isCurrent = plan.id === activePlanId;
               const isSelected = currentSelectedPlan?.id === plan.id;
-              
+
               return (
-                <div 
+                <div
                   key={plan.id}
-                  className={`card p-5 transition-all duration-200 cursor-pointer relative ${
-                    isSelected ? "border-primary border shadow-sm" : "border-slate-200 border"
-                  }`}
+                  className={`card p-5 transition-all duration-200 cursor-pointer relative ${isSelected ? "border-primary border shadow-sm" : "border-slate-200 border"
+                    }`}
                   onClick={() => handleSelectPlan(plan)}
                 >
                   <div className="flex justify-between items-start mb-6">
-  <div>
-    {isCurrent && (
-      <span className="inline-flex items-center mb-2 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold uppercase">
-        Active
-      </span>
-    )}
+                    <div>
+                      {isCurrent && (
+                        <span className="inline-flex items-center mb-2 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold uppercase">
+                          Active
+                        </span>
+                      )}
 
-    <h3 className="text-[17px] font-bold text-dark">{plan.name}</h3>
-    <p className="text-[13px] text-slate-500 mt-0.5">
-      {plan.duration_days}-day cycle
-    </p>
-  </div>
+                      <h3 className="text-[17px] font-bold text-dark">{plan.name}</h3>
+                      <p className="text-[13px] text-slate-500 mt-0.5">
+                        {plan.duration_days}-day cycle
+                      </p>
+                    </div>
 
-  <div className="text-right">
-    <p className="text-xl font-bold text-dark">
-  ₹{plan.price.toLocaleString()}
-</p>
-  </div>
-</div>
+                    <div className="text-right">
+                      <p className="text-xl font-bold text-dark">
+                        ₹{plan.price.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
 
-                 <div className="flex justify-end">
-  {isCurrent ? (
-    <button
-      className="bg-green-600 text-white px-5 py-2 rounded-md text-xs font-medium cursor-default"
-      disabled
-    >
-      Current Plan
-    </button>
-  ) : (
-    <button
-      className={`px-6 py-2 rounded-md text-xs font-medium border transition ${
-        isSelected
-          ? "bg-blue-600 text-white border-blue-600"
-          : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
-      }`}
-    >
-      Select
-    </button>
-  )}
-</div>
+                  <div className="flex justify-end">
+                    {isCurrent ? (
+                      <button
+                        className="bg-green-600 text-white px-5 py-2 rounded-md text-xs font-medium cursor-default"
+                        disabled
+                      >
+                        Current Plan
+                      </button>
+                    ) : (
+                      <button
+                        className={`px-6 py-2 rounded-md text-xs font-medium border transition ${isSelected
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
+                          }`}
+                      >
+                        Select
+                      </button>
+                    )}
+                  </div>
 
-                  
+
                   {plan.name === "Premium" && (
                     <span className="absolute top-4 right-4 text-[10px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-full">
                       POPULAR
@@ -195,16 +186,16 @@ export function AdminBillingsPage() {
           <div className="flex justify-between items-center mb-6">
             <span className="text-[13px] text-slate-500">Amount due</span>
             <span className="text-2xl font-bold text-dark">
-  ₹{currentSelectedPlan?.price?.toLocaleString() || 0}
-</span>
+              ₹{currentSelectedPlan?.price?.toLocaleString() || 0}
+            </span>
           </div>
 
-          {currentSelectedPlan?.name === subscription?.plan_name ? (
+          {currentSelectedPlan?.id === activePlanId ? (
             <button className="w-full py-2.5 bg-blue-300 text-white font-medium rounded-lg text-sm cursor-not-allowed">
               Current Plan Active
             </button>
           ) : (
-            <button 
+            <button
               onClick={handleCheckout}
               disabled={checkoutMutation.isPending}
               className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 transition-colors text-white flex justify-center items-center gap-2 rounded-lg text-sm font-medium"
