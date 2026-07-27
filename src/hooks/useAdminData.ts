@@ -74,6 +74,8 @@ import {
   fetchAdminPlans,
   fetchAdminBillingHistory,
   createAdminCheckout,
+  selectAdminPlan,
+  type AdminPlanSelectPayload,
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -874,6 +876,17 @@ export function useAdminBillingHistory(userId: string | null, hostelIds: string[
     queryKey: ["admin-billing-history", userId, hostelIds, hostelId],
     queryFn: () => fetchAdminBillingHistory(userId!, hostelIds, hostelId ?? undefined),
     enabled: Boolean(userId && hostelIds.length > 0),
+  });
+}
+
+export function useSelectAdminPlan(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: AdminPlanSelectPayload) => selectAdminPlan(userId!, hostelIds, payload, hostelId ?? undefined),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin-subscription", userId, hostelIds, hostelId] });
+    },
   });
 }
 

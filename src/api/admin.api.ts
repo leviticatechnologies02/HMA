@@ -947,6 +947,24 @@ export async function fetchAdminBillingHistory(userId: string, hostelIds: string
   ]);
 }
 
+export type AdminPlanSelectPayload = {
+  plan_id: string;
+  plan_name: string;
+  duration_days: number;
+  duration_type: string;
+  amount_due: number;
+  currency: string;
+  features: any[];
+};
+
+export async function selectAdminPlan(userId: string, hostelIds: string[], payload: AdminPlanSelectPayload, hostelId?: string) {
+  const response = await api.post("/admin/subscription/select", payload, {
+    headers: buildAdminHeaders(userId, hostelIds),
+    params: hostelId ? { hostel_id: hostelId } : undefined,
+  });
+  return response.data;
+}
+
 export async function createAdminCheckout(userId: string, hostelIds: string[], payload: { plan_id: string; duration: number }, hostelId?: string) {
   // Mock successful checkout
   return Promise.resolve({ success: true, message: "Checkout initiated" });

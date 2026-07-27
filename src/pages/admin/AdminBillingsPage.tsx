@@ -5,7 +5,8 @@ import {
   useAdminSubscription,
   useAdminPlans,
   useAdminBillingHistory,
-  useCreateAdminCheckout
+  useCreateAdminCheckout,
+  useSelectAdminPlan
 } from "../../hooks/useAdminData";
 import toast from "react-hot-toast";
 import { type AdminPlan } from "../../api/admin.api";
@@ -15,22 +16,39 @@ export function AdminBillingsPage() {
   const hostelIds = useAuthStore((s) => s.hostelIds);
   const activeHostelId = useAuthStore((s) => s.activeHostelId) ?? hostelIds[0] ?? null;
 
+  const getPlanPrice = (plan: AdminPlan | null | undefined) => {
+    if (!plan) return 0;
+    return plan.duration_days >= 365 ? (plan.price_yearly || plan.price) : plan.price;
+  };
+
   const { data: subscription, isLoading: subLoading } = useAdminSubscription(userId, hostelIds, activeHostelId);
   const { data: plans = [], isLoading: plansLoading } = useAdminPlans(userId, hostelIds);
   const { data: history = [], isLoading: historyLoading } = useAdminBillingHistory(userId, hostelIds, activeHostelId);
 
   const checkoutMutation = useCreateAdminCheckout(userId, hostelIds, activeHostelId);
+  const selectPlanMutation = useSelectAdminPlan(userId, hostelIds, activeHostelId);
 
   const [selectedPlan, setSelectedPlan] = useState<AdminPlan | null>(null);
 
   const handleSelectPlan = (plan: AdminPlan) => {
     setSelectedPlan(plan);
+    selectPlanMutation.mutate({
+      plan_id: plan.id,
+      plan_name: plan.name,
+      duration_days: plan.duration_days,
+      duration_type: plan.duration_type || "days",
+      amount_due: getPlanPrice(plan),
+      currency: "INR",
+      features: []
+    });
   };
 
   const handleCheckout = () => {
-    if (!selectedPlan) return;
+    const planToCheckout = selectedPlan || currentSelectedPlan;
+    if (!planToCheckout) return;
+
     checkoutMutation.mutate(
-      { plan_id: selectedPlan.id, duration: selectedPlan.duration_days },
+      { plan_id: planToCheckout.id, duration: planToCheckout.duration_days },
       {
         onSuccess: () => {
           toast.success("Checkout initiated successfully");
@@ -103,9 +121,8 @@ export function AdminBillingsPage() {
               return (
                 <div
                   key={plan.id}
-                  className={`card p-5 transition-all duration-200 cursor-pointer relative ${isSelected ? "border-primary border shadow-sm" : "border-slate-200 border"
+                  className={`card p-5 transition-all duration-200 relative ${isSelected ? "border-primary border shadow-sm" : "border-slate-200 border"
                     }`}
-                  onClick={() => handleSelectPlan(plan)}
                 >
                   <div className="flex justify-between items-start mb-6">
                     <div>
@@ -123,7 +140,7 @@ export function AdminBillingsPage() {
 
                     <div className="text-right">
                       <p className="text-xl font-bold text-dark">
-                        ₹{plan.price.toLocaleString()}
+                        ₹{getPlanPrice(plan).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -133,17 +150,22 @@ export function AdminBillingsPage() {
                       <button
                         className="bg-green-600 text-white px-5 py-2 rounded-md text-xs font-medium cursor-default"
                         disabled
+                        onClick={(e) => e.stopPropagation()}
                       >
                         Current Plan
                       </button>
                     ) : (
                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectPlan(plan);
+                        }}
                         className={`px-6 py-2 rounded-md text-xs font-medium border transition ${isSelected
                             ? "bg-blue-600 text-white border-blue-600"
                             : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
                           }`}
                       >
-                        Select
+                        {isSelected ? "Selected" : "Select"}
                       </button>
                     )}
                   </div>
@@ -186,7 +208,7 @@ export function AdminBillingsPage() {
           <div className="flex justify-between items-center mb-6">
             <span className="text-[13px] text-slate-500">Amount due</span>
             <span className="text-2xl font-bold text-dark">
-              ₹{currentSelectedPlan?.price?.toLocaleString() || 0}
+              ₹{getPlanPrice(currentSelectedPlan).toLocaleString()}
             </span>
           </div>
 
