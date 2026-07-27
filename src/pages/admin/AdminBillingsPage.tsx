@@ -6,30 +6,36 @@ import {
   useAdminPlans,
   useAdminBillingHistory,
   useCreateAdminCheckout,
-  useSelectAdminPlan
+  useSelectAdminPlan,
+  useVerifyAdminPayment,
+  
 } from "../../hooks/useAdminData";
 import toast from "react-hot-toast";
 import { type AdminPlan } from "../../api/admin.api";
-
+ 
 export function AdminBillingsPage() {
   const userId = useAuthStore((s) => s.userId);
   const hostelIds = useAuthStore((s) => s.hostelIds);
   const activeHostelId = useAuthStore((s) => s.activeHostelId) ?? hostelIds[0] ?? null;
-
+ 
   const getPlanPrice = (plan: AdminPlan | null | undefined) => {
     if (!plan) return 0;
     return plan.duration_days >= 365 ? (plan.price_yearly || plan.price) : plan.price;
   };
-
+ 
   const { data: subscription, isLoading: subLoading } = useAdminSubscription(userId, hostelIds, activeHostelId);
   const { data: plans = [], isLoading: plansLoading } = useAdminPlans(userId, hostelIds);
   const { data: history = [], isLoading: historyLoading } = useAdminBillingHistory(userId, hostelIds, activeHostelId);
-
-  const checkoutMutation = useCreateAdminCheckout(userId, hostelIds, activeHostelId);
+ 
+  const checkoutMutation = useCreateAdminCheckout(userId, hostelIds);
   const selectPlanMutation = useSelectAdminPlan(userId, hostelIds, activeHostelId);
-
+  const verifyPaymentMutation = useVerifyAdminPayment(
+  userId,
+  hostelIds
+);
+ 
   const [selectedPlan, setSelectedPlan] = useState<AdminPlan | null>(null);
-
+ 
   const handleSelectPlan = (plan: AdminPlan) => {
     setSelectedPlan(plan);
     selectPlanMutation.mutate({
@@ -42,26 +48,112 @@ export function AdminBillingsPage() {
       features: []
     });
   };
+ 
+ const handleCheckout = () => {
+  console.log("Pay clicked");
 
-  const handleCheckout = () => {
-    const planToCheckout = selectedPlan || currentSelectedPlan;
-    if (!planToCheckout) return;
+  console.log({
+    selectedPlan,
+    activeHostelId,
+    userId,
+    hostelIds,
+  });
 
-    checkoutMutation.mutate(
-      { plan_id: planToCheckout.id, duration: planToCheckout.duration_days },
-      {
-        onSuccess: () => {
-          toast.success("Checkout initiated successfully");
+  if (!selectedPlan) {
+    console.log("No plan selected");
+    toast.error("Select a plan first");
+    return;
+  }
+
+  if (!activeHostelId) {
+    console.log("No hostel id");
+    toast.error("No hostel selected");
+    return;
+  }
+
+  checkoutMutation.mutate(
+    {
+      plan_id: selectedPlan.id,
+      hostel_id: activeHostelId,
+    },
+    {
+     onSuccess: (data) => {
+  console.log("Create Order Response:", data);
+
+  const options = {
+    key: data.key,
+    amount: data.amount,
+    currency: data.currency,
+    order_id: data.order_id,
+
+    name: "Hostel Management",
+    description: selectedPlan.name,
+
+    handler: function (response: any) {
+      console.log("Razorpay Handler Called");
+      console.log(response);
+
+      verifyPaymentMutation.mutate(
+        {
+          billing_payment_id: data.billing_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
         },
-        onError: () => {
-          toast.error("Failed to initiate checkout");
+        {
+          onSuccess: (verifyRes) => {
+            console.log("Verify Success", verifyRes);
+            toast.success(verifyRes.message);
+          },
+          onError: (error: any) => {
+            console.log("Verify Error", error.response?.data);
+            toast.error(
+              error.response?.data?.detail ||
+              error.response?.data?.message ||
+              "Payment verification failed"
+            );
+          },
         }
-      }
-    );
+      );
+    },
+
+    modal: {
+      ondismiss: function () {
+        console.log("Checkout closed");
+      },
+    },
+
+    theme: {
+      color: "#2563EB",
+    },
+
+    retry: {
+      enabled: false,
+    },
   };
 
-  const isLoading = subLoading || plansLoading || historyLoading;
+  console.log("Opening Razorpay");
 
+  const rzp = new (window as any).Razorpay(options);
+
+  rzp.on("payment.failed", function (response: any) {
+    console.log("Payment Failed");
+    console.log(response.error);
+  });
+
+  rzp.open();
+},
+
+      onError: (err: any) => {
+        console.log("ERROR", err);
+        console.log(err?.response?.data);
+      },
+    }
+  );
+};
+ 
+  const isLoading = subLoading || plansLoading || historyLoading;
+ 
   if (isLoading) {
     return (
       <div className="p-8 text-center flex justify-center items-center h-64">
@@ -69,17 +161,17 @@ export function AdminBillingsPage() {
       </div>
     );
   }
-
+ 
   const activePlanId = subscription?.plan_id;
   const currentSelectedPlan = selectedPlan || plans.find(p => p.id === activePlanId) || plans[0];
-
+ 
   return (
     <div className="max-w-6xl mx-auto space-y-6 text-slate-800">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold font-heading text-dark">Payment Settings</h1>
         <p className="text-sm text-slate-500">Manage your plan, payment, and invoices.</p>
       </div>
-
+ 
       {/* Top Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="card p-6 border border-slate-200">
@@ -98,7 +190,7 @@ export function AdminBillingsPage() {
           <p className="text-xs text-slate-500 mt-1">{subscription?.last_payment_status || "N/A"}</p>
         </div>
       </div>
-
+ 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Available Plans */}
         <div className="xl:col-span-2 space-y-4">
@@ -112,12 +204,12 @@ export function AdminBillingsPage() {
               Razorpay ready
             </div>
           </div>
-
+ 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {plans.map((plan) => {
               const isCurrent = plan.id === activePlanId;
               const isSelected = currentSelectedPlan?.id === plan.id;
-
+ 
               return (
                 <div
                   key={plan.id}
@@ -131,20 +223,20 @@ export function AdminBillingsPage() {
                           Active
                         </span>
                       )}
-
+ 
                       <h3 className="text-[17px] font-bold text-dark">{plan.name}</h3>
                       <p className="text-[13px] text-slate-500 mt-0.5">
                         {plan.duration_days}-day cycle
                       </p>
                     </div>
-
+ 
                     <div className="text-right">
                       <p className="text-xl font-bold text-dark">
                         ₹{getPlanPrice(plan).toLocaleString()}
                       </p>
                     </div>
                   </div>
-
+ 
                   <div className="flex justify-end">
                     {isCurrent ? (
                       <button
@@ -169,8 +261,8 @@ export function AdminBillingsPage() {
                       </button>
                     )}
                   </div>
-
-
+ 
+ 
                   {plan.name === "Premium" && (
                     <span className="absolute top-4 right-4 text-[10px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-full">
                       POPULAR
@@ -181,7 +273,7 @@ export function AdminBillingsPage() {
             })}
           </div>
         </div>
-
+ 
         {/* Checkout Sidebar */}
         <div className="xl:col-span-1 card p-6 border border-slate-200">
           <div className="flex items-center gap-3 mb-6">
@@ -193,7 +285,7 @@ export function AdminBillingsPage() {
               <p className="text-[13px] text-slate-500">Review before payment.</p>
             </div>
           </div>
-
+ 
           <div className="space-y-3 border-b border-slate-100 pb-4 mb-4">
             <div className="flex justify-between items-center text-[13px]">
               <span className="text-slate-500">Selected plan</span>
@@ -204,14 +296,14 @@ export function AdminBillingsPage() {
               <span className="font-bold text-dark">{currentSelectedPlan?.duration_days ? `${currentSelectedPlan.duration_days} days` : "-"}</span>
             </div>
           </div>
-
+ 
           <div className="flex justify-between items-center mb-6">
             <span className="text-[13px] text-slate-500">Amount due</span>
             <span className="text-2xl font-bold text-dark">
               ₹{getPlanPrice(currentSelectedPlan).toLocaleString()}
             </span>
           </div>
-
+ 
           {currentSelectedPlan?.id === activePlanId ? (
             <button className="w-full py-2.5 bg-blue-300 text-white font-medium rounded-lg text-sm cursor-not-allowed">
               Current Plan Active
@@ -226,13 +318,13 @@ export function AdminBillingsPage() {
               Pay Now
             </button>
           )}
-
+ 
           <p className="text-[11px] text-slate-400 mt-4 leading-relaxed">
             Payment verification refreshes your plan and invoice list automatically.
           </p>
         </div>
       </div>
-
+ 
       {/* Payment History */}
       <div className="card border border-slate-200">
         <div className="p-6 border-b border-slate-100">

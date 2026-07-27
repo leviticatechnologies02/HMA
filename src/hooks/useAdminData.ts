@@ -77,6 +77,8 @@ import {
   selectAdminPlan,
   type AdminPlanSelectPayload,
   createAdminOrder,
+  verifyAdminPayment,
+  type VerifyPaymentPayload,
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -914,3 +916,26 @@ export function useCreateAdminCheckout(
     },
   });
 }
+
+export function useVerifyAdminPayment(
+  userId: string | null,
+  hostelIds: string[]
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: VerifyPaymentPayload) =>
+      verifyAdminPayment(userId!, hostelIds, payload),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-subscription"],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-billing-history"],
+      });
+    },
+  });
+}
+

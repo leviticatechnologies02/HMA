@@ -980,6 +980,9 @@ export type CreateOrderResponse = {
   order_id: string;
   amount: number;
   currency: string;
+
+  billing_payment_id: string;
+
   hostel_name?: string;
 };
 
@@ -990,6 +993,37 @@ export async function createAdminOrder(
 ) {
   const response = await api.post<CreateOrderResponse>(
     "/admin/billing/create-order",
+    payload,
+    {
+      headers: buildAdminHeaders(userId, hostelIds),
+    }
+  );
+
+  return response.data;
+}
+
+export type VerifyPaymentPayload = {
+  billing_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+
+export type VerifyPaymentResponse = {
+  success: boolean;
+  message: string;
+  subscription_id: string;
+  invoice_id: string;
+  invoice_number: string;
+};
+
+export async function verifyAdminPayment(
+  userId: string,
+  hostelIds: string[],
+  payload: VerifyPaymentPayload
+) {
+  const response = await api.post<VerifyPaymentResponse>(
+    "/admin/billing/verify-payment",
     payload,
     {
       headers: buildAdminHeaders(userId, hostelIds),
