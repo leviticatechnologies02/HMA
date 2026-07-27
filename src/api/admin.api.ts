@@ -822,3 +822,153 @@ export async function validateAdminPassword(
   });
   return response.data;
 }
+
+export type PaymentConfigResponse = {
+  hostel_id?: string;
+  razorpay_key_id?: string;
+  is_active: boolean;
+  is_configured: boolean;
+  updated_at?: string;
+};
+
+export type PaymentConfigPayload = {
+  razorpay_key_id: string;
+  razorpay_key_secret?: string;
+  razorpay_webhook_secret?: string;
+  is_active: boolean;
+};
+
+export async function fetchAdminPaymentConfig(userId: string, hostelIds: string[], hostelId?: string) {
+  try {
+    const response = await api.get<PaymentConfigResponse>("/admin/payment-config", {
+      headers: buildAdminHeaders(userId, hostelIds),
+      params: hostelId ? { hostel_id: hostelId } : undefined,
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return {
+        is_configured: false,
+        is_active: false,
+      } as PaymentConfigResponse;
+    }
+    throw error;
+  }
+}
+
+export async function updateAdminPaymentConfig(userId: string, hostelIds: string[], payload: PaymentConfigPayload, hostelId?: string) {
+  const response = await api.put<PaymentConfigResponse>("/admin/payment-config", payload, {
+    headers: buildAdminHeaders(userId, hostelIds),
+    params: hostelId ? { hostel_id: hostelId } : undefined,
+  });
+  return response.data;
+}
+
+// ==================== BILLINGS (MOCKED APIs) ====================
+
+export type AdminSubscription = {
+  id: string;
+  plan_name: string;
+  plan_code: string;
+  cycle: string;
+  amount_due: number;
+  last_payment_date: string;
+  last_payment_status: string;
+  is_active: boolean;
+};
+
+export type AdminBillingHistory = {
+  payment_id: string;
+  plan_name: string;
+  date: string;
+  amount: number;
+  provider: string;
+  status: string;
+  invoice_url: string;
+};
+
+export type AdminPlan = {
+  id: string;
+  name: string;
+  code: string;
+  price_monthly: number;
+  price_yearly: number;
+  duration_days: number;
+  hostel_limit: number;
+};
+
+export async function fetchAdminSubscription(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminSubscription> {
+  // Mock data for Admin Subscription
+  return Promise.resolve({
+    id: "sub_1234",
+    plan_name: "Premium",
+    plan_code: "PREMIUM",
+    cycle: "30-day billing cycle",
+    amount_due: 10499,
+    last_payment_date: "07 Jul 2026",
+    last_payment_status: "success",
+    is_active: true,
+  });
+}
+
+export async function fetchAdminPlans(userId: string, hostelIds: string[]): Promise<AdminPlan[]> {
+  // Mock data matching the Super Admin Plans fields
+  return Promise.resolve([
+    {
+      id: "plan_1",
+      name: "Free",
+      code: "FREE",
+      price_monthly: 0,
+      price_yearly: 0,
+      duration_days: 15,
+      hostel_limit: 1,
+    },
+    {
+      id: "plan_2",
+      name: "Basic",
+      code: "BASIC",
+      price_monthly: 5999,
+      price_yearly: 59990,
+      duration_days: 30,
+      hostel_limit: 2,
+    },
+    {
+      id: "plan_3",
+      name: "Premium",
+      code: "PREMIUM",
+      price_monthly: 10499,
+      price_yearly: 104990,
+      duration_days: 30,
+      hostel_limit: 5,
+    },
+    {
+      id: "plan_4",
+      name: "Enterprise",
+      code: "ENTERPRISE",
+      price_monthly: 29999,
+      price_yearly: 299990,
+      duration_days: 30,
+      hostel_limit: 15,
+    },
+  ]);
+}
+
+export async function fetchAdminBillingHistory(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminBillingHistory[]> {
+  // Mock billing history
+  return Promise.resolve([
+    {
+      payment_id: "pay_TAWvGv8YpfQNzt",
+      plan_name: "Premium",
+      date: "07 Jul 2026",
+      amount: 10499,
+      provider: "razorpay",
+      status: "Success",
+      invoice_url: "#",
+    }
+  ]);
+}
+
+export async function createAdminCheckout(userId: string, hostelIds: string[], payload: { plan_id: string; duration: number }, hostelId?: string) {
+  // Mock successful checkout
+  return Promise.resolve({ success: true, message: "Checkout initiated" });
+}

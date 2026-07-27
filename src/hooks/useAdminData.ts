@@ -67,9 +67,13 @@ import {
   type AdminProfile,
   deleteAdminRoom,
   deleteAdminStudent,
-
-
-
+  fetchAdminPaymentConfig,
+  updateAdminPaymentConfig,
+  type PaymentConfigPayload,
+  fetchAdminSubscription,
+  fetchAdminPlans,
+  fetchAdminBillingHistory,
+  createAdminCheckout,
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -825,5 +829,62 @@ export function useChangeAdminPassword(userId: string | null, hostelIds: string[
 export function useValidateAdminPassword(userId: string | null, hostelIds: string[]) {
   return useMutation({
     mutationFn: (password: string) => validateAdminPassword(userId!, hostelIds, password),
+  });
+}
+
+export function useAdminPaymentConfig(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+  return useQuery({
+    queryKey: ["admin-payment-config", userId, hostelIds, hostelId],
+    queryFn: () => fetchAdminPaymentConfig(userId!, hostelIds, hostelId ?? undefined),
+    enabled: Boolean(userId && hostelIds.length > 0),
+  });
+}
+
+export function useUpdateAdminPaymentConfig(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: PaymentConfigPayload) => updateAdminPaymentConfig(userId!, hostelIds, payload, hostelId ?? undefined),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin-payment-config", userId, hostelIds, hostelId] });
+    },
+  });
+}
+
+// ==================== BILLINGS (MOCKED HOOKS) ====================
+
+export function useAdminSubscription(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+  return useQuery({
+    queryKey: ["admin-subscription", userId, hostelIds, hostelId],
+    queryFn: () => fetchAdminSubscription(userId!, hostelIds, hostelId ?? undefined),
+    enabled: Boolean(userId && hostelIds.length > 0),
+  });
+}
+
+export function useAdminPlans(userId: string | null, hostelIds: string[]) {
+  return useQuery({
+    queryKey: ["admin-plans", userId, hostelIds],
+    queryFn: () => fetchAdminPlans(userId!, hostelIds),
+    enabled: Boolean(userId && hostelIds.length > 0),
+  });
+}
+
+export function useAdminBillingHistory(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+  return useQuery({
+    queryKey: ["admin-billing-history", userId, hostelIds, hostelId],
+    queryFn: () => fetchAdminBillingHistory(userId!, hostelIds, hostelId ?? undefined),
+    enabled: Boolean(userId && hostelIds.length > 0),
+  });
+}
+
+export function useCreateAdminCheckout(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: { plan_id: string; duration: number }) => createAdminCheckout(userId!, hostelIds, payload, hostelId ?? undefined),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin-subscription", userId, hostelIds, hostelId] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-billing-history", userId, hostelIds, hostelId] });
+    },
   });
 }

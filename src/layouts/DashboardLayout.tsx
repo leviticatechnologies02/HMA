@@ -4,7 +4,7 @@ import {
   Home, Building2, Users, BookOpen, CreditCard, MessageSquare,
   ClipboardList, Wrench, Bell, UtensilsCrossed, UserCheck,
   LayoutDashboard, ChevronLeft, ChevronRight, LogOut, Menu,
-  ShieldCheck, Star, ListOrdered, Sun, Moon, BarChart2, ChevronDown
+  ShieldCheck, Star, ListOrdered, Sun, Moon, BarChart2, ChevronDown, Wallet, Receipt
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useLogout } from "../hooks/useAuth";
@@ -32,6 +32,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: "My Hostels", to: "/admin/my-hostels", icon: <Building2 className="w-4 h-4" /> },
   { label: "Inventory", to: "/admin/inventory", icon: <ClipboardList className="w-4 h-4" /> },
   { label: "Bookings", to: "/admin/bookings", icon: <BookOpen className="w-4 h-4" /> },
+  { label: "Billings", to: "/admin/billings", icon: <Receipt className="w-4 h-4" /> },
   // { label: "Students", to: "/admin/students", icon: <Users className="w-4 h-4" /> },
   { label: "Payments", to: "/admin/payments", icon: <CreditCard className="w-4 h-4" /> },
   { label: "Complaints", to: "/admin/complaints", icon: <MessageSquare className="w-4 h-4" /> },
@@ -41,6 +42,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: "Mess Menu", to: "/admin/mess-menu", icon: <UtensilsCrossed className="w-4 h-4" /> },
   { label: "Supervisors", to: "/admin/supervisors", icon: <ShieldCheck className="w-4 h-4" /> },
   { label: "Reports", to: "/admin/reports", icon: <BarChart2 className="w-4 h-4" /> },
+  { label: "Payment Settings", to: "/admin/payment-settings", icon: <Wallet className="w-4 h-4" /> },
   { label: "Settings", to: "/admin/settings", icon: <ShieldCheck className="w-4 h-4" /> },
 ];
 

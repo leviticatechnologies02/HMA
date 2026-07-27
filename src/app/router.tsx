@@ -12,6 +12,8 @@ import { AdminMessMenuPage } from "../pages/admin/AdminMessMenuPage";
 import { AdminMyHostelsPage } from "../pages/admin/AdminMyHostelsPage";
 import { AdminNoticesPage } from "../pages/admin/AdminNoticesPage";
 import { AdminPaymentsPage } from "../pages/admin/AdminPaymentsPage";
+import { AdminBillingsPage } from "../pages/admin/AdminBillingsPage";
+import { AdminPaymentSettingsPage } from "../pages/admin/AdminPaymentSettingsPage";
 import { AdminSupervisorsPage } from "../pages/admin/AdminSupervisorsPage";
 import { AdminStudentsPage } from "../pages/admin/AdminStudentsPage";
 import { AdminMaintenancePage } from "../pages/admin/AdminMaintenancePage";
@@ -128,6 +130,8 @@ export function AppRouter() {
             <Route path="/admin/mess-menu" element={<AdminMessMenuPage />} />
             <Route path="/admin/notices" element={<AdminNoticesPage />} />
             <Route path="/admin/payments" element={<AdminPaymentsPage />} />
+            <Route path="/admin/billings" element={<AdminBillingsPage />} />
+            <Route path="/admin/payment-settings" element={<AdminPaymentSettingsPage />} />
             {/* <Route path="/admin/students" element={<AdminStudentsPage />} /> */}
             <Route path="/admin/maintenance" element={<AdminMaintenancePage />} />
             <Route path="/admin/reports" element={<AdminReportsPage />} />
