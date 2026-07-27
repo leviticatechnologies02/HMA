@@ -969,3 +969,32 @@ export async function createAdminCheckout(userId: string, hostelIds: string[], p
   // Mock successful checkout
   return Promise.resolve({ success: true, message: "Checkout initiated" });
 }
+
+export type CreateOrderPayload = {
+  plan_id: string;
+  hostel_id: string;
+};
+
+export type CreateOrderResponse = {
+  key: string;
+  order_id: string;
+  amount: number;
+  currency: string;
+  hostel_name?: string;
+};
+
+export async function createAdminOrder(
+  userId: string,
+  hostelIds: string[],
+  payload: CreateOrderPayload
+) {
+  const response = await api.post<CreateOrderResponse>(
+    "/admin/billing/create-order",
+    payload,
+    {
+      headers: buildAdminHeaders(userId, hostelIds),
+    }
+  );
+
+  return response.data;
+}

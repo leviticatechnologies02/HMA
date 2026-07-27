@@ -76,6 +76,7 @@ import {
   createAdminCheckout,
   selectAdminPlan,
   type AdminPlanSelectPayload,
+  createAdminOrder,
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -890,14 +891,26 @@ export function useSelectAdminPlan(userId: string | null, hostelIds: string[], h
   });
 }
 
-export function useCreateAdminCheckout(userId: string | null, hostelIds: string[], hostelId?: string | null) {
+export function useCreateAdminCheckout(
+  userId: string | null,
+  hostelIds: string[]
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: { plan_id: string; duration: number }) => createAdminCheckout(userId!, hostelIds, payload, hostelId ?? undefined),
+    mutationFn: (payload: {
+      plan_id: string;
+      hostel_id: string;
+    }) => createAdminOrder(userId!, hostelIds, payload),
+
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["admin-subscription", userId, hostelIds, hostelId] });
-      await queryClient.invalidateQueries({ queryKey: ["admin-billing-history", userId, hostelIds, hostelId] });
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-subscription", userId, hostelIds],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["admin-billing-history", userId, hostelIds],
+      });
     },
   });
 }
