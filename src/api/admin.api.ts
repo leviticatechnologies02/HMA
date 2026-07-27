@@ -231,8 +231,8 @@ export async function createAdminRoom(
 }
 
 export async function fetchAdminBeds(
-  userId: string, 
-  roomId: string, 
+  userId: string,
+  roomId: string,
   hostelIds: string[],
   checkInDate?: string,
   checkOutDate?: string
@@ -645,7 +645,7 @@ export async function updateAdminComplaint(
 }
 
 export type AdminNoticePayload = {
-   title: string;
+  title: string;
   content: string;
   notice_type: string;
   priority: string;
@@ -846,7 +846,7 @@ export async function fetchAdminPaymentConfig(userId: string, hostelIds: string[
     });
     return response.data;
   } catch (error: any) {
-    if (error.response?.status === 404) {
+    if (error.response?.status === 404 || error.response?.status === 422 || error.response?.status === 405) {
       return {
         is_configured: false,
         is_active: false,
@@ -857,7 +857,13 @@ export async function fetchAdminPaymentConfig(userId: string, hostelIds: string[
 }
 
 export async function updateAdminPaymentConfig(userId: string, hostelIds: string[], payload: PaymentConfigPayload, hostelId?: string) {
-  const response = await api.put<PaymentConfigResponse>("/admin/payment-config", payload, {
+  const requestBody = {
+    ...payload,
+    hostel_id: hostelId || hostelIds[0] || "",
+    is_configured: true
+  };
+
+  const response = await api.put<PaymentConfigResponse>("/admin/payment-config", requestBody, {
     headers: buildAdminHeaders(userId, hostelIds),
     params: hostelId ? { hostel_id: hostelId } : undefined,
   });

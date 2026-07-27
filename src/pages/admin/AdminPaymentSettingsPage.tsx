@@ -48,10 +48,10 @@ PasswordToggleInput.displayName = "PasswordToggleInput";
 export function AdminPaymentSettingsPage() {
   const userId = useAuthStore((s) => s.userId);
   const hostelIds = useAuthStore((s) => s.hostelIds);
-  const activeHostelId = useAuthStore((s) => s.activeHostelId) ?? hostelIds[0] ?? null;
+  const activeHostelId = useAuthStore((s) => s.activeHostelId) ?? hostelIds?.[0] ?? null;
 
-  const { data: config, isLoading, isError } = useAdminPaymentConfig(userId, hostelIds, activeHostelId);
-  const updateConfig = useUpdateAdminPaymentConfig(userId, hostelIds, activeHostelId);
+  const { data: config, isLoading, isError } = useAdminPaymentConfig(userId, hostelIds || [], activeHostelId);
+  const updateConfig = useUpdateAdminPaymentConfig(userId, hostelIds || [], activeHostelId);
 
   const [keyId, setKeyId] = useState("");
   const [keySecret, setKeySecret] = useState("");
@@ -134,15 +134,16 @@ export function AdminPaymentSettingsPage() {
           <div className="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded" />
           <div className="h-4 w-48 bg-slate-200 dark:bg-slate-700 rounded" />
         </div>
-      ) : isError ? (
-        <div className="card p-6 bg-error/10 border-error/20 text-error">
-          <p className="flex items-center gap-2">
-            <XCircle className="w-5 h-5" />
-            Failed to load payment configuration. Please try again.
-          </p>
-        </div>
       ) : (
         <>
+          {isError && (
+            <div className="card p-6 bg-error/10 border-error/20 text-error mb-6">
+              <p className="flex items-center gap-2">
+                <XCircle className="w-5 h-5" />
+                Failed to load existing payment configuration (API error). You can still save a new configuration.
+              </p>
+            </div>
+          )}
           {/* Status Card */}
           <div
             className={`card p-6 border ${
@@ -157,29 +158,29 @@ export function AdminPaymentSettingsPage() {
             {isConfigured ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  {config.is_active ? (
+                  {config?.is_active ? (
                     <CheckCircle2 className="w-5 h-5 text-success" />
                   ) : (
                     <AlertTriangle className="w-5 h-5 text-warning" />
                   )}
                   <span
                     className={`font-medium ${
-                      config.is_active ? "text-success" : "text-warning"
+                      config?.is_active ? "text-success" : "text-warning"
                     }`}
                   >
-                    Online payments are {config.is_active ? "ACTIVE" : "PAUSED"}
+                    Online payments are {config?.is_active ? "ACTIVE" : "PAUSED"}
                   </span>
                 </div>
                 <div className="pl-7 space-y-1">
                   <p className="text-sm text-slate-600 dark:text-slate-400">
                     Key ID: <span className="font-mono text-xs bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">{maskedDisplayId}</span>
                   </p>
-                  {!config.is_active && (
+                  {!config?.is_active && (
                     <p className="text-sm text-slate-500">
                       Students cannot pay online until you re-enable payments.
                     </p>
                   )}
-                  {config.updated_at && (
+                  {config?.updated_at && (
                     <p className="text-xs text-slate-400 pt-1">
                       Last updated: {new Date(config.updated_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
