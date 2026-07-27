@@ -79,6 +79,8 @@ import {
   createAdminOrder,
   verifyAdminPayment,
   type VerifyPaymentPayload,
+  type VerifyPaymentResponse,
+  downloadAdminInvoice
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -914,6 +916,16 @@ export function useCreateAdminCheckout(
         queryKey: ["admin-billing-history", userId, hostelIds],
       });
     },
+  });
+}
+
+export function useDownloadAdminInvoice(
+  userId: string | null,
+  hostelIds: string[]
+) {
+  return useMutation({
+    mutationFn: (invoiceId: string) =>
+      downloadAdminInvoice(userId!, hostelIds, invoiceId),
   });
 }
 

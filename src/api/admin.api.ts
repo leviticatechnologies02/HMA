@@ -889,11 +889,16 @@ export type AdminSubscription = {
 
 export type AdminBillingHistory = {
   payment_id: string;
+  order_id: string;
+  razorpay_payment_id: string;
   plan_name: string;
-  date: string;
   amount: number;
-  provider: string;
+  currency: string;
+  payment_provider: string;
   status: string;
+  paid_at: string;
+  invoice_id: string;
+  invoice_number: string;
   invoice_url: string;
 };
 
@@ -933,18 +938,11 @@ export async function fetchAdminPlans(
 }
 
 export async function fetchAdminBillingHistory(userId: string, hostelIds: string[], hostelId?: string): Promise<AdminBillingHistory[]> {
-  // Mock billing history
-  return Promise.resolve([
-    {
-      payment_id: "pay_TAWvGv8YpfQNzt",
-      plan_name: "Premium",
-      date: "07 Jul 2026",
-      amount: 10499,
-      provider: "razorpay",
-      status: "Success",
-      invoice_url: "#",
-    }
-  ]);
+  const response = await api.get<{ items: AdminBillingHistory[]; total: number }>("/admin/billing/history", {
+    headers: buildAdminHeaders(userId, hostelIds),
+    params: hostelId ? { hostel_id: hostelId } : undefined,
+  });
+  return response.data.items || [];
 }
 
 export type AdminPlanSelectPayload = {
@@ -1030,5 +1028,13 @@ export async function verifyAdminPayment(
     }
   );
 
+  return response.data;
+}
+
+export async function downloadAdminInvoice(userId: string, hostelIds: string[], invoiceId: string) {
+  const response = await api.get(`/admin/billing/invoice/${invoiceId}`, {
+    headers: buildAdminHeaders(userId, hostelIds),
+    responseType: 'blob',
+  });
   return response.data;
 }

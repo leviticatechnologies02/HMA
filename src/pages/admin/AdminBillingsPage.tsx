@@ -8,7 +8,7 @@ import {
   useCreateAdminCheckout,
   useSelectAdminPlan,
   useVerifyAdminPayment,
-  
+  useDownloadAdminInvoice,
 } from "../../hooks/useAdminData";
 import toast from "react-hot-toast";
 import { type AdminPlan } from "../../api/admin.api";
@@ -27,8 +27,9 @@ export function AdminBillingsPage() {
   const { data: plans = [], isLoading: plansLoading } = useAdminPlans(userId, hostelIds);
   const { data: history = [], isLoading: historyLoading } = useAdminBillingHistory(userId, hostelIds, activeHostelId);
  
-  const checkoutMutation = useCreateAdminCheckout(userId, hostelIds);
+  const checkoutMutation = useCreateAdminCheckout(userId, hostelIds, activeHostelId);
   const selectPlanMutation = useSelectAdminPlan(userId, hostelIds, activeHostelId);
+  const downloadInvoiceMutation = useDownloadAdminInvoice(userId, hostelIds);
   const verifyPaymentMutation = useVerifyAdminPayment(
   userId,
   hostelIds
@@ -356,19 +357,69 @@ export function AdminBillingsPage() {
                   <tr key={i} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-bold text-slate-600 text-[13px]">{h.payment_id}</td>
                     <td className="px-6 py-4 font-bold text-dark text-[13px]">{h.plan_name}</td>
-                    <td className="px-6 py-4 text-slate-500 text-[13px]">{h.date}</td>
+                    <td className="px-6 py-4 text-slate-500 text-[13px]">{h.paid_at}</td>
                     <td className="px-6 py-4 font-bold text-dark text-[13px]">₹{h.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 text-slate-500 text-[13px]">{h.provider}</td>
+                    <td className="px-6 py-4 text-slate-500 text-[13px]">{h.payment_provider}</td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-green-50 text-green-600 rounded-full text-[11px] font-bold border border-green-200/50">
                         {h.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <a href={h.invoice_url} className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-600 font-bold text-[12px] transition-colors">
-                        <Download className="w-3.5 h-3.5" />
-                        PDF
-                      </a>
+                      {(h.invoice_id || h.invoice_url) ? (
+                        <button
+                          onClick={() => {
+                            if (h.invoice_id) {
+                              downloadInvoiceMutation.mutate(h.invoice_id, {
+                                onSuccess: async (data: any) => {
+                                  // If the API returns JSON, Axios with responseType: 'blob' wraps it in a Blob
+                                  // with type application/json
+                                  if (data instanceof Blob && data.type.includes('application/json')) {
+                                    const text = await data.text();
+                                    const json = JSON.parse(text);
+                                    if (json.invoice_html) {
+                                      const newWindow = window.open('', '_blank');
+                                      if (newWindow) {
+                                        newWindow.document.write(json.invoice_html);
+                                        newWindow.document.close();
+                                        // Optional: Automatically trigger print dialog
+                                        // newWindow.print();
+                                      } else {
+                                        toast.error("Please allow popups to view the invoice");
+                                      }
+                                    } else if (json.invoice_url || json.url) {
+                                      window.open(json.invoice_url || json.url, '_blank');
+                                    } else {
+                                      toast.error("Invoice data not found in response");
+                                    }
+                                    return;
+                                  }
+
+                                  // Otherwise, treat it as a PDF blob
+                                  const blob = new Blob([data], { type: 'application/pdf' });
+                                  const url = window.URL.createObjectURL(blob);
+                                  const link = document.createElement('a');
+                                  link.href = url;
+                                  link.setAttribute('download', `invoice-${h.invoice_number || h.invoice_id}.pdf`);
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  link.parentNode?.removeChild(link);
+                                  setTimeout(() => window.URL.revokeObjectURL(url), 100);
+                                },
+                                onError: () => toast.error("Failed to fetch invoice")
+                              });
+                            } else {
+                              window.open(h.invoice_url, '_blank');
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-600 font-bold text-[12px] transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          PDF
+                        </button>
+                      ) : (
+                        <span className="text-slate-400 text-[13px]">-</span>
+                      )}
                     </td>
                   </tr>
                 ))
