@@ -1032,9 +1032,8 @@ export async function verifyAdminPayment(
 }
 
 export async function downloadAdminInvoice(userId: string, hostelIds: string[], invoiceId: string) {
-  const response = await api.get(`/admin/billing/invoice/${invoiceId}`, {
+  const response = await api.get(`/admin/billing/invoice/${invoiceId}?format=html`, {
     headers: buildAdminHeaders(userId, hostelIds),
-    responseType: 'blob',
   });
   return response.data;
 }

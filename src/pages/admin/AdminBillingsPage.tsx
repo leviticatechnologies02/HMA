@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Download, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import {
@@ -12,6 +12,8 @@ import {
 } from "../../hooks/useAdminData";
 import toast from "react-hot-toast";
 import { type AdminPlan } from "../../api/admin.api";
+// @ts-ignore
+import html2pdf from "html2pdf.js";
  
 export function AdminBillingsPage() {
   const userId = useAuthStore((s) => s.userId);
@@ -36,6 +38,8 @@ export function AdminBillingsPage() {
 );
  
   const [selectedPlan, setSelectedPlan] = useState<AdminPlan | null>(null);
+
+
  
   const handleSelectPlan = (plan: AdminPlan) => {
     setSelectedPlan(plan);
@@ -49,6 +53,8 @@ export function AdminBillingsPage() {
       features: []
     });
   };
+
+
  
  const handleCheckout = () => {
   console.log("Pay clicked");
@@ -164,7 +170,7 @@ export function AdminBillingsPage() {
   }
  
   const activePlanId = subscription?.plan_id;
-  const currentSelectedPlan = selectedPlan || plans.find(p => p.id === activePlanId) || plans[0];
+  const currentSelectedPlan = selectedPlan;
  
   return (
     <div className="max-w-6xl mx-auto space-y-6 text-slate-800">
@@ -372,39 +378,26 @@ export function AdminBillingsPage() {
                             if (h.invoice_id) {
                               downloadInvoiceMutation.mutate(h.invoice_id, {
                                 onSuccess: async (data: any) => {
-                                  // If the API returns JSON, Axios with responseType: 'blob' wraps it in a Blob
-                                  // with type application/json
-                                  if (data instanceof Blob && data.type.includes('application/json')) {
-                                    const text = await data.text();
-                                    const json = JSON.parse(text);
-                                    if (json.invoice_html) {
-                                      const newWindow = window.open('', '_blank');
-                                      if (newWindow) {
-                                        newWindow.document.write(json.invoice_html);
-                                        newWindow.document.close();
-                                        // Optional: Automatically trigger print dialog
-                                        // newWindow.print();
-                                      } else {
-                                        toast.error("Please allow popups to view the invoice");
-                                      }
-                                    } else if (json.invoice_url || json.url) {
-                                      window.open(json.invoice_url || json.url, '_blank');
-                                    } else {
-                                      toast.error("Invoice data not found in response");
-                                    }
+                                  // Determine HTML content depending on response type
+                                  const htmlContent = typeof data === 'string' ? data : (data.invoice_html || data.html);
+
+                                  if (!htmlContent) {
+                                    toast.error("Invalid invoice data received");
                                     return;
                                   }
 
-                                  // Otherwise, treat it as a PDF blob
-                                  const blob = new Blob([data], { type: 'application/pdf' });
-                                  const url = window.URL.createObjectURL(blob);
-                                  const link = document.createElement('a');
-                                  link.href = url;
-                                  link.setAttribute('download', `invoice-${h.invoice_number || h.invoice_id}.pdf`);
-                                  document.body.appendChild(link);
-                                  link.click();
-                                  link.parentNode?.removeChild(link);
-                                  setTimeout(() => window.URL.revokeObjectURL(url), 100);
+                                  const container = document.createElement('div');
+                                  container.innerHTML = htmlContent;
+
+                                  const opt = {
+                                    margin:       10,
+                                    filename:     `invoice_${h.invoice_number || h.invoice_id}.pdf`,
+                                    image:        { type: 'jpeg', quality: 0.98 },
+                                    html2canvas:  { scale: 2 },
+                                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                                  };
+
+                                  html2pdf().from(container).set(opt).save();
                                 },
                                 onError: () => toast.error("Failed to fetch invoice")
                               });
