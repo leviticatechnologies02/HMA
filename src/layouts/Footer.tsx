@@ -113,7 +113,7 @@ export function Footer() {
                 </div>
 
                 <div className="border-t border-white/10 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p className="text-sm">&copy; 2026 StayEase. All rights reserved.</p>
+                    <p className="text-sm">&copy; 2026 Leviticanestora. All rights reserved.</p>
                     <p className="text-sm">Built for students, by people who care.</p>
                 </div>
             </div>

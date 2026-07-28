@@ -179,7 +179,7 @@ export function DashboardLayout() {
         </div>
         {(!collapsed || mobile) && (
           <span className="text-lg font-heading font-bold">
-            Stay<span className="text-primary">Ease</span>
+            Levitica<span className="text-primary">Nestora</span>
           </span>
         )}
         {!mobile && (

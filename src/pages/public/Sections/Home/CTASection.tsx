@@ -14,7 +14,7 @@ export function CTASection() {
             Ready to Find Your New Home?
           </h2>
           <p className="mt-4 text-lg text-white/80">
-            Join 15,000+ students already staying with StayEase
+            Join 15,000+ students already staying with Leviticanestora
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register"
