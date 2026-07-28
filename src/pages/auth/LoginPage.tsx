@@ -76,7 +76,7 @@ export function LoginPage() {
           </h1>
 
           <p className="mt-2 text-gray-200">
-            Sign in to your StayEase account
+            Sign in to your Levitica Nestora account
           </p>
         </div>
 

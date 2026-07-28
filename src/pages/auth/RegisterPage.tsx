@@ -160,7 +160,7 @@ export function RegisterPage() {
               Create Account
             </h1>
             <p className="mt-2 text-slate-600 dark:text-[#B0B8C8]">
-              Join StayEase to find your perfect hostel
+              Join Levitica Nestora to find your perfect hostel
             </p>
           </div>
 
