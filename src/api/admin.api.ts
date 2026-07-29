@@ -825,7 +825,16 @@ export async function validateAdminPassword(
 
 export type PaymentConfigResponse = {
   hostel_id?: string;
+
   razorpay_key_id?: string;
+  razorpay_key_secret?: string;
+  razorpay_webhook_secret?: string;
+
+  razorpay_linked_account_id?: string;
+  platform_fee_percentage?: number;
+
+  payment_mode?: "direct" | "route";
+
   is_active: boolean;
   is_configured: boolean;
   updated_at?: string;
@@ -835,6 +844,12 @@ export type PaymentConfigPayload = {
   razorpay_key_id: string;
   razorpay_key_secret?: string;
   razorpay_webhook_secret?: string;
+
+  razorpay_linked_account_id?: string;
+  platform_fee_percentage?: number;
+
+  payment_mode?: "direct" | "route";
+
   is_active: boolean;
 };
 
