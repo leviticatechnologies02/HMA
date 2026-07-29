@@ -5,10 +5,6 @@ import { useAdminPaymentConfig, useUpdateAdminPaymentConfig } from "../../hooks/
 import toast from "react-hot-toast";
 import { type PaymentConfigPayload } from "../../api/admin.api";
 
-
-// ----------------------------------------------------------------------------
-// PasswordToggleInput Component
-// ----------------------------------------------------------------------------
 interface PasswordToggleInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
@@ -44,9 +40,7 @@ const PasswordToggleInput = React.forwardRef<HTMLInputElement, PasswordToggleInp
 );
 PasswordToggleInput.displayName = "PasswordToggleInput";
 
-// ----------------------------------------------------------------------------
-// AdminPaymentSettingsPage Component
-// ----------------------------------------------------------------------------
+
 export function AdminPaymentSettingsPage() {
   const userId = useAuthStore((s) => s.userId);
   const hostelIds = useAuthStore((s) => s.hostelIds);
@@ -65,7 +59,7 @@ export function AdminPaymentSettingsPage() {
   const [paymentMode, setPaymentMode] =
   useState<"direct" | "route">("route");
 
-  // Sync state when data is fetched
+ 
   useEffect(() => {
   if (!config) return;
 
@@ -86,7 +80,7 @@ export function AdminPaymentSettingsPage() {
     e.preventDefault();
     setErrorMsg(null);
 
-    // Validation
+    
     const idTrimmed = keyId.trim();
     if (!idTrimmed.startsWith("rzp_test_") && !idTrimmed.startsWith("rzp_live_")) {
       setErrorMsg("Key ID must start with rzp_test_ or rzp_live_");
@@ -133,16 +127,16 @@ updateConfig.mutate(payload, {
   };
   const isConfigured = config?.is_configured ?? false;
 
-  // Masked Key ID for display
+  
   const maskedDisplayId = config?.razorpay_key_id
     ? config.razorpay_key_id.substring(0, 12) + "••••••••"
     : "";
 
  return (
-<div className="max-w-2xl mx-auto space-y-6">
+<div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-6">
 
   
-  <div className="bg-white rounded-2xl shadow-md p-8">
+  <div className="bg-white rounded-2xl shadow-md p-5 sm:p-8">
       <h1 className="text-3xl font-bold">
           Payment Settings
       </h1>
@@ -152,40 +146,45 @@ updateConfig.mutate(payload, {
       </p>
   </div>
 
-<div className="flex gap-5">
-
+<div className="flex flex-col sm:flex-row gap-4">
   <button
     type="button"
     onClick={() => setPaymentMode("direct")}
-    className={`flex-1 rounded-full py-4 font-semibold transition-all duration-300 border flex items-center justify-center gap-2
-    ${
-      paymentMode === "direct"
-        ? "bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg border-blue-600"
-        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-    }`}
+    className={`w-full sm:flex-1 rounded-2xl px-5 py-4 font-semibold transition-all duration-300 border flex items-center justify-center gap-2 text-center
+      ${
+        paymentMode === "direct"
+          ? "bg-gradient-to-r from-blue-700 to-blue-500 text-white shadow-lg border-blue-600"
+          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+      }`}
   >
-    <CreditCard className="w-4 h-4" />
-    Direct Integration
+    <CreditCard className="w-5 h-5 shrink-0" />
+    <span className="leading-tight">
+      Direct Integration
+    </span>
   </button>
 
   <button
     type="button"
     onClick={() => setPaymentMode("route")}
-    className={`flex-1 rounded-full py-4 font-semibold transition-all duration-300 border flex items-center justify-center gap-2
-    ${
-      paymentMode === "route"
-        ? "bg-gradient-to-r from-green-700 to-green-500 text-white shadow-lg border-green-600"
-        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-    }`}
+    className={`w-full sm:flex-1 rounded-2xl px-5 py-4 font-semibold transition-all duration-300 border flex items-center justify-center gap-2 text-center
+      ${
+        paymentMode === "route"
+          ? "bg-gradient-to-r from-green-700 to-green-500 text-white shadow-lg border-green-600"
+          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+      }`}
   >
-    ⚡ Razorpay Route (Split)
+    <span className="text-lg shrink-0">⚡</span>
+    <span className="leading-tight">
+      Razorpay Route
+      <br className="sm:hidden" />
+      <span className="sm:inline"> (Split)</span>
+    </span>
   </button>
-
 </div>
 
 {paymentMode === "direct" ? (
 
-<div className="bg-white rounded-2xl shadow-lg p-8">
+<div className="bg-white rounded-2xl shadow-lg p-5 sm:p-8">
 
   <h2 className="text-2xl font-semibold mb-8">
     Direct Integration Settings
