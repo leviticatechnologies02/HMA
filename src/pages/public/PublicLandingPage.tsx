@@ -8,6 +8,7 @@ import HeroSection from "./Sections/Home/HeroSection";
 import HowItWorks from "./Sections/Home/HowItWorks";
 import WhyChooseUs from "./Sections/Home/WhyChooseUs";
 import ProductEcosystem from "./Sections/Home/ProductEcosystem";
+import { ChatBot } from "../../components/public/ChatBot";
 
 export function PublicLandingPage() {
   return (
@@ -20,6 +21,7 @@ export function PublicLandingPage() {
       <ProductEcosystem />
       <WhyChooseUs />
       {/* <CTASection />   */}
+      <ChatBot />
     </div>
   );
 }
