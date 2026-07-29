@@ -1,7 +1,5 @@
 import { api } from "./axiosInstance";
 
-// ============ SCHEMAS ============
-
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
@@ -191,3 +189,9 @@ export async function fetchMyReviews() {
   const response = await api.get("/visitor/reviews");
   return response.data;
 }
+
+export async function sendChatMessage(message: string) {
+  const response = await api.post("/public/chat/message", { message });
+  return response.data;
+}
+
