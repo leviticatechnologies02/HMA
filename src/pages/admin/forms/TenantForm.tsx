@@ -3,7 +3,13 @@ import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
-import { useAdminRooms, useAdminBeds, useAddAdminStudentDirect, useUpdateAdminStudent,useRoomPricePreview, } from "../../../hooks/useAdminData";
+import {
+  useAdminRooms,
+  useAdminBeds,
+  useAddAdminStudentDirect,
+  useUpdateAdminStudent,
+  useRoomPricePreview,
+} from "../../../hooks/useAdminData";
 import { useAuthStore } from "../../../store/authStore";
 import toast from "react-hot-toast";
 import { useHostelSwitcher } from "../../../components/admin/useHostelSwitcher";
@@ -15,7 +21,9 @@ interface TenantFormProps {
 }
 
 const today = new Date().toISOString().split("T")[0];
-const nextMonth = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split("T")[0];
+const nextMonth = new Date(new Date().setMonth(new Date().getMonth() + 1))
+  .toISOString()
+  .split("T")[0];
 
 // Validation schema
 const validationSchema = Yup.object().shape({
@@ -31,25 +39,37 @@ const validationSchema = Yup.object().shape({
     .required("Phone is required"),
   password: Yup.string().when("isEdit", {
     is: false,
-    then: (schema) => schema
-      .min(8, "Password must be at least 8 characters")
-      .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-      .matches(/[0-9]/, "Password must contain at least one number")
-      .required("Password is required"),
-    otherwise: (schema) => schema
-      .min(0)
-      .test("password-validation", "If provided, password must be at least 8 characters with uppercase, lowercase, number", function (value) {
-        if (!value) return true;
-        return value.length >= 8 && /[A-Z]/.test(value) && /[a-z]/.test(value) && /[0-9]/.test(value);
-      }),
+    then: (schema) =>
+      schema
+        .min(8, "Password must be at least 8 characters")
+        .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+        .matches(/[a-z]/, "Password must contain at least one lowercase letter")
+        .matches(/[0-9]/, "Password must contain at least one number")
+        .required("Password is required"),
+    otherwise: (schema) =>
+      schema
+        .min(0)
+        .test(
+          "password-validation",
+          "If provided, password must be at least 8 characters with uppercase, lowercase, number",
+          function (value) {
+            if (!value) return true;
+            return (
+              value.length >= 8 &&
+              /[A-Z]/.test(value) &&
+              /[a-z]/.test(value) &&
+              /[0-9]/.test(value)
+            );
+          },
+        ),
   }),
   room_id: Yup.string().required("Room is required"),
   bed_id: Yup.string().required("Bed is required"),
   check_in_date: Yup.string().required("Check-in date is required"),
   check_out_date: Yup.string().required("Check-out date is required"),
   booking_mode: Yup.string().required("Booking mode is required"),
-});function PricePreview({
+});
+function PricePreview({
   userId,
   hostelIds,
   values,
@@ -64,7 +84,7 @@ const validationSchema = Yup.object().shape({
     values.room_id,
     values.booking_mode,
     values.check_in_date,
-    values.check_out_date
+    values.check_out_date,
   );
 
   if (!values.room_id) return null;
@@ -78,36 +98,30 @@ const validationSchema = Yup.object().shape({
   return (
     <div className="rounded-xl border p-4 bg-slate-50">
       <h3 className="font-semibold mb-2">Price Preview</h3>
-       <p>Room : {data.room_number}</p>
+      <p>Room : {data.room_number}</p>
 
-<p>
-  Unit Price : ₹{data.rate_per_unit} / {data.unit_label}
-</p>
+      <p>
+        Unit Price : ₹{data.rate_per_unit} / {data.unit_label}
+      </p>
 
-<p>
-  Duration : {data.duration_label}
-</p>
+      <p>Duration : {data.duration_label}</p>
 
-<p>
-  Base Rent : ₹{data.base_rent}
-</p>
+      <p>Base Rent : ₹{data.base_rent}</p>
 
-<p>
-  Security Deposit : ₹{data.security_deposit}
-</p>
+      <p>Security Deposit : ₹{data.security_deposit}</p>
 
-<p className="font-semibold text-lg">
-  Grand Total : ₹{data.grand_total}
-</p>
+      <p className="font-semibold text-lg">Grand Total : ₹{data.grand_total}</p>
     </div>
   );
 }
 
 const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
   const userId = useAuthStore((s) => s.userId);
-  const { hostelIds, activeHostelId: hostelId } = useHostelSwitcher()
+  const { hostelIds, activeHostelId: hostelId } = useHostelSwitcher();
 
-  const [selectedRoomId, setSelectedRoomId] = React.useState<string>(editingItem?.room_id || "");
+  const [selectedRoomId, setSelectedRoomId] = React.useState<string>(
+    editingItem?.room_id || "",
+  );
   const [formError, setFormError] = React.useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -115,101 +129,114 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
   console.log("Rooms query data:", roomsQuery.data);
   console.log("hosted id in tenant form:", hostelId);
   const bedsQuery = useAdminBeds(userId, selectedRoomId || null, hostelIds);
-  
-  const addMutation = useAddAdminStudentDirect(userId, hostelId, hostelIds);
 
+  const addMutation = useAddAdminStudentDirect(userId, hostelId, hostelIds);
 
   const isEdit = Boolean(editingItem);
 
-  const updateMutation = useUpdateAdminStudent(userId, hostelId, hostelIds,);
+  const updateMutation = useUpdateAdminStudent(userId, hostelId, hostelIds);
 
   // Initial values - if editing, pre-fill with existing data
-  const initialValues = isEdit ? {
-    full_name: editingItem.full_name || "",
-    email: editingItem.email || "",
-    phone: editingItem.phone || "",
-    password: "", // Password is empty for edit (user can set new password if needed)
-    room_id: editingItem.room_id || "",
-    bed_id: editingItem.bed_id || "",
-    check_in_date: editingItem.check_in_date || today,
-    check_out_date: editingItem.check_out_date || nextMonth,
-    booking_mode: editingItem.booking_mode || "monthly",
-    isEdit: true,
-  } : {
-    full_name: "",
-    email: "",
-    phone: "",
-    password: "",
-    room_id: "",
-    bed_id: "",
-    check_in_date: today,
-    check_out_date: nextMonth,
-    booking_mode: "monthly" as "daily" | "monthly" | "hourly",
-    isEdit: false,
-  };
+  const initialValues = isEdit
+    ? {
+        full_name: editingItem.full_name || "",
+        email: editingItem.email || "",
+        phone: editingItem.phone || "",
+        password: "", // Password is empty for edit (user can set new password if needed)
+        room_id: editingItem.room_id || "",
+        bed_id: editingItem.bed_id || "",
+        check_in_date: editingItem.check_in_date || today,
+        check_out_date: editingItem.check_out_date || nextMonth,
+        booking_mode: editingItem.booking_mode || "monthly",
+        isEdit: true,
+      }
+    : {
+        full_name: "",
+        email: "",
+        phone: "",
+        password: "",
+        room_id: "",
+        bed_id: "",
+        check_in_date: today,
+        check_out_date: nextMonth,
+        booking_mode: "monthly" as "daily" | "monthly" | "hourly",
+        isEdit: false,
+      };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     if (values.booking_mode === "hourly") {
-  const checkIn = new Date(values.check_in_date);
-  const checkOut = new Date(values.check_out_date);
+      const checkIn = new Date(values.check_in_date);
+      const checkOut = new Date(values.check_out_date);
 
-  if (
-    checkOut.getTime() - checkIn.getTime() <
-    60 * 60 * 1000
-  ) {
-    toast.error(
-      "Check-out must be at least 1 hour after check-in."
-    );
-    return;
-  }
-}
+      // Minimum 1 hour
+      if (checkOut.getTime() - checkIn.getTime() < 60 * 60 * 1000) {
+        toast.error("Check-out must be at least 1 hour after check-in.");
+        return;
+      }
+
+      // Maximum 24 hours
+      if (checkOut.getTime() - checkIn.getTime() > 24 * 60 * 60 * 1000) {
+        toast.error("Hourly booking cannot exceed 24 hours.");
+        return;
+      }
+    }
+
     setFormError(null);
 
     try {
       if (isEdit) {
-       const payload = {
-  full_name: values.full_name,
-  email: values.email,
-  phone: values.phone,
+        const payload = {
+          full_name: values.full_name,
+          email: values.email,
+          phone: values.phone,
 
-  check_in_date:
-    values.booking_mode === "hourly"
-      ? new Date(values.check_in_date).toISOString()
-      : values.check_in_date,
+          check_in_date:
+            values.booking_mode === "hourly"
+              ? new Date(values.check_in_date).toISOString()
+              : values.check_in_date,
 
-  check_out_date:
-    values.booking_mode === "hourly"
-      ? new Date(values.check_out_date).toISOString()
-      : values.check_out_date,
-};
-        const result = await updateMutation.mutateAsync({ studentId: editingItem.id, payload });
+          check_out_date:
+            values.booking_mode === "hourly"
+              ? new Date(values.check_out_date).toISOString()
+              : values.check_out_date,
+        };
+        const result = await updateMutation.mutateAsync({
+          studentId: editingItem.id,
+          payload,
+        });
         console.log("Student updated:", result);
         toast.success(`Student ${values.full_name} updated successfully`);
-      }  else {
-  const { isEdit: _, ...payloadValues } = values;
+      } else {
+        const { isEdit: _, ...payloadValues } = values;
 
-  const payload = {
-    ...payloadValues,
-    check_in_date:
-      values.booking_mode === "hourly"
-        ? new Date(values.check_in_date).toISOString()
-        : values.check_in_date,
+        const payload = {
+          ...payloadValues,
+          check_in_date:
+            values.booking_mode === "hourly"
+              ? new Date(values.check_in_date).toISOString()
+              : values.check_in_date,
 
-    check_out_date:
-      values.booking_mode === "hourly"
-        ? new Date(values.check_out_date).toISOString()
-        : values.check_out_date,
-  };
+          check_out_date:
+            values.booking_mode === "hourly"
+              ? new Date(values.check_out_date).toISOString()
+              : values.check_out_date,
+        };
 
-  const result = await addMutation.mutateAsync(payload);
+        const result = await addMutation.mutateAsync(payload);
 
-  toast.success(`Student ${result.full_name} added — ${result.student_number}`);
-  resetForm();
-}
+        toast.success(
+          `Student ${result.full_name} added — ${result.student_number}`,
+        );
+        resetForm();
+      }
       onClose?.();
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
-      setFormError(typeof detail === "string" ? detail : `Failed to ${isEdit ? 'update' : 'add'} student.`);
+      setFormError(
+        typeof detail === "string"
+          ? detail
+          : `Failed to ${isEdit ? "update" : "add"} student.`,
+      );
     }
   };
 
@@ -220,8 +247,19 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-      {({ values, handleChange, setFieldValue, isSubmitting, errors, touched }) => (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={handleSubmit}
+    >
+      {({
+        values,
+        handleChange,
+        setFieldValue,
+        isSubmitting,
+        errors,
+        touched,
+      }) => (
         <Form className="space-y-4">
           {/* Form Error */}
           {formError && (
@@ -234,23 +272,25 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
           <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
             {isEdit
               ? "Edit Student details. Leave password empty to keep current password."
-              : "Creates a new user account and immediately checks them in. Use for walk-in or offline registrations."
-            }
+              : "Creates a new user account and immediately checks them in. Use for walk-in or offline registrations."}
           </div>
 
           {/* Grid Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Full Name *</label>
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+                Full Name *
+              </label>
               <input
                 type="text"
                 name="full_name"
                 value={values.full_name}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${touched.full_name && errors.full_name
-                  ? "border-error focus:ring-error/20 focus:border-error"
-                  : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
-                  }`}
+                className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${
+                  touched.full_name && errors.full_name
+                    ? "border-error focus:ring-error/20 focus:border-error"
+                    : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
+                }`}
                 placeholder="Student full name (min 3 characters)"
               />
               {touched.full_name && typeof errors.full_name === "string" && (
@@ -259,37 +299,41 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Email *</label>
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+                Email *
+              </label>
               <input
                 type="email"
                 name="email"
                 value={values.email}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${touched.email && errors.email
-                  ? "border-error focus:ring-error/20 focus:border-error"
-                  : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
-                  }`}
+                className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${
+                  touched.email && errors.email
+                    ? "border-error focus:ring-error/20 focus:border-error"
+                    : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
+                }`}
                 placeholder="student@email.com"
               />
               {touched.email && typeof errors.email === "string" && (
-                <p className="text-xs text-error mt-1">
-                  {errors.email}
-                </p>
+                <p className="text-xs text-error mt-1">{errors.email}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Phone *</label>
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+                Phone *
+              </label>
               <input
                 type="tel"
                 name="phone"
                 value={values.phone}
                 onChange={handleChange}
                 maxLength={10}
-                className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${touched.phone && errors.phone
-                  ? "border-error focus:ring-error/20 focus:border-error"
-                  : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
-                  }`}
+                className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${
+                  touched.phone && errors.phone
+                    ? "border-error focus:ring-error/20 focus:border-error"
+                    : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
+                }`}
                 placeholder="10-digit number"
               />
               {touched.phone && typeof errors.phone === "string" && (
@@ -307,11 +351,16 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
                   name="password"
                   value={values.password}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${touched.password && errors.password
-                    ? "border-error focus:ring-error/20 focus:border-error"
-                    : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
-                    }`}
-                  placeholder={isEdit ? "Leave empty to keep current password" : "Min 8 chars: 1 uppercase, 1 lowercase, 1 number"}
+                  className={`w-full px-4 py-2 rounded-xl border transition-colors text-sm dark:placeholder-slate-500 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 ${
+                    touched.password && errors.password
+                      ? "border-error focus:ring-error/20 focus:border-error"
+                      : "border-slate-300 dark:border-slate-700 focus:ring-primary/20 focus:border-primary"
+                  }`}
+                  placeholder={
+                    isEdit
+                      ? "Leave empty to keep current password"
+                      : "Min 8 chars: 1 uppercase, 1 lowercase, 1 number"
+                  }
                 />
                 {values.password && (
                   <button
@@ -324,25 +373,36 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
                 )}
               </div>
               {touched.password && errors.password && (
-                <p className="text-xs text-error mt-1">{String(errors.password)}</p>
+                <p className="text-xs text-error mt-1">
+                  {String(errors.password)}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Room *</label>
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+                Room *
+              </label>
               <select
                 name="room_id"
                 value={values.room_id}
-                onChange={(e) => handleRoomChange(e.target.value, setFieldValue)}
+                onChange={(e) =>
+                  handleRoomChange(e.target.value, setFieldValue)
+                }
                 className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm dark:placeholder-slate-500"
                 required
               >
                 <option value="">Select room...</option>
-                {(roomsQuery.data ?? []).filter((r: any) => (r.available_beds ?? 0) > 0 || r.id === values.room_id).map((r: any) => (
-                  <option key={r.id} value={r.id}>
-                    Room {r.room_number} ({r.available_beds ?? 0} available)
-                  </option>
-                ))}
+                {(roomsQuery.data ?? [])
+                  .filter(
+                    (r: any) =>
+                      (r.available_beds ?? 0) > 0 || r.id === values.room_id,
+                  )
+                  .map((r: any) => (
+                    <option key={r.id} value={r.id}>
+                      Room {r.room_number} ({r.available_beds ?? 0} available)
+                    </option>
+                  ))}
               </select>
               {editingItem?.room_id && (
                 <p className="text-xs text-slate-500 mt-1">
@@ -352,7 +412,9 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Bed *</label>
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+                Bed *
+              </label>
               <select
                 name="bed_id"
                 value={values.bed_id}
@@ -362,11 +424,16 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
                 required
               >
                 <option value="">Select bed...</option>
-                {(bedsQuery.data ?? []).filter((b: any) => b.status === "available" || b.id === values.bed_id).map((b: any) => (
-                  <option key={b.id} value={b.id}>
-                    {b.bed_number}
-                  </option>
-                ))}
+                {(bedsQuery.data ?? [])
+                  .filter(
+                    (b: any) =>
+                      b.status === "available" || b.id === values.bed_id,
+                  )
+                  .map((b: any) => (
+                    <option key={b.id} value={b.id}>
+                      {b.bed_number}
+                    </option>
+                  ))}
               </select>
               {editingItem?.bed_id && (
                 <p className="text-xs text-slate-500 mt-1">
@@ -377,81 +444,102 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
 
             <div>
               <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
-  Check-in {values.booking_mode === "hourly" ? "Date & Time" : "Date"} *
-</label>
+                Check-in{" "}
+                {values.booking_mode === "hourly" ? "Date & Time" : "Date"} *
+              </label>
 
-{values.booking_mode === "hourly" ? (
-  <input
-    type="datetime-local"
-    name="check_in_date"
-    value={values.check_in_date}
-    onChange={handleChange}
-    className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
-    required
-  />
-) : (
-  <ModernDatePicker
-    name="check_in_date"
-    value={values.check_in_date}
-    onChange={handleChange}
-    className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
-    required
-  />
-)}
+              {values.booking_mode === "hourly" ? (
+                <input
+                  type="datetime-local"
+                  name="check_in_date"
+                  value={values.check_in_date}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+                  required
+                />
+              ) : (
+                <ModernDatePicker
+                  name="check_in_date"
+                  value={values.check_in_date}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+                  required
+                />
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
-  Check-out {values.booking_mode === "hourly" ? "Date & Time" : "Date"} *
-</label>
+                Check-out{" "}
+                {values.booking_mode === "hourly" ? "Date & Time" : "Date"} *
+              </label>
 
-{values.booking_mode === "hourly" ? (
-  <input
-  type="datetime-local"
-  name="check_out_date"
-  value={values.check_out_date}
-  min={
-    values.check_in_date
-      ? new Date(
-          new Date(values.check_in_date).getTime() + 60 * 60 * 1000
-        )
-          .toISOString()
-          .slice(0, 16)
-      : ""
-  }
-  onChange={(e) => {
-    const checkIn = new Date(values.check_in_date);
-    const checkOut = new Date(e.target.value);
+              {values.booking_mode === "hourly" ? (
+                <input
+                  type="datetime-local"
+                  name="check_out_date"
+                  value={values.check_out_date}
+                  min={
+                    values.check_in_date
+                      ? new Date(
+                          new Date(values.check_in_date).getTime() +
+                            60 * 60 * 1000,
+                        )
+                          .toISOString()
+                          .slice(0, 16)
+                      : ""
+                  }
+                  max={
+                    values.check_in_date
+                      ? new Date(
+                          new Date(values.check_in_date).getTime() +
+                            24 * 60 * 60 * 1000,
+                        )
+                          .toISOString()
+                          .slice(0, 16)
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const checkIn = new Date(values.check_in_date);
+                    const checkOut = new Date(e.target.value);
 
-    if (
-      checkOut.getTime() - checkIn.getTime() <
-      60 * 60 * 1000
-    ) {
-      toast.error(
-        "Check-out must be at least 1 hour after check-in."
-      );
-      return;
-    }
+                    const diff = checkOut.getTime() - checkIn.getTime();
 
-    setFieldValue("check_out_date", e.target.value);
-  }}
-  className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
-  required
-/>
-) : (
-  <ModernDatePicker
-    name="check_out_date"
-    value={values.check_out_date}
-    onChange={handleChange}
-    min={values.check_in_date}
-    className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
-    required
-  />
-)}
+                    // Minimum 1 hour
+                    if (diff < 60 * 60 * 1000) {
+                      toast.error(
+                        "Check-out must be at least 1 hour after check-in.",
+                      );
+                      return;
+                    }
+
+                    // Maximum 24 hours
+                    if (diff > 24 * 60 * 60 * 1000) {
+                      toast.error("Hourly bookings cannot exceed 24 hours.");
+                      return;
+                    }
+
+                    setFieldValue("check_out_date", e.target.value);
+                  }}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+                  required
+                />
+              ) : (
+                <ModernDatePicker
+                  name="check_out_date"
+                  value={values.check_out_date}
+                  onChange={handleChange}
+                  min={values.check_in_date}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+                  required
+                />
+              )}
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Booking Mode</label>
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+                Booking Mode
+              </label>
               <select
                 name="booking_mode"
                 value={values.booking_mode}
@@ -465,10 +553,10 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
             </div>
           </div>
           <PricePreview
-  userId={userId!}
-  hostelIds={hostelIds}
-  values={values}
-/>
+            userId={userId!}
+            hostelIds={hostelIds}
+            values={values}
+          />
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
@@ -481,8 +569,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
                 ? "Saving..."
                 : isEdit
                   ? "Update Student"
-                  : "Add Tenant"
-              }
+                  : "Add Tenant"}
             </button>
 
             <button
@@ -492,9 +579,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
             >
               Cancel
             </button>
-            
           </div>
-          
         </Form>
       )}
     </Formik>
