@@ -53,27 +53,35 @@ export function AdminBillingsPage() {
   const downloadInvoiceMutation = useDownloadAdminInvoice(userId, hostelIds);
   const verifyPaymentMutation = useVerifyAdminPayment(userId, hostelIds);
 
-  const [selectedPlan, setSelectedPlan] = useState<AdminPlan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<{
+    plan: AdminPlan;
+    billing: "monthly" | "yearly";
+} | null>(null);
   const [billingType, setBillingType] = useState<
     Record<string, "monthly" | "yearly">
   >({});
 
-  const handleSelectPlan = (plan: AdminPlan) => {
-    setSelectedPlan(plan);
+const handleSelectPlan = (
+  plan: AdminPlan,
+  billing: "monthly" | "yearly"
+) => {
+  setSelectedPlan({
+    plan,
+    billing,
+  });
 
-    const price = plan.price;
-    const total = +(price * 1.18).toFixed(2);
+  const total = +(plan.price * 1.18).toFixed(2);
 
-    selectPlanMutation.mutate({
-      plan_id: plan.id,
-      plan_name: plan.name,
-      duration_days: plan.duration_days,
-      duration_type: plan.duration_type || "days",
-      amount_due: total,
-      currency: "INR",
-      features: [],
-    });
-  };
+  selectPlanMutation.mutate({
+    plan_id: plan.id,
+    plan_name: plan.name,
+    duration_days: plan.duration_days,
+    duration_type: billing,
+    amount_due: total,
+    currency: "INR",
+    features: [],
+  });
+};
 
   const handleCheckout = () => {
     console.log("Pay clicked");
@@ -99,7 +107,7 @@ export function AdminBillingsPage() {
 
     checkoutMutation.mutate(
       {
-        plan_id: selectedPlan.id,
+        plan_id: selectedPlan.plan.id,
         hostel_id: activeHostelId,
       },
       {
@@ -113,7 +121,7 @@ export function AdminBillingsPage() {
             order_id: data.order_id,
 
             name: "Hostel Management",
-            description: selectedPlan.name,
+            description: selectedPlan.plan.name,
 
             handler: function (response: any) {
               console.log("Razorpay Handler Called");
@@ -189,7 +197,7 @@ export function AdminBillingsPage() {
   }
 
   const activePlanId = subscription?.plan_id;
-  const currentSelectedPlan = selectedPlan;
+  const currentSelectedPlan = selectedPlan?.plan;
   // GST Calculation
   const baseAmount = currentSelectedPlan?.price || 0;
 
@@ -264,10 +272,14 @@ export function AdminBillingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan) => {
               const isCurrent = plan.id === activePlanId;
-              const isSelected = currentSelectedPlan?.id === plan.id;
-              const selectedBilling =
-                billingType[plan.id] ??
-                (plan.duration_days >= 365 ? "yearly" : "monthly");
+
+const selectedBilling =
+  billingType[plan.id] ??
+  (plan.duration_days >= 365 ? "yearly" : "monthly");
+
+const isSelected =
+  selectedPlan?.plan.id === plan.id &&
+  selectedPlan.billing === selectedBilling;
 
               const price =
                 selectedBilling === "yearly"
@@ -277,9 +289,9 @@ export function AdminBillingsPage() {
               return (
                 <div
                   key={plan.id}
-                  className={`relative rounded-2xl border bg-white p-8
+                  className={`relative rounded-xl border bg-white p-5
                   flex flex-col justify-between
-                  min-h-[390px]
+                  min-h-[300px]
                   transition-all duration-300
                   ${isSelected ? "border-blue-500 shadow-lg" : "border-slate-200"}`}
                 >
@@ -290,8 +302,8 @@ export function AdminBillingsPage() {
                     </span>
                   )}
 
-                  <div className="min-h-[70px]">
-                    <h3 className="text-3xl font-bold leading-tight break-words min-h-[80px]">
+                  <div className="min-h-[50px]">
+                    <h3 className="text-2xl font-bold leading-tight ">
                       {plan.name}
                     </h3>
                   </div>
@@ -335,7 +347,7 @@ export function AdminBillingsPage() {
 
                   {/* Price */}
                   <div className="mt-5 flex-1 flex flex-col justify-center">
-                    <h2 className="text-4xl font-extrabold">
+                    <h2 className="text-3xl font-extrabold">
                       ₹{Number(price).toLocaleString()}
                     </h2>
                   </div>
@@ -345,19 +357,20 @@ export function AdminBillingsPage() {
                     <button
                       disabled={isCurrent}
                       onClick={() =>
-                        handleSelectPlan({
-                          ...plan,
-                          duration_days:
-                            selectedBilling === "yearly" ? 365 : 30,
-
-                          duration_type: selectedBilling,
-
-                          price:
-                            selectedBilling === "yearly"
-                              ? plan.price_yearly || plan.price
-                              : plan.price_monthly || plan.price,
-                        })
-                      }
+  handleSelectPlan(
+    {
+      ...plan,
+      duration_days:
+        selectedBilling === "yearly" ? 365 : 30,
+      duration_type: selectedBilling,
+      price:
+        selectedBilling === "yearly"
+          ? plan.price_yearly || plan.price
+          : plan.price_monthly || plan.price,
+    },
+    selectedBilling
+  )
+}
                       className={`mt-8 w-full h-12 rounded-xl border text-base font-semibold transition ${
                         isCurrent
                           ? " bg-[#2C7A7B] border-[#2C7A7B] text-white cursor-default"

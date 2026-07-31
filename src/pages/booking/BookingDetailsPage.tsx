@@ -1,8 +1,9 @@
-import { useForm } from "react-hook-form";
+﻿import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect, useMemo } from "react";
+import { fetchStudentProfile } from "../../api/student.api";
 import {
   User,
   Phone,
@@ -27,7 +28,7 @@ import {
 } from "../../api/student.api";
 import type { BookingApplicantPayload } from "../../api/booking.api";
 import toast from "react-hot-toast";
-
+const [studentPhone, setStudentPhone] = useState("");
 const schema = z.object({
   full_name: z
     .string()
@@ -183,6 +184,20 @@ const STEPS = ["Personal Info", "Emergency Contact", "Identity & Docs"];
 export function BookingDetailsPage() {
   const navigate = useNavigate();
   const userId = useAuthStore((s) => s.userId);
+  useEffect(() => {
+  if (!userId) return;
+
+  const loadStudentProfile = async () => {
+    try {
+      const profile = await fetchStudentProfile(userId);
+      setStudentPhone(profile.phone);
+    } catch (error) {
+      console.error("Failed to fetch student profile:", error);
+    }
+  };
+
+  loadStudentProfile();
+}, [userId]);
   const [step, setStep] = useState(0);
   const bookingId = useBookingStore((s) => s.bookingId);
   const setApplicant = useBookingStore((s) => s.setApplicant);
@@ -384,6 +399,12 @@ export function BookingDetailsPage() {
   };
 
   const onSubmit = handleSubmit(async (values) => {
+    if (values.emergency_contact_phone === studentPhone) {
+  toast.error(
+    "Emergency contact number cannot be the same as your registered phone number."
+  );
+  return;
+}
     const payload = {
       ...values,
       id_document_url: docUrl || undefined,
