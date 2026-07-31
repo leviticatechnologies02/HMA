@@ -315,3 +315,56 @@ export async function uploadFileToPresignedUrl(uploadUrl: string, file: File, co
     clearTimeout(timeout);
   }
 }
+
+export type StudentTransferResponse = {
+  id: string;
+  student_id: string;
+  user_id: string;
+  from_hostel_id: string;
+  to_hostel_id: string;
+  to_room_id: string | null;
+  to_bed_id: string | null;
+  transfer_type: "internal" | "external";
+  status: "pending" | "pending_old_admin" | "pending_new_admin" | "completed" | "rejected" | "cancelled";
+  reason: string;
+  rejection_reason: string | null;
+  old_admin_approved_at: string | null;
+  new_admin_approved_at: string | null;
+  completed_at: string | null;
+  student_name: string;
+  from_hostel_name: string;
+  to_hostel_name: string;
+  to_room_number: string | null;
+  to_bed_number: string | null;
+  warning: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateTransferPayload = {
+  to_hostel_id: string;
+  to_room_id?: string | null;
+  to_bed_id?: string | null;
+  reason: string;
+};
+
+export async function fetchStudentTransfers(userId: string) {
+  const response = await api.get<StudentTransferResponse[]>("/student/transfers", {
+    headers: buildStudentHeaders(userId),
+  });
+  return response.data;
+}
+
+export async function createStudentTransfer(userId: string, payload: CreateTransferPayload) {
+  const response = await api.post<StudentTransferResponse>("/student/transfers", payload, {
+    headers: buildStudentHeaders(userId),
+  });
+  return response.data;
+}
+
+export async function cancelStudentTransfer(userId: string, transferId: string) {
+  const response = await api.post(`/student/transfers/${transferId}/cancel`, null, {
+    headers: buildStudentHeaders(userId),
+  });
+  return response.data;
+}

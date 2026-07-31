@@ -83,7 +83,11 @@ import {
   downloadAdminInvoice,
   getRoomPricePreview,
   fetchAdminBedTracking,
-  type BedTrackingResponse
+  type BedTrackingResponse,
+  fetchAdminTransfers,
+  processAdminTransferAction,
+  fetchAdminTransferredStudents,
+  type AdminTransferActionPayload,
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -989,6 +993,37 @@ export function useAdminBedTracking(userId: string | null, hostelIds: string[], 
   return useQuery({
     queryKey: ["admin-bed-tracking", userId, hostelId, hostelIds],
     queryFn: () => fetchAdminBedTracking(userId!, hostelIds, hostelId!),
+    enabled: Boolean(userId && hostelId && hostelIds.length)
+  });
+}
+
+export function useAdminTransfers(userId: string | null, hostelIds: string[], hostelId: string | null) {
+  return useQuery({
+    queryKey: ["admin-transfers", userId, hostelId, hostelIds],
+    queryFn: () => fetchAdminTransfers(userId!, hostelIds, hostelId!),
+    enabled: Boolean(userId && hostelId && hostelIds.length)
+  });
+}
+
+export function useProcessAdminTransfer(userId: string | null, hostelIds: string[]) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ transferId, payload }: { transferId: string; payload: AdminTransferActionPayload }) =>
+      processAdminTransferAction(userId!, hostelIds, transferId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-transfers"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-transferred-students"] });
+      // Might also affect beds/rooms, so invalidate inventory tracking as needed.
+      queryClient.invalidateQueries({ queryKey: ["admin-bed-tracking"] });
+    },
+  });
+}
+
+export function useAdminTransferredStudents(userId: string | null, hostelIds: string[], hostelId: string | null) {
+  return useQuery({
+    queryKey: ["admin-transferred-students", userId, hostelId, hostelIds],
+    queryFn: () => fetchAdminTransferredStudents(userId!, hostelIds, hostelId!),
     enabled: Boolean(userId && hostelId && hostelIds.length)
   });
 }

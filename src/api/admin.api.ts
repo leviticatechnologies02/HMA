@@ -1126,3 +1126,72 @@ export async function fetchAdminBedTracking(userId: string, hostelIds: string[],
   );
   return response.data;
 }
+
+export type AdminTransferActionPayload = {
+  action: "approve" | "reject";
+  to_room_id?: string | null;
+  to_bed_id?: string | null;
+  note?: string | null;
+};
+
+export type TransferredStudentResponse = {
+  student_id: string;
+  transfer_id: string;
+  student_number: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  transferred_to_hostel: string;
+  transferred_to_hostel_id: string;
+  transfer_completed_at: string;
+  original_check_in_date: string;
+  access_level: string;
+  status_label: string;
+};
+
+// Reusing StudentTransferResponse from student.api.ts structure but we'll redefine it or just define a generic AdminTransferResponse
+export type AdminTransferResponse = {
+  id: string;
+  student_id: string;
+  user_id: string;
+  from_hostel_id: string;
+  to_hostel_id: string;
+  to_room_id: string | null;
+  to_bed_id: string | null;
+  transfer_type: "internal" | "external";
+  status: "pending" | "pending_old_admin" | "pending_new_admin" | "completed" | "rejected" | "cancelled";
+  reason: string;
+  rejection_reason: string | null;
+  old_admin_approved_at: string | null;
+  new_admin_approved_at: string | null;
+  completed_at: string | null;
+  student_name: string;
+  from_hostel_name: string;
+  to_hostel_name: string;
+  to_room_number: string | null;
+  to_bed_number: string | null;
+  warning: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function fetchAdminTransfers(userId: string, hostelIds: string[], hostelId: string) {
+  const response = await api.get<AdminTransferResponse[]>(`/admin/hostels/${hostelId}/transfers`, {
+    headers: buildAdminHeaders(userId, hostelIds),
+  });
+  return response.data;
+}
+
+export async function processAdminTransferAction(userId: string, hostelIds: string[], transferId: string, payload: AdminTransferActionPayload) {
+  const response = await api.post(`/admin/transfers/${transferId}/action`, payload, {
+    headers: buildAdminHeaders(userId, hostelIds),
+  });
+  return response.data;
+}
+
+export async function fetchAdminTransferredStudents(userId: string, hostelIds: string[], hostelId: string) {
+  const response = await api.get<TransferredStudentResponse[]>(`/admin/hostels/${hostelId}/transferred-students`, {
+    headers: buildAdminHeaders(userId, hostelIds),
+  });
+  return response.data;
+}

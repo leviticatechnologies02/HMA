@@ -20,6 +20,8 @@ import { AdminStudentsPage } from "../pages/admin/AdminStudentsPage";
 import { AdminMaintenancePage } from "../pages/admin/AdminMaintenancePage";
 import { AdminReportsPage } from "../pages/admin/AdminReportsPage";
 import { AdminSettingsPage } from "../pages/admin/AdminSettingsPage";
+import { AdminTransfersPage } from "../pages/admin/AdminTransfersPage";
+import { AdminTransferredStudentsPage } from "../pages/admin/AdminTransferredStudentsPage";
 import { LoginPage } from "../pages/auth/LoginPage";
 import { RegisterPage } from "../pages/auth/RegisterPage";
 import { OTPVerifyPage } from "../pages/auth/OTPVerifyPage";
@@ -69,6 +71,8 @@ import { StudentPaymentsPage } from "../pages/student/StudentPaymentsPage";
 import { StudentProfilePage } from "../pages/student/StudentProfilePage";
 import { StudentMessMenuPage } from "../pages/student/StudentMessMenuPage";
 import { StudentWaitlistPage } from "../pages/student/StudentWaitlistPage";
+import { StudentTransfersPage } from "../pages/student/StudentTransfersPage";
+import { StudentTransferNewPage } from "../pages/student/StudentTransferNewPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { SunsetIcon } from "lucide-react";
 
@@ -124,6 +128,8 @@ export function AppRouter() {
             <Route path="/admin/hostel-profile" element={<AdminHostelProfilePage />} />
             <Route path="/admin/my-hostels" element={<AdminMyHostelsPage />} />
             <Route path="/admin/inventory" element={<AdminInventoryPage />} />
+            <Route path="/admin/transfers" element={<AdminTransfersPage />} />
+            <Route path="/admin/transferred-students" element={<AdminTransferredStudentsPage />} />
             <Route path="/admin/bed-tracking" element={<AdminBedTrackingPage />} />
             <Route path="/admin/rooms" element={<AdminInventoryPage />} />
             <Route path="/admin/supervisors" element={<AdminSupervisorsPage />} />
@@ -155,6 +161,8 @@ export function AppRouter() {
             <Route path="/student/payments" element={<StudentPaymentsPage />} />
             <Route path="/student/mess-menu" element={<StudentMessMenuPage />} />
             <Route path="/student/waitlist" element={<StudentWaitlistPage />} />
+            <Route path="/student/transfers" element={<StudentTransfersPage />} />
+            <Route path="/student/transfers/new" element={<StudentTransferNewPage />} />
           </Route>
         </Route>
       </Routes>

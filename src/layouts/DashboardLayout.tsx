@@ -27,6 +27,8 @@ import {
   Wallet,
   Receipt,
   Bed,
+  ArrowRightLeft,
+  UserMinus,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useLogout } from "../hooks/useAuth";
@@ -116,6 +118,16 @@ const ADMIN_NAV: NavItem[] = [
     label: "Tenants",
     to: "/admin/students",
     icon: <Users className="w-4 h-4" />,
+  },
+  {
+    label: "Transfers",
+    to: "/admin/transfers",
+    icon: <ArrowRightLeft className="w-4 h-4" />,
+  },
+  {
+    label: "Transferred Students",
+    to: "/admin/transferred-students",
+    icon: <UserMinus className="w-4 h-4" />,
   },
   {
     label: "Payments",
@@ -229,6 +241,11 @@ const STUDENT_NAV: NavItem[] = [
     label: "Complaints",
     to: "/student/complaints",
     icon: <MessageSquare className="w-4 h-4" />,
+  },
+  {
+    label: "Transfers",
+    to: "/student/transfers",
+    icon: <ArrowRightLeft className="w-4 h-4" />,
   },
   // { label: "Attendance", to: "/student/attendance", icon: <UserCheck className="w-4 h-4" /> },
   {
