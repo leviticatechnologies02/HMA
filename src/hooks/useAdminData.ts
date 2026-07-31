@@ -80,7 +80,8 @@ import {
   verifyAdminPayment,
   type VerifyPaymentPayload,
   type VerifyPaymentResponse,
-  downloadAdminInvoice
+  downloadAdminInvoice,
+  getRoomPricePreview
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -788,7 +789,38 @@ export function useAddAdminStudentDirect(userId: string | null, hostelId: string
   });
 }
 
-
+export function useRoomPricePreview(
+  userId: string,
+  hostelIds: string[],
+  roomId: string,
+  bookingMode: string,
+  checkIn: string,
+  checkOut: string
+) {
+  return useQuery({
+    queryKey: [
+      "room-price-preview",
+      roomId,
+      bookingMode,
+      checkIn,
+      checkOut,
+    ],
+    queryFn: () =>
+  getRoomPricePreview(
+    userId,
+    hostelIds,
+    roomId,
+    bookingMode,
+    checkIn,
+    checkOut
+  ),
+    enabled:
+      !!roomId &&
+      !!bookingMode &&
+      !!checkIn &&
+      !!checkOut,
+  });
+}
 
 export function useSyncAdminStudentRecord(userId: string | null, hostelId: string | null, hostelIds: string[]) {
   const queryClient = useQueryClient();

@@ -63,6 +63,7 @@ export interface Room {
   total_beds: number;
   daily_rent: number;
   monthly_rent: number;
+  hourly_rent: number;
   security_deposit: number;
   dimensions?: string | null;
   is_active: boolean;
@@ -93,7 +94,7 @@ export interface PublicHostelsQueryParams {
   min_price?: number;
   max_price?: number;
   available_from?: string;
-  booking_mode?: "daily" | "monthly";
+ booking_mode?: "daily" | "monthly" | "hourly";
   is_featured?: boolean;
   page?: number;
   per_page?: number;

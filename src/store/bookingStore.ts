@@ -5,12 +5,13 @@ type BookingState = {
   bookingNumber: string | null;
   hostelId: string | null;
   roomId: string | null;
-  bookingMode: "daily" | "monthly" | null;
+  bookingMode: "daily" | "monthly" | "hourly" | null;
   checkInDate: string | null;
   checkOutDate: string | null;
   duration: number | null;
   dailyRent: number;
   monthlyRent: number;
+  hourlyRent: number;
   securityDeposit: number;
   bookingAdvance: number;
   grandTotal: number;
@@ -18,12 +19,13 @@ type BookingState = {
   setSelection: (payload: {
     hostelId: string;
     roomId: string;
-    bookingMode: "daily" | "monthly";
+    bookingMode: "daily" | "monthly" | "hourly";
     checkInDate: string;
     checkOutDate: string;
     duration: number;
     dailyRent: number;
     monthlyRent: number;
+    hourlyRent: number;
     securityDeposit: number;
     bookingAdvance: number;
     grandTotal: number;
@@ -44,6 +46,7 @@ export const useBookingStore = create<BookingState>((set) => ({
   duration: null,
   dailyRent: 0,
   monthlyRent: 0,
+  hourlyRent: 0,
   securityDeposit: 0,
   bookingAdvance: 0,
   grandTotal: 0,
@@ -58,6 +61,7 @@ export const useBookingStore = create<BookingState>((set) => ({
       duration: payload.duration,
       dailyRent: payload.dailyRent,
       monthlyRent: payload.monthlyRent,
+      hourlyRent: payload.hourlyRent,
       securityDeposit: payload.securityDeposit,
       bookingAdvance: payload.bookingAdvance,
       grandTotal: payload.grandTotal,
@@ -76,6 +80,7 @@ export const useBookingStore = create<BookingState>((set) => ({
       duration: null,
       dailyRent: 0,
       monthlyRent: 0,
+      hourlyRent: 0,
       securityDeposit: 0,
       bookingAdvance: 0,
       grandTotal: 0,

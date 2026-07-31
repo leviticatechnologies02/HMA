@@ -12,6 +12,7 @@ import { fetchHostelRooms, type Room } from "../../api/public.api";
 import { useBookingStore } from "../../store/bookingStore";
 import { formatDate } from "../../utils/formatters";
 import { ModernDatePicker } from "../../components/common/ModernDatePicker";
+import toast from "react-hot-toast";
 
 export function BookingSelectPage() {
   const navigate = useNavigate();
@@ -20,9 +21,9 @@ export function BookingSelectPage() {
 
   const { data: hostel, isLoading, isError } = useHostelDetail(hostelSlug);
 
-  const [bookingMode, setBookingMode] = useState<"daily" | "monthly">(
-    "monthly",
-  );
+  const [bookingMode, setBookingMode] = useState<
+  "daily" | "monthly" | "hourly"
+>("monthly");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -33,15 +34,22 @@ export function BookingSelectPage() {
 
   // Minimum check-out: next day for daily, 1 month ahead for monthly
   const minCheckOut = (() => {
-    if (!checkInDate) return today;
-    const d = new Date(checkInDate);
-    if (bookingMode === "monthly") {
-      d.setMonth(d.getMonth() + 1);
-    } else {
-      d.setDate(d.getDate() + 1);
-    }
-    return d.toISOString().split("T")[0];
-  })();
+  if (!checkInDate) return today;
+
+  const d = new Date(checkInDate);
+
+  if (bookingMode === "monthly") {
+    d.setMonth(d.getMonth() + 1);
+  } else if (bookingMode === "daily") {
+    d.setDate(d.getDate() + 1);
+  } else {
+    d.setHours(d.getHours() + 1);
+  }
+
+  return bookingMode === "hourly"
+    ? d.toISOString().slice(0, 16)
+    : d.toISOString().split("T")[0];
+})();
 
   // Reset check-out when mode changes or check-in changes to an invalid state
   useEffect(() => {
@@ -50,9 +58,19 @@ export function BookingSelectPage() {
     }
   }, [bookingMode, checkInDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const datesSelected = Boolean(
-    checkInDate && checkOutDate && checkOutDate >= minCheckOut,
-  );
+  const datesSelected = (() => {
+  if (!checkInDate || !checkOutDate) return false;
+
+  if (bookingMode === "hourly") {
+    return (
+      new Date(checkOutDate).getTime() -
+        new Date(checkInDate).getTime() >=
+      60 * 60 * 1000
+    );
+  }
+
+  return checkOutDate >= minCheckOut;
+})();
 
   useEffect(() => {
     if (hostel?.id) {
@@ -68,6 +86,15 @@ export function BookingSelectPage() {
     if (!datesSelected || !hostel) return;
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
+    if (bookingMode === "hourly") {
+  const diffHours =
+    (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60);
+
+  if (diffHours < 1) {
+    toast.error("Check-out must be at least 1 hour after check-in.");
+    return;
+  }
+}
     const nights = Math.max(
       1,
       Math.ceil((checkOut.getTime() - checkIn.getTime()) / 86400000),
@@ -98,33 +125,45 @@ export function BookingSelectPage() {
       };
     };
 
-    const durationInfo = calculateDuration(checkIn, checkOut);
+    const durationInfo = calculateDuration(checkInDate, checkOutDate);
 
     const months = durationInfo.months;
     const days = durationInfo.days;
 
     const duration = bookingMode === "daily" ? nights : months;
 
-    const rentTotal =
-      bookingMode === "daily"
-        ? room.daily_rent * nights
-        : room.monthly_rent * months + (room.monthly_rent / 30) * days;
+    const hours = Math.max(
+  1,
+  Math.ceil(
+    (checkOut.getTime() - checkIn.getTime()) /
+      (1000 * 60 * 60)
+  )
+);
+
+const rentTotal =
+  bookingMode === "daily"
+    ? room.daily_rent * nights
+    : bookingMode === "monthly"
+      ? room.monthly_rent * months +
+        (room.monthly_rent / 30) * days
+      : room.hourly_rent * hours;
     const securityDeposit = room.security_deposit ?? 0;
     const bookingAdvance = Math.ceil(rentTotal * 0.25);
     const grandTotal = rentTotal + securityDeposit;
     setSelection({
-      hostelId: hostel.id,
-      roomId: room.id,
-      bookingMode,
-      checkInDate,
-      checkOutDate,
-      duration,
-      dailyRent: room.daily_rent,
-      monthlyRent: room.monthly_rent,
-      securityDeposit,
-      bookingAdvance,
-      grandTotal,
-    });
+  hostelId: hostel.id,
+  roomId: room.id,
+  bookingMode,
+  checkInDate,
+  checkOutDate,
+  duration: bookingMode === "hourly" ? hours : duration,
+  dailyRent: room.daily_rent,
+  monthlyRent: room.monthly_rent,
+  hourlyRent: room.hourly_rent,
+  securityDeposit,
+  bookingAdvance,
+  grandTotal,
+});
     navigate("/booking/details");
   };
 
@@ -161,6 +200,16 @@ export function BookingSelectPage() {
         ),
       )
     : 0;
+    const hours = datesSelected
+  ? Math.max(
+      1,
+      Math.ceil(
+        (new Date(checkOutDate).getTime() -
+          new Date(checkInDate).getTime()) /
+          (1000 * 60 * 60)
+      )
+    )
+  : 0;
 
   const calculateDuration = (start: string, end: string) => {
     const startDate = new Date(start);
@@ -222,7 +271,7 @@ export function BookingSelectPage() {
 
           {/* Mode toggle */}
           <div className="grid grid-cols-2 gap-3">
-            {(["monthly", "daily"] as const).map((mode) => (
+            {(["monthly", "daily", "hourly"] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setBookingMode(mode)}
@@ -234,10 +283,12 @@ export function BookingSelectPage() {
               >
                 <p className="font-semibold text-dark capitalize">{mode}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {mode === "monthly"
-                    ? "Best value · pay per month"
-                    : "Flexible · pay per night"}
-                </p>
+  {mode === "monthly"
+    ? "Best value · pay per month"
+    : mode === "daily"
+      ? "Flexible · pay per night"
+      : "Flexible · pay per hour"}
+</p>
               </button>
             ))}
           </div>
@@ -249,28 +300,81 @@ export function BookingSelectPage() {
                 <Calendar className="w-4 h-4 inline mr-1 text-primary" />
                 Check-in
               </label>
-              <ModernDatePicker
-                value={checkInDate}
-                min={today}
-                onChange={(e) => {
-                  setCheckInDate(e.target.value);
-                  setCheckOutDate("");
-                }}
-                className="input-field"
-              />
+              {bookingMode === "hourly" ? (
+  <input
+    type="datetime-local"
+    value={checkInDate}
+    min={new Date().toISOString().slice(0, 16)}
+    onChange={(e) => {
+      setCheckInDate(e.target.value);
+      setCheckOutDate("");
+    }}
+    className="input-field"
+  />
+) : (
+  <ModernDatePicker
+    value={checkInDate}
+    min={today}
+    onChange={(e) => {
+      setCheckInDate(e.target.value);
+      setCheckOutDate("");
+    }}
+    className="input-field"
+  />
+)}
             </div>
             <div>
               <label className="block text-sm font-medium text-dark mb-1.5">
                 <Calendar className="w-4 h-4 inline mr-1 text-slate-400" />
                 Check-out
               </label>
-              <ModernDatePicker
-                value={checkOutDate}
-                min={minCheckOut}
-                onChange={(e) => setCheckOutDate(e.target.value)}
-                className="input-field"
-                disabled={!checkInDate}
-              />
+            {bookingMode === "hourly" ? (
+  <input
+    type="datetime-local"
+    value={checkOutDate}
+    min={
+      checkInDate
+        ? new Date(
+            new Date(checkInDate).getTime() + 60 * 60 * 1000
+          )
+            .toISOString()
+            .slice(0, 16)
+        : ""
+    }
+    onChange={(e) => {
+      const value = e.target.value;
+
+      if (!checkInDate) {
+        setCheckOutDate(value);
+        return;
+      }
+
+      const checkIn = new Date(checkInDate);
+      const checkOut = new Date(value);
+
+      const diffHours =
+        (checkOut.getTime() - checkIn.getTime()) /
+        (1000 * 60 * 60);
+
+      if (diffHours < 1) {
+        toast.error("Check-out must be at least 1 hour after check-in.");
+        return;
+      }
+
+      setCheckOutDate(value);
+    }}
+    className="input-field"
+    disabled={!checkInDate}
+  />
+) : (
+  <ModernDatePicker
+    value={checkOutDate}
+    min={minCheckOut}
+    onChange={(e) => setCheckOutDate(e.target.value)}
+    className="input-field"
+    disabled={!checkInDate}
+  />
+)}
             </div>
           </div>
 
@@ -278,16 +382,18 @@ export function BookingSelectPage() {
             <div className="flex items-center gap-2 text-sm text-success bg-success/5 border border-success/20 rounded-xl px-4 py-2.5">
               <CheckCircle className="w-4 h-4 shrink-0" />
               {bookingMode === "daily" ? (
-                `${nights} night${nights !== 1 ? "s" : ""} selected`
-              ) : (
-                <>
-                  {`${duration.months} month${duration.months !== 1 ? "s" : ""}${
-                    duration.days > 0
-                      ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
-                      : ""
-                  } selected`}
-                </>
-              )}
+  `${nights} night${nights !== 1 ? "s" : ""} selected`
+) : bookingMode === "hourly" ? (
+  `${hours} hour${hours !== 1 ? "s" : ""} selected`
+) : (
+  <>
+    {`${duration.months} month${duration.months !== 1 ? "s" : ""}${
+      duration.days > 0
+        ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
+        : ""
+    } selected`}
+  </>
+)}
               {" · "}
               {formatDate(checkInDate)} → {formatDate(checkOutDate)}
             </div>
@@ -329,13 +435,26 @@ export function BookingSelectPage() {
             <div className="space-y-3">
               {rooms.map((room) => {
                 const price =
-                  bookingMode === "daily" ? room.daily_rent : room.monthly_rent;
-                const unit = bookingMode === "daily" ? "night" : "month";
-                const total =
-                  bookingMode === "daily"
-                    ? room.daily_rent * nights
-                    : room.monthly_rent * duration.months +
-                      (room.monthly_rent / 30) * duration.days;
+  bookingMode === "monthly"
+    ? room.monthly_rent
+    : bookingMode === "daily"
+      ? room.daily_rent
+      : room.hourly_rent;
+                const unit =
+  bookingMode === "monthly"
+    ? "month"
+    : bookingMode === "daily"
+      ? "night"
+      : "hour";
+               
+const total =
+  bookingMode === "daily"
+    ? room.daily_rent * nights
+    : bookingMode === "monthly"
+      ? room.monthly_rent * duration.months +
+        (room.monthly_rent / 30) * duration.days
+      : room.hourly_rent * hours;
+
                 const hasAvailability = (room.available_beds ?? 0) > 0;
 
                 return (
@@ -374,12 +493,14 @@ export function BookingSelectPage() {
                               ₹{total.toLocaleString()}
                             </span>
                             {bookingMode === "daily"
-                              ? ` for ${nights} night${nights !== 1 ? "s" : ""}`
-                              : ` for ${duration.months} month${duration.months !== 1 ? "s" : ""}${
-                                  duration.days > 0
-                                    ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
-                                    : ""
-                                }`}{" "}
+  ? ` for ${nights} night${nights !== 1 ? "s" : ""}`
+  : bookingMode === "hourly"
+    ? ` for ${hours} hour${hours !== 1 ? "s" : ""}`
+    : ` for ${duration.months} month${duration.months !== 1 ? "s" : ""}${
+        duration.days > 0
+          ? ` ${duration.days} day${duration.days !== 1 ? "s" : ""}`
+          : ""
+      }`}{" "}
                             + ₹{room.security_deposit.toLocaleString()} deposit
                           </p>
                         )}

@@ -1037,3 +1037,48 @@ export async function downloadAdminInvoice(userId: string, hostelIds: string[], 
   });
   return response.data;
 }
+
+export interface PricePreview {
+  room_id: string;
+  room_number: string;
+  booking_mode: string;
+
+  rate_per_unit: number;
+  unit_label: string;
+
+  total_hours: number | null;
+  total_nights: number | null;
+  total_months: number | null;
+
+  duration_label: string;
+
+  base_rent: number;
+  security_deposit: number;
+  grand_total: number;
+
+  is_configured: boolean;
+  warning: string | null;
+}
+
+export async function getRoomPricePreview(
+  userId: string,
+  hostelIds: string[],
+  roomId: string,
+  bookingMode: string,
+  checkIn: string,
+  checkOut: string
+) {
+  const response = await api.get<PricePreview>(
+    `/admin/rooms/${roomId}/price-preview`,
+    {
+      params: {
+        booking_mode: bookingMode,
+        check_in_date: checkIn,
+        check_out_date: checkOut,
+      },
+      headers: buildAdminHeaders(userId, hostelIds),
+    }
+  );
+
+  return response.data;
+}

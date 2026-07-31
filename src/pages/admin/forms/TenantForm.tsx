@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { Eye, EyeOff } from "lucide-react";
-import { useAdminRooms, useAdminBeds, useAddAdminStudentDirect, useUpdateAdminStudent } from "../../../hooks/useAdminData";
+import { useAdminRooms, useAdminBeds, useAddAdminStudentDirect, useUpdateAdminStudent,useRoomPricePreview, } from "../../../hooks/useAdminData";
 import { useAuthStore } from "../../../store/authStore";
 import toast from "react-hot-toast";
 import { useHostelSwitcher } from "../../../components/admin/useHostelSwitcher";
@@ -49,7 +49,59 @@ const validationSchema = Yup.object().shape({
   check_in_date: Yup.string().required("Check-in date is required"),
   check_out_date: Yup.string().required("Check-out date is required"),
   booking_mode: Yup.string().required("Booking mode is required"),
-});
+});function PricePreview({
+  userId,
+  hostelIds,
+  values,
+}: {
+  userId: string;
+  hostelIds: string[];
+  values: any;
+}) {
+  const { data, isLoading } = useRoomPricePreview(
+    userId,
+    hostelIds,
+    values.room_id,
+    values.booking_mode,
+    values.check_in_date,
+    values.check_out_date
+  );
+
+  if (!values.room_id) return null;
+
+  if (isLoading) {
+    return <p>Loading price...</p>;
+  }
+
+  if (!data) return null;
+
+  return (
+    <div className="rounded-xl border p-4 bg-slate-50">
+      <h3 className="font-semibold mb-2">Price Preview</h3>
+       <p>Room : {data.room_number}</p>
+
+<p>
+  Unit Price : ₹{data.rate_per_unit} / {data.unit_label}
+</p>
+
+<p>
+  Duration : {data.duration_label}
+</p>
+
+<p>
+  Base Rent : ₹{data.base_rent}
+</p>
+
+<p>
+  Security Deposit : ₹{data.security_deposit}
+</p>
+
+<p className="font-semibold text-lg">
+  Grand Total : ₹{data.grand_total}
+</p>
+    </div>
+  );
+}
 
 const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
   const userId = useAuthStore((s) => s.userId);
@@ -63,6 +115,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
   console.log("Rooms query data:", roomsQuery.data);
   console.log("hosted id in tenant form:", hostelId);
   const bedsQuery = useAdminBeds(userId, selectedRoomId || null, hostelIds);
+  
   const addMutation = useAddAdminStudentDirect(userId, hostelId, hostelIds);
 
 
@@ -91,31 +144,68 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
     bed_id: "",
     check_in_date: today,
     check_out_date: nextMonth,
-    booking_mode: "monthly" as "daily" | "monthly",
+    booking_mode: "monthly" as "daily" | "monthly" | "hourly",
     isEdit: false,
   };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
+    if (values.booking_mode === "hourly") {
+  const checkIn = new Date(values.check_in_date);
+  const checkOut = new Date(values.check_out_date);
+
+  if (
+    checkOut.getTime() - checkIn.getTime() <
+    60 * 60 * 1000
+  ) {
+    toast.error(
+      "Check-out must be at least 1 hour after check-in."
+    );
+    return;
+  }
+}
     setFormError(null);
 
     try {
       if (isEdit) {
-        const payload = {
-          full_name: values.full_name,
-          email: values.email,
-          phone: values.phone,
-          check_in_date: values.check_in_date,
-          check_out_date: values.check_out_date,
-        };
+       const payload = {
+  full_name: values.full_name,
+  email: values.email,
+  phone: values.phone,
+
+  check_in_date:
+    values.booking_mode === "hourly"
+      ? new Date(values.check_in_date).toISOString()
+      : values.check_in_date,
+
+  check_out_date:
+    values.booking_mode === "hourly"
+      ? new Date(values.check_out_date).toISOString()
+      : values.check_out_date,
+};
         const result = await updateMutation.mutateAsync({ studentId: editingItem.id, payload });
         console.log("Student updated:", result);
         toast.success(`Student ${values.full_name} updated successfully`);
-      } else {
-        const { isEdit: _, ...payloadValues } = values;
-        const result = await addMutation.mutateAsync(payloadValues);
-        toast.success(`Student ${result.full_name} added — ${result.student_number}`);
-        resetForm();
-      }
+      }  else {
+  const { isEdit: _, ...payloadValues } = values;
+
+  const payload = {
+    ...payloadValues,
+    check_in_date:
+      values.booking_mode === "hourly"
+        ? new Date(values.check_in_date).toISOString()
+        : values.check_in_date,
+
+    check_out_date:
+      values.booking_mode === "hourly"
+        ? new Date(values.check_out_date).toISOString()
+        : values.check_out_date,
+  };
+
+  const result = await addMutation.mutateAsync(payload);
+
+  toast.success(`Student ${result.full_name} added — ${result.student_number}`);
+  resetForm();
+}
       onClose?.();
     } catch (err: any) {
       const detail = err?.response?.data?.detail;
@@ -286,26 +376,78 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Check-in Date *</label>
-              <ModernDatePicker
-                name="check_in_date"
-                value={values.check_in_date}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
-                required
-              />
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+  Check-in {values.booking_mode === "hourly" ? "Date & Time" : "Date"} *
+</label>
+
+{values.booking_mode === "hourly" ? (
+  <input
+    type="datetime-local"
+    name="check_in_date"
+    value={values.check_in_date}
+    onChange={handleChange}
+    className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+    required
+  />
+) : (
+  <ModernDatePicker
+    name="check_in_date"
+    value={values.check_in_date}
+    onChange={handleChange}
+    className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+    required
+  />
+)}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">Check-out Date *</label>
-              <ModernDatePicker
-                name="check_out_date"
-                value={values.check_out_date}
-                onChange={handleChange}
-                min={values.check_in_date}
-                className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
-                required
-              />
+              <label className="block text-sm font-medium text-dark dark:text-slate-200 mb-1.5">
+  Check-out {values.booking_mode === "hourly" ? "Date & Time" : "Date"} *
+</label>
+
+{values.booking_mode === "hourly" ? (
+  <input
+  type="datetime-local"
+  name="check_out_date"
+  value={values.check_out_date}
+  min={
+    values.check_in_date
+      ? new Date(
+          new Date(values.check_in_date).getTime() + 60 * 60 * 1000
+        )
+          .toISOString()
+          .slice(0, 16)
+      : ""
+  }
+  onChange={(e) => {
+    const checkIn = new Date(values.check_in_date);
+    const checkOut = new Date(e.target.value);
+
+    if (
+      checkOut.getTime() - checkIn.getTime() <
+      60 * 60 * 1000
+    ) {
+      toast.error(
+        "Check-out must be at least 1 hour after check-in."
+      );
+      return;
+    }
+
+    setFieldValue("check_out_date", e.target.value);
+  }}
+  className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+  required
+/>
+) : (
+  <ModernDatePicker
+    name="check_out_date"
+    value={values.check_out_date}
+    onChange={handleChange}
+    min={values.check_in_date}
+    className="w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-sm"
+    required
+  />
+)}
             </div>
 
             <div className="col-span-2">
@@ -318,9 +460,15 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
               >
                 <option value="monthly">Monthly</option>
                 <option value="daily">Daily</option>
+                <option value="hourly">Hourly</option>
               </select>
             </div>
           </div>
+          <PricePreview
+  userId={userId!}
+  hostelIds={hostelIds}
+  values={values}
+/>
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
@@ -344,7 +492,9 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
             >
               Cancel
             </button>
+            
           </div>
+          
         </Form>
       )}
     </Formik>
