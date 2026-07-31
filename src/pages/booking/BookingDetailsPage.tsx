@@ -28,7 +28,7 @@ import {
 } from "../../api/student.api";
 import type { BookingApplicantPayload } from "../../api/booking.api";
 import toast from "react-hot-toast";
-const [studentPhone, setStudentPhone] = useState("");
+
 const schema = z.object({
   full_name: z
     .string()
@@ -184,6 +184,7 @@ const STEPS = ["Personal Info", "Emergency Contact", "Identity & Docs"];
 export function BookingDetailsPage() {
   const navigate = useNavigate();
   const userId = useAuthStore((s) => s.userId);
+   const [studentPhone, setStudentPhone] = useState("");
   useEffect(() => {
   if (!userId) return;
 
