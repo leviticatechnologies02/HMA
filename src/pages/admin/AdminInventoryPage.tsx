@@ -21,6 +21,7 @@ const defaultRoomForm = {
   floor: 0,
   room_type: "single",
   total_beds: 1,
+  hourly_rent: 0,
   daily_rent: 0,
   monthly_rent: 0,
   security_deposit: 0,
@@ -190,6 +191,7 @@ export function AdminInventoryPage() {
       floor: room.floor,
       room_type: room.room_type,
       total_beds: room.total_beds,
+      hourly_rent: room.hourly_rent,
       daily_rent: room.daily_rent,
       monthly_rent: room.monthly_rent,
       security_deposit: room.security_deposit,
@@ -332,7 +334,28 @@ export function AdminInventoryPage() {
                     it
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-dark mb-1">
+                      Hourly Rent (₹)
+                    </label>
+
+                    <input
+                      className="input-field"
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      name="hourly_rent"
+                      value={roomFormik.values.hourly_rent}
+                      onChange={(e) =>
+                        roomFormik.setFieldValue(
+                          "hourly_rent",
+                          Number(e.target.value),
+                        )
+                      }
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-dark mb-1">
                       Daily Rent (₹)
@@ -354,7 +377,7 @@ export function AdminInventoryPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-dark mb-1">
-                      Monthly Rent (₹) *
+                      Monthly Rent (₹)
                     </label>
                     <input
                       className="input-field"
@@ -551,6 +574,25 @@ export function AdminInventoryPage() {
                       </div>
                       <div>
                         <label className="block text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">
+                          Hourly Rent
+                        </label>
+
+                        <input
+                          className="w-full rounded-xl border border-slate-300 dark:border-slate-600 px-2 sm:px-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-700 text-dark dark:text-slate-200"
+                          type="number"
+                          placeholder="Hourly rent"
+                          value={editRoomForm.hourly_rent ?? 0}
+                          onChange={(e) =>
+                            setEditRoomForm((c) => ({
+                              ...c,
+                              hourly_rent: Number(e.target.value),
+                            }))
+                          }
+                          style={{ fontSize: "16px" }}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">
                           Daily Rent
                         </label>
                         <input
@@ -617,8 +659,11 @@ export function AdminInventoryPage() {
                         Room {room.room_number} · {room.room_type}
                       </h3>
                       <p className="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        Floor {room.floor} · {room.total_beds} beds · ₹
-                        {room.monthly_rent}/month
+                        Floor {room.floor} · {room.total_beds} beds
+                        <div className="mt-1 text-xs text-slate-500">
+                          ₹{room.hourly_rent}/hr • ₹{room.daily_rent}/day • ₹
+                          {room.monthly_rent}/month
+                        </div>
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">

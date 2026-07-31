@@ -54,11 +54,14 @@ export function AdminBillingsPage() {
   const verifyPaymentMutation = useVerifyAdminPayment(userId, hostelIds);
 
   const [selectedPlan, setSelectedPlan] = useState<AdminPlan | null>(null);
+  const [billingType, setBillingType] = useState<
+    Record<string, "monthly" | "yearly">
+  >({});
 
   const handleSelectPlan = (plan: AdminPlan) => {
     setSelectedPlan(plan);
 
-    const price = getPlanPrice(plan);
+    const price = plan.price;
     const total = +(price * 1.18).toFixed(2);
 
     selectPlanMutation.mutate({
@@ -188,7 +191,7 @@ export function AdminBillingsPage() {
   const activePlanId = subscription?.plan_id;
   const currentSelectedPlan = selectedPlan;
   // GST Calculation
-  const baseAmount = getPlanPrice(currentSelectedPlan);
+  const baseAmount = currentSelectedPlan?.price || 0;
 
   const cgst = +(baseAmount * 0.09).toFixed(2);
   const sgst = +(baseAmount * 0.09).toFixed(2);
@@ -244,11 +247,12 @@ export function AdminBillingsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Available Plans */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white px-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between">
             <div>
-              <h2 className="font-bold text-lg text-dark">Available Plans</h2>
-              <p className="text-sm text-slate-500">
-                Choose a plan, then confirm payment.
+              <h2 className="text-2xl font-bold">Plans</h2>
+
+              <p className="text-slate-500">
+                Choose the subscription that best fits your hostel.
               </p>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-600 border border-green-200 rounded-full text-xs font-medium mt-2 sm:mt-0 w-fit">
@@ -257,74 +261,118 @@ export function AdminBillingsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan) => {
               const isCurrent = plan.id === activePlanId;
               const isSelected = currentSelectedPlan?.id === plan.id;
+              const selectedBilling =
+                billingType[plan.id] ??
+                (plan.duration_days >= 365 ? "yearly" : "monthly");
+
+              const price =
+                selectedBilling === "yearly"
+                  ? plan.price_yearly || plan.price
+                  : plan.price_monthly || plan.price;
 
               return (
                 <div
                   key={plan.id}
-                  className={`card p-5 transition-all duration-200 relative ${
-                    isSelected
-                      ? "border-primary border shadow-sm"
-                      : "border-slate-200 border"
-                  }`}
+                  className={`relative rounded-2xl border bg-white p-8
+                  flex flex-col justify-between
+                  min-h-[390px]
+                  transition-all duration-300
+                  ${isSelected ? "border-blue-500 shadow-lg" : "border-slate-200"}`}
                 >
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      {isCurrent && (
-                        <span className="inline-flex items-center mb-2 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold uppercase">
-                          Active
-                        </span>
-                      )}
-
-                      <h3 className="text-[17px] font-bold text-dark">
-                        {plan.name}
-                      </h3>
-                      <p className="text-[13px] text-slate-500 mt-0.5">
-                        {plan.duration_days}-day cycle
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-dark">
-                        ₹{getPlanPrice(plan).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end">
-                    {isCurrent ? (
-                      <button
-                        className="bg-green-600 text-white px-5 py-2 rounded-md text-xs font-medium cursor-default"
-                        disabled
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Current Plan
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectPlan(plan);
-                        }}
-                        className={`px-6 py-2 rounded-md text-xs font-medium border transition ${
-                          isSelected
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
-                        }`}
-                      >
-                        {isSelected ? "Selected" : "Select"}
-                      </button>
-                    )}
-                  </div>
-
-                  {plan.name === "Premium" && (
-                    <span className="absolute top-4 right-4 text-[10px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-full">
-                      POPULAR
+                  {/* Active */}
+                  {isCurrent && (
+                    <span className="absolute top-5 left-5 text-[11px] font-bold uppercase text-blue-600">
+                      ACTIVE
                     </span>
                   )}
+
+                  <div className="min-h-[70px]">
+                    <h3 className="text-3xl font-bold leading-tight break-words min-h-[80px]">
+                      {plan.name}
+                    </h3>
+                  </div>
+
+                  {/* Toggle Design */}
+                  <div className="mt-3 h-14 flex items-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBillingType((prev) => ({
+                          ...prev,
+                          [plan.id]: "monthly",
+                        }))
+                      }
+                      className={`px-6 py-2 text-sm transition ${
+                        selectedBilling === "monthly"
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-slate-600"
+                      }`}
+                    >
+                      Monthly
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBillingType((prev) => ({
+                          ...prev,
+                          [plan.id]: "yearly",
+                        }))
+                      }
+                      className={`px-6 py-2 text-sm transition ${
+                        selectedBilling === "yearly"
+                          ? "bg-blue-600 text-white"
+                          : "bg-white text-slate-600"
+                      }`}
+                    >
+                      Yearly
+                    </button>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mt-5 flex-1 flex flex-col justify-center">
+                    <h2 className="text-4xl font-extrabold">
+                      ₹{Number(price).toLocaleString()}
+                    </h2>
+                  </div>
+
+                  {/* Button */}
+                  <div className="mt-5">
+                    <button
+                      disabled={isCurrent}
+                      onClick={() =>
+                        handleSelectPlan({
+                          ...plan,
+                          duration_days:
+                            selectedBilling === "yearly" ? 365 : 30,
+
+                          duration_type: selectedBilling,
+
+                          price:
+                            selectedBilling === "yearly"
+                              ? plan.price_yearly || plan.price
+                              : plan.price_monthly || plan.price,
+                        })
+                      }
+                      className={`mt-8 w-full h-12 rounded-xl border text-base font-semibold transition ${
+                        isCurrent
+                          ? " bg-[#2C7A7B] border-[#2C7A7B] text-white cursor-default"
+                          : isSelected
+                            ? " bg-[#2C7A7B] border-[#2C7A7B] text-white "
+                            : "bg-white border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      {isCurrent
+                        ? "Current Plan"
+                        : isSelected
+                          ? "Selected"
+                          : "Select"}
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -355,8 +403,10 @@ export function AdminBillingsPage() {
             <div className="flex justify-between items-center text-[13px]">
               <span className="text-slate-500">Duration</span>
               <span className="font-bold text-dark">
-                {currentSelectedPlan?.duration_days
-                  ? `${currentSelectedPlan.duration_days} days`
+                {currentSelectedPlan
+                  ? currentSelectedPlan.duration_type === "yearly"
+                    ? "365 days"
+                    : "30 days"
                   : "-"}
               </span>
             </div>
@@ -400,7 +450,7 @@ export function AdminBillingsPage() {
             <button
               onClick={handleCheckout}
               disabled={checkoutMutation.isPending}
-              className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 transition-colors text-white flex justify-center items-center gap-2 rounded-lg text-sm font-medium"
+              className="w-full py-2.5 bg-[#2C7A7B] hover:bg-[#256B6D] transition-colors text-white flex justify-center items-center gap-2 rounded-lg text-sm font-medium"
             >
               {checkoutMutation.isPending && (
                 <Loader2 className="w-4 h-4 animate-spin" />

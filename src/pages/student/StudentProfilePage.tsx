@@ -1,5 +1,23 @@
 import { useState } from "react";
-import { User, Building2, Bed, Calendar, Hash, Mail, Phone, CheckCircle, Edit2, Save, X, LogOut, AlertCircle, Link as LinkIcon, Lock, Eye, EyeOff } from "lucide-react";
+import {
+  User,
+  Building2,
+  Bed,
+  Calendar,
+  Hash,
+  Mail,
+  Phone,
+  CheckCircle,
+  Edit2,
+  Save,
+  X,
+  LogOut,
+  AlertCircle,
+  Link as LinkIcon,
+  Lock,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -18,7 +36,6 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export function StudentProfilePage() {
-  
   const userId = useAuthStore((s) => s.userId);
   const qc = useQueryClient();
   const { data, isLoading, isError } = useStudentProfile(userId);
@@ -32,34 +49,51 @@ export function StudentProfilePage() {
     new: false,
     confirm: false,
   });
-  console.log(data)
+  console.log(data);
   // Fallback: fetch basic user info from visitor profile when student record not found
+  // Fallback: fetch basic user info
   const visitorProfileQ = useQuery({
     queryKey: ["visitor-profile-fallback", userId],
-    queryFn: () => api.get("/visitor/profile").then(r => r.data),
+    queryFn: () => api.get("/visitor/profile").then((r) => r.data),
     enabled: Boolean(userId) && (isError || (!isLoading && !data)),
   });
 
-  // Room info — only when student profile exists
+  // Room info
   const roomInfoQ = useQuery({
     queryKey: ["student-room-info", userId],
-    queryFn: () => api.get("/student/room-info").then(r => r.data).catch(() => null),
+    queryFn: () =>
+      api
+        .get("/student/room-info")
+        .then((r) => r.data)
+        .catch(() => null),
+    enabled: Boolean(userId) && Boolean(data),
+  });
+
+  // 👇 ADD THIS HERE
+  const roommatesQ = useQuery({
+    queryKey: ["student-roommates", userId],
+    queryFn: () =>
+      api
+        .get("/student/roommates")
+        .then((res) => res.data)
+        .catch(() => null),
     enabled: Boolean(userId) && Boolean(data),
   });
 
   const updateProfileM = useMutation({
     mutationFn: (payload: { full_name?: string; phone?: string }) =>
-      api.patch("/student/profile", payload).then(r => r.data),
+      api.patch("/student/profile", payload).then((r) => r.data),
     onSuccess: () => {
       toast.success("Profile updated");
       qc.invalidateQueries({ queryKey: ["student-profile", userId] });
       qc.invalidateQueries({ queryKey: ["visitor-profile-fallback", userId] });
       setEditing(false);
     },
-    onError: (e: any) => toast.error(e?.response?.data?.detail ?? "Update failed"),
+    onError: (e: any) =>
+      toast.error(e?.response?.data?.detail ?? "Update failed"),
   });
 
-/*
+  /*
   const leaveM = useMutation({
     mutationFn: (payload: { from_date: string; to_date: string; reason: string }) =>
       api.post("/student/leave-request", payload).then(r => r.data),
@@ -72,13 +106,17 @@ export function StudentProfilePage() {
   });
 */
   const changePasswordM = useMutation({
-    mutationFn: (payload: { old_password: string; new_password: string; confirm_password: string }) =>
-      api.post("/student/change-password", payload).then(r => r.data),
+    mutationFn: (payload: {
+      old_password: string;
+      new_password: string;
+      confirm_password: string;
+    }) => api.post("/student/change-password", payload).then((r) => r.data),
     onSuccess: () => {
       toast.success("Password updated successfully!");
     },
     onError: (e: any) => {
-      const errorMsg = e?.response?.data?.detail || e?.message || "Failed to update password";
+      const errorMsg =
+        e?.response?.data?.detail || e?.message || "Failed to update password";
       toast.error(errorMsg);
     },
   });
@@ -96,7 +134,10 @@ export function StudentProfilePage() {
         .required("New password is required")
         .min(8, "Password must be at least 8 characters")
         .matches(/^[^\s]*$/, "Password cannot contain spaces")
-        .notOneOf([Yup.ref("current_password")], "New password must be different from current password"),
+        .notOneOf(
+          [Yup.ref("current_password")],
+          "New password must be different from current password",
+        ),
       confirm_password: Yup.string()
         .required("Please confirm your password")
         .oneOf([Yup.ref("new_password")], "Passwords do not match"),
@@ -113,7 +154,10 @@ export function StudentProfilePage() {
         setShowPasswordForm(false);
         setShowPasswords({ current: false, new: false, confirm: false });
       } catch (error: any) {
-        const errorMsg = error?.response?.data?.detail || error?.message || "Failed to update password";
+        const errorMsg =
+          error?.response?.data?.detail ||
+          error?.message ||
+          "Failed to update password";
         if (
           errorMsg.toLowerCase().includes("current password") ||
           errorMsg.toLowerCase().includes("incorrect") ||
@@ -125,14 +169,21 @@ export function StudentProfilePage() {
     },
   });
 
-  if (!userId) return <div className="p-8 text-slate-500">Please login to view your profile.</div>;
+  if (!userId)
+    return (
+      <div className="p-8 text-slate-500">
+        Please login to view your profile.
+      </div>
+    );
 
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="skeleton h-28 rounded-3xl" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="skeleton h-24 rounded-2xl" />)}
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="skeleton h-24 rounded-2xl" />
+          ))}
         </div>
       </div>
     );
@@ -147,19 +198,26 @@ export function StudentProfilePage() {
         <div className="flex items-start gap-3 sm:gap-4 bg-warning/10 border border-warning/20 rounded-2xl p-3 sm:p-4">
           <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-warning shrink-0 mt-0.5" />
           <div>
-            <p className="font-semibold text-xs sm:text-sm text-dark">Not yet checked in</p>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Your student profile will be created once the hostel admin checks you in.
-              Your booking must be approved first.
+            <p className="font-semibold text-xs sm:text-sm text-dark">
+              Not yet checked in
             </p>
-            <Link to="/student/bookings" className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm text-primary font-semibold hover:underline">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Your student profile will be created once the hostel admin checks
+              you in. Your booking must be approved first.
+            </p>
+            <Link
+              to="/student/bookings"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm text-primary font-semibold hover:underline"
+            >
               View my bookings →
             </Link>
           </div>
         </div>
 
         {/* Basic user info from visitor profile */}
-        {visitorProfileQ.isLoading && <div className="skeleton h-28 rounded-3xl" />}
+        {visitorProfileQ.isLoading && (
+          <div className="skeleton h-28 rounded-3xl" />
+        )}
         {vp && (
           <>
             <div className="bg-white rounded-3xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
@@ -167,15 +225,25 @@ export function StudentProfilePage() {
                 <User className="w-8 sm:w-10 h-8 sm:h-10 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="text-xl sm:text-2xl font-heading font-bold text-dark">{vp.full_name}</h1>
-                <p className="text-sm text-slate-500 mt-1 capitalize">{vp.role}</p>
+                <h1 className="text-xl sm:text-2xl font-heading font-bold text-dark">
+                  {vp.full_name}
+                </h1>
+                <p className="text-sm text-slate-500 mt-1 capitalize">
+                  {vp.role}
+                </p>
                 <div className="mt-2">
-                  <span className="badge badge-warning text-xs">Pending Check-in</span>
+                  <span className="badge badge-warning text-xs">
+                    Pending Check-in
+                  </span>
                 </div>
               </div>
               <button
-                onClick={() => { setEditing(true); setEditForm({ full_name: vp.full_name, phone: vp.phone }); }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-dark hover:border-primary hover:text-primary transition-all w-full sm:w-auto justify-center sm:justify-start">
+                onClick={() => {
+                  setEditing(true);
+                  setEditForm({ full_name: vp.full_name, phone: vp.phone });
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-dark hover:border-primary hover:text-primary transition-all w-full sm:w-auto justify-center sm:justify-start"
+              >
                 <Edit2 className="w-3.5 h-3.5" /> Edit
               </button>
             </div>
@@ -183,22 +251,52 @@ export function StudentProfilePage() {
             {/* Edit form */}
             {editing && (
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/20 dark:border-slate-700 p-4 sm:p-5 space-y-4 shadow-sm">
-                <h2 className="font-bold text-sm sm:text-base text-dark dark:text-white">Edit Profile</h2>
+                <h2 className="font-bold text-sm sm:text-base text-dark dark:text-white">
+                  Edit Profile
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Full Name</label>
-                    <input className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600" value={editForm.full_name} onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600"
+                      value={editForm.full_name}
+                      onChange={(e) =>
+                        setEditForm((f) => ({
+                          ...f,
+                          full_name: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Phone</label>
-                    <input className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600" value={editForm.phone} onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} />
+                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                      Phone
+                    </label>
+                    <input
+                      className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600"
+                      value={editForm.phone}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, phone: e.target.value }))
+                      }
+                    />
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <button onClick={() => setEditing(false)} className="btn-outline flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"><X className="w-3.5 h-3.5" /> Cancel</button>
-                  <button onClick={() => updateProfileM.mutate(editForm)} disabled={updateProfileM.isPending}
-                    className="btn-primary flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none disabled:opacity-50">
-                    <Save className="w-3.5 h-3.5" /> {updateProfileM.isPending ? "Saving..." : "Save"}
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="btn-outline flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    <X className="w-3.5 h-3.5" /> Cancel
+                  </button>
+                  <button
+                    onClick={() => updateProfileM.mutate(editForm)}
+                    disabled={updateProfileM.isPending}
+                    className="btn-primary flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none disabled:opacity-50"
+                  >
+                    <Save className="w-3.5 h-3.5" />{" "}
+                    {updateProfileM.isPending ? "Saving..." : "Save"}
                   </button>
                 </div>
               </div>
@@ -208,16 +306,24 @@ export function StudentProfilePage() {
               <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                  <p className="text-xs font-semibold text-slate-400 uppercase">Email</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase">
+                    Email
+                  </p>
                 </div>
-                <p className="font-medium text-xs sm:text-sm text-dark break-all">{vp.email}</p>
+                <p className="font-medium text-xs sm:text-sm text-dark break-all">
+                  {vp.email}
+                </p>
               </div>
               <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary" />
-                  <p className="text-xs font-semibold text-slate-400 uppercase">Phone</p>
+                  <p className="text-xs font-semibold text-slate-400 uppercase">
+                    Phone
+                  </p>
                 </div>
-                <p className="font-medium text-xs sm:text-sm text-dark">{vp.phone}</p>
+                <p className="font-medium text-xs sm:text-sm text-dark">
+                  {vp.phone}
+                </p>
               </div>
             </div>
           </>
@@ -227,29 +333,48 @@ export function StudentProfilePage() {
   }
 
   const p = data;
+
   const room = roomInfoQ.data;
 
+  const roommates = roommatesQ.data?.roommates || [];
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-white rounded-3xl border border-slate-100 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
           {p.profile_picture_url ? (
-            <img src={p.profile_picture_url} alt={p.full_name} className="w-full h-full rounded-2xl object-cover" />
+            <img
+              src={p.profile_picture_url}
+              alt={p.full_name}
+              className="w-full h-full rounded-2xl object-cover"
+            />
           ) : (
             <User className="w-8 sm:w-10 h-8 sm:h-10 text-primary" />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl sm:text-2xl font-heading font-bold text-dark">{p.full_name}</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Student· {p.student_number}</p>
+          <h1 className="text-xl sm:text-2xl font-heading font-bold text-dark">
+            {p.full_name}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Student· {p.student_number}
+          </p>
           <div className="mt-2 flex items-center gap-2 flex-wrap">
-            <span className={`badge ${STATUS_COLOR[p.status] ?? "badge-slate"} capitalize text-xs`}>{p.status?.replace(/_/g, " ")}</span>
+            <span
+              className={`badge ${STATUS_COLOR[p.status] ?? "badge-slate"} capitalize text-xs`}
+            >
+              {p.status?.replace(/_/g, " ")}
+            </span>
           </div>
         </div>
         <div className="flex gap-2 w-full sm:w-auto  sm:flex-row">
-          <button onClick={() => { setEditing(true); setEditForm({ full_name: p.full_name, phone: p.phone }); }}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-dark hover:border-primary hover:text-primary transition-all">
+          <button
+            onClick={() => {
+              setEditing(true);
+              setEditForm({ full_name: p.full_name, phone: p.phone });
+            }}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-dark hover:border-primary hover:text-primary transition-all"
+          >
             <Edit2 className="w-3.5 h-3.5" /> Edit
           </button>
           {/* 
@@ -264,11 +389,11 @@ export function StudentProfilePage() {
       {/* Edit Profile Form */}
       {editing && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/20 dark:border-slate-700 p-4 sm:p-5 space-y-4 shadow-sm">
-
-          <h2 className="font-bold text-sm sm:text-base text-dark dark:text-white">Edit Profile</h2>
+          <h2 className="font-bold text-sm sm:text-base text-dark dark:text-white">
+            Edit Profile
+          </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-
             <div>
               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
                 Full Name
@@ -276,7 +401,9 @@ export function StudentProfilePage() {
               <input
                 className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600"
                 value={editForm.full_name}
-                onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, full_name: e.target.value }))
+                }
               />
             </div>
 
@@ -287,10 +414,11 @@ export function StudentProfilePage() {
               <input
                 className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600"
                 value={editForm.phone}
-                onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, phone: e.target.value }))
+                }
               />
             </div>
-
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -310,7 +438,6 @@ export function StudentProfilePage() {
               {updateProfileM.isPending ? "Saving..." : "Save Changes"}
             </button>
           </div>
-
         </div>
       )}
 
@@ -356,14 +483,20 @@ export function StudentProfilePage() {
         <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-            <p className="text-xs font-semibold text-slate-400 uppercase">Email</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase">
+              Email
+            </p>
           </div>
-          <p className="font-medium text-xs sm:text-sm text-dark break-all">{p.email}</p>
+          <p className="font-medium text-xs sm:text-sm text-dark break-all">
+            {p.email}
+          </p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-secondary" />
-            <p className="text-xs font-semibold text-slate-400 uppercase">Phone</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase">
+              Phone
+            </p>
           </div>
           <p className="font-medium text-xs sm:text-sm text-dark">{p.phone}</p>
         </div>
@@ -378,13 +511,19 @@ export function StudentProfilePage() {
 
         {!showPasswordForm && (
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">Keep your account secure by regularly updating your password</p>
+            <p className="text-sm text-slate-500">
+              Keep your account secure by regularly updating your password
+            </p>
             <button
               type="button"
               onClick={() => {
                 setShowPasswordForm(true);
                 passwordFormik.resetForm();
-                setShowPasswords({ current: false, new: false, confirm: false });
+                setShowPasswords({
+                  current: false,
+                  new: false,
+                  confirm: false,
+                });
               }}
               disabled={passwordFormik.isSubmitting}
               className="text-xs px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
@@ -395,18 +534,25 @@ export function StudentProfilePage() {
         )}
 
         {showPasswordForm && (
-          <form onSubmit={passwordFormik.handleSubmit} className="space-y-4 mt-4">
+          <form
+            onSubmit={passwordFormik.handleSubmit}
+            className="space-y-4 mt-4"
+          >
             {/* Current Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Current Password</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">
+                Current Password
+              </label>
               <div className="relative">
                 <input
                   type={showPasswords.current ? "text" : "password"}
                   name="current_password"
-                  className={`input-field w-full text-sm ${passwordFormik.touched.current_password && passwordFormik.errors.current_password
-                    ? "border-red-500"
-                    : ""
-                    }`}
+                  className={`input-field w-full text-sm ${
+                    passwordFormik.touched.current_password &&
+                    passwordFormik.errors.current_password
+                      ? "border-red-500"
+                      : ""
+                  }`}
                   placeholder="Enter current password"
                   value={passwordFormik.values.current_password}
                   onChange={passwordFormik.handleChange}
@@ -415,27 +561,42 @@ export function StudentProfilePage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPasswords((s) => ({ ...s, current: !s.current }))}
+                  onClick={() =>
+                    setShowPasswords((s) => ({ ...s, current: !s.current }))
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   disabled={passwordFormik.isSubmitting}
                 >
-                  {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.current ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              {passwordFormik.touched.current_password && passwordFormik.errors.current_password && (
-                <p className="text-xs text-red-500 mt-1">{passwordFormik.errors.current_password}</p>
-              )}
+              {passwordFormik.touched.current_password &&
+                passwordFormik.errors.current_password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {passwordFormik.errors.current_password}
+                  </p>
+                )}
             </div>
 
             {/* New Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">New Password</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">
+                New Password
+              </label>
               <div className="relative">
                 <input
                   type={showPasswords.new ? "text" : "password"}
                   name="new_password"
-                  className={`input-field w-full text-sm ${passwordFormik.touched.new_password && passwordFormik.errors.new_password ? "border-red-500" : ""
-                    }`}
+                  className={`input-field w-full text-sm ${
+                    passwordFormik.touched.new_password &&
+                    passwordFormik.errors.new_password
+                      ? "border-red-500"
+                      : ""
+                  }`}
                   placeholder="Enter new password (minimum 8 characters)"
                   value={passwordFormik.values.new_password}
                   onChange={passwordFormik.handleChange}
@@ -444,29 +605,42 @@ export function StudentProfilePage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPasswords((s) => ({ ...s, new: !s.new }))}
+                  onClick={() =>
+                    setShowPasswords((s) => ({ ...s, new: !s.new }))
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   disabled={passwordFormik.isSubmitting}
                 >
-                  {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.new ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              {passwordFormik.touched.new_password && passwordFormik.errors.new_password && (
-                <p className="text-xs text-red-500 mt-1">{passwordFormik.errors.new_password}</p>
-              )}
+              {passwordFormik.touched.new_password &&
+                passwordFormik.errors.new_password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {passwordFormik.errors.new_password}
+                  </p>
+                )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Confirm Password</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">
+                Confirm Password
+              </label>
               <div className="relative">
                 <input
                   type={showPasswords.confirm ? "text" : "password"}
                   name="confirm_password"
-                  className={`input-field w-full text-sm ${passwordFormik.touched.confirm_password && passwordFormik.errors.confirm_password
-                    ? "border-red-500"
-                    : ""
-                    }`}
+                  className={`input-field w-full text-sm ${
+                    passwordFormik.touched.confirm_password &&
+                    passwordFormik.errors.confirm_password
+                      ? "border-red-500"
+                      : ""
+                  }`}
                   placeholder="Confirm new password"
                   value={passwordFormik.values.confirm_password}
                   onChange={passwordFormik.handleChange}
@@ -475,16 +649,25 @@ export function StudentProfilePage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))}
+                  onClick={() =>
+                    setShowPasswords((s) => ({ ...s, confirm: !s.confirm }))
+                  }
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   disabled={passwordFormik.isSubmitting}
                 >
-                  {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPasswords.confirm ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
-              {passwordFormik.touched.confirm_password && passwordFormik.errors.confirm_password && (
-                <p className="text-xs text-red-500 mt-1">{passwordFormik.errors.confirm_password}</p>
-              )}
+              {passwordFormik.touched.confirm_password &&
+                passwordFormik.errors.confirm_password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {passwordFormik.errors.confirm_password}
+                  </p>
+                )}
             </div>
 
             {/* Action Buttons */}
@@ -494,7 +677,11 @@ export function StudentProfilePage() {
                 onClick={() => {
                   setShowPasswordForm(false);
                   passwordFormik.resetForm();
-                  setShowPasswords({ current: false, new: false, confirm: false });
+                  setShowPasswords({
+                    current: false,
+                    new: false,
+                    confirm: false,
+                  });
                 }}
                 disabled={passwordFormik.isSubmitting}
                 className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
@@ -503,10 +690,16 @@ export function StudentProfilePage() {
               </button>
               <button
                 type="submit"
-                disabled={!passwordFormik.isValid || !passwordFormik.dirty || passwordFormik.isSubmitting}
+                disabled={
+                  !passwordFormik.isValid ||
+                  !passwordFormik.dirty ||
+                  passwordFormik.isSubmitting
+                }
                 className="flex-1 px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
               >
-                {passwordFormik.isSubmitting ? "Updating..." : "Update Password"}
+                {passwordFormik.isSubmitting
+                  ? "Updating..."
+                  : "Update Password"}
               </button>
             </div>
           </form>
@@ -517,50 +710,162 @@ export function StudentProfilePage() {
       {room && (
         <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5">
           <h2 className="font-bold text-sm sm:text-base text-dark mb-4 flex items-center gap-2">
-            <Bed className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /> Room & Bed Details
+            <Bed className="w-4 h-4 sm:w-5 sm:h-5 text-primary" /> Room & Bed
+            Details
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             {[
               { label: "Room", value: room.room?.room_number ?? "—" },
               { label: "Type", value: room.room?.room_type ?? "—" },
               { label: "Floor", value: room.room?.floor ?? "—" },
-              { label: "Monthly Rent", value: room.room?.monthly_rent ? `₹${Number(room.room.monthly_rent).toLocaleString()}` : "—" },
+              {
+                label: "Monthly Rent",
+                value: room.room?.monthly_rent
+                  ? `₹${Number(room.room.monthly_rent).toLocaleString()}`
+                  : "—",
+              },
               { label: "Bed", value: room.bed?.bed_number ?? "—" },
               { label: "Bed Status", value: room.bed?.status ?? "—" },
-              { label: "Check-in", value: formatDate(room.check_in_date) ?? "—" },
+              {
+                label: "Check-in",
+                value: formatDate(room.check_in_date) ?? "—",
+              },
               { label: "Stay Status", value: room.status ?? "—" },
             ].map(({ label, value }) => (
               <div key={label} className="bg-slate-50 rounded-xl p-2 sm:p-3">
-                <p className="text-xs font-semibold text-slate-400 uppercase mb-0.5">{label}</p>
-                <p className="font-medium text-xs sm:text-sm text-dark capitalize">{value}</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase mb-0.5">
+                  {label}
+                </p>
+                <p className="font-medium text-xs sm:text-sm text-dark capitalize">
+                  {value}
+                </p>
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {/* Roommates */}
+      {room && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
+          <h2 className="font-bold text-base text-dark mb-4 flex items-center gap-2">
+            <User className="w-5 h-5 text-primary" />
+            Roommates
+          </h2>
+
+          {roommates.length > 0 ? (
+            <div className="space-y-3">
+              {roommates.map((mate: any) => (
+                <div
+                  key={mate.id}
+                  className="flex items-center justify-between rounded-xl border border-slate-200 p-4 hover:bg-slate-50"
+                >
+                  <div>
+                    <p className="font-semibold text-dark">{mate.full_name}</p>
+
+                    <p className="text-sm text-slate-500">
+                      Bed : {mate.bed_number}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="font-medium text-primary">{mate.phone}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">No roommates assigned.</p>
+          )}
         </div>
       )}
 
       {/* Stay details */}
       <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { label: "Student Number", value: p.student_number, icon: <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
-          { label: "Status", value: p.status?.replace(/_/g, " "), icon: <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />, badge: true, badgeClass: STATUS_COLOR[p.status] ?? "badge-slate" },
-          { label: "Check-in Date", value: p.check_in_date ? formatDate(p.check_in_date) : "—" , icon: <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" /> },
-          { label: "Check-out Date", value: p.check_out_date ? formatDate(p.check_out_date) : "Active stay", icon: <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" /> },
-          { label: "Hostel Name", value: p.hostel_name, icon: <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
-          { label: "Hostel City", value: p.hostel_city, icon: <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
-          { label: "Hostel Type", value: p.hostel_type, icon: <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
-          { label: "Booking Mode", value: p.booking_mode?.replace(/_/g, " "), icon: <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
-          { label: "Created At", value: p.created_at ? formatDate(p.created_at)   : null, icon: <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" /> },
+          {
+            label: "Student Number",
+            value: p.student_number,
+            icon: <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />,
+          },
+          {
+            label: "Status",
+            value: p.status?.replace(/_/g, " "),
+            icon: (
+              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />
+            ),
+            badge: true,
+            badgeClass: STATUS_COLOR[p.status] ?? "badge-slate",
+          },
+          {
+            label: "Check-in Date",
+            value: p.check_in_date ? formatDate(p.check_in_date) : "—",
+            icon: (
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />
+            ),
+          },
+          {
+            label: "Check-out Date",
+            value: p.check_out_date
+              ? formatDate(p.check_out_date)
+              : "Active stay",
+            icon: (
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+            ),
+          },
+          {
+            label: "Hostel Name",
+            value: p.hostel_name,
+            icon: (
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            ),
+          },
+          {
+            label: "Hostel City",
+            value: p.hostel_city,
+            icon: (
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            ),
+          },
+          {
+            label: "Hostel Type",
+            value: p.hostel_type,
+            icon: (
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            ),
+          },
+          {
+            label: "Booking Mode",
+            value: p.booking_mode?.replace(/_/g, " "),
+            icon: (
+              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            ),
+          },
+          {
+            label: "Created At",
+            value: p.created_at ? formatDate(p.created_at) : null,
+            icon: (
+              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+            ),
+          },
         ].map(({ label, value, icon, badge, badgeClass }) => (
-          <div key={label} className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5">
+          <div
+            key={label}
+            className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5"
+          >
             <div className="flex items-center gap-2 mb-2">
               {icon}
-              <p className="text-xs font-semibold text-slate-400 uppercase truncate">{label}</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase truncate">
+                {label}
+              </p>
             </div>
             {badge ? (
-              <span className={`badge ${badgeClass} capitalize text-xs`}>{value}</span>
+              <span className={`badge ${badgeClass} capitalize text-xs`}>
+                {value}
+              </span>
             ) : (
-              <p className="font-medium text-xs sm:text-sm text-dark break-all">{value ?? "—"}</p>
+              <p className="font-medium text-xs sm:text-sm text-dark break-all">
+                {value ?? "—"}
+              </p>
             )}
           </div>
         ))}
