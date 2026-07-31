@@ -1082,3 +1082,47 @@ export async function getRoomPricePreview(
 
   return response.data;
 }
+
+export type BedTrackingBed = {
+  id: string;
+  bed_number: string;
+  status: "occupied" | "vacant" | "maintenance" | "reserved" | string;
+  student?: {
+    student_id: string;
+    user_id: string;
+    full_name: string;
+    phone: string;
+  } | null;
+};
+
+export type BedTrackingRoom = {
+  id: string;
+  room_number: string;
+  floor: number;
+  room_type: string;
+  total_beds: number;
+  beds: BedTrackingBed[];
+};
+
+export type BedTrackingResponse = {
+  hostel_id: string;
+  hostel_name: string;
+  stats: {
+    total_beds: number;
+    occupied: number;
+    vacant: number;
+    maintenance: number;
+    reserved: number;
+  };
+  rooms: BedTrackingRoom[];
+};
+
+export async function fetchAdminBedTracking(userId: string, hostelIds: string[], hostelId: string) {
+  const response = await api.get<BedTrackingResponse>(
+    `/admin/hostels/${hostelId}/bed-tracking`,
+    {
+      headers: buildAdminHeaders(userId, hostelIds),
+    }
+  );
+  return response.data;
+}

@@ -26,6 +26,7 @@ import {
   ChevronDown,
   Wallet,
   Receipt,
+  Bed,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useLogout } from "../hooks/useAuth";
@@ -95,6 +96,11 @@ const ADMIN_NAV: NavItem[] = [
     label: "Inventory",
     to: "/admin/inventory",
     icon: <ClipboardList className="w-4 h-4" />,
+  },
+  {
+    label: "Bed Tracking",
+    to: "/admin/bed-tracking",
+    icon: <Bed className="w-4 h-4" />,
   },
   {
     label: "Bookings",

@@ -81,7 +81,9 @@ import {
   type VerifyPaymentPayload,
   type VerifyPaymentResponse,
   downloadAdminInvoice,
-  getRoomPricePreview
+  getRoomPricePreview,
+  fetchAdminBedTracking,
+  type BedTrackingResponse
 } from "../api/admin.api";
 
 export function useAdminBookings(userId: string | null, hostelId: string | null, hostelIds: string[]) {
@@ -983,3 +985,10 @@ export function useVerifyAdminPayment(
   });
 }
 
+export function useAdminBedTracking(userId: string | null, hostelIds: string[], hostelId: string | null) {
+  return useQuery({
+    queryKey: ["admin-bed-tracking", userId, hostelId, hostelIds],
+    queryFn: () => fetchAdminBedTracking(userId!, hostelIds, hostelId!),
+    enabled: Boolean(userId && hostelId && hostelIds.length)
+  });
+}

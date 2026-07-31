@@ -8,6 +8,7 @@ import { AdminComplaintsPage } from "../pages/admin/AdminComplaintsPage";
 import { AdminDashboardPage } from "../pages/admin/AdminDashboardPage";
 import { AdminHostelProfilePage } from "../pages/admin/AdminHostelProfilePage";
 import { AdminInventoryPage } from "../pages/admin/AdminInventoryPage";
+import { AdminBedTrackingPage } from "../pages/admin/AdminBedTrackingPage";
 import { AdminMessMenuPage } from "../pages/admin/AdminMessMenuPage";
 import { AdminMyHostelsPage } from "../pages/admin/AdminMyHostelsPage";
 import { AdminNoticesPage } from "../pages/admin/AdminNoticesPage";
@@ -123,6 +124,7 @@ export function AppRouter() {
             <Route path="/admin/hostel-profile" element={<AdminHostelProfilePage />} />
             <Route path="/admin/my-hostels" element={<AdminMyHostelsPage />} />
             <Route path="/admin/inventory" element={<AdminInventoryPage />} />
+            <Route path="/admin/bed-tracking" element={<AdminBedTrackingPage />} />
             <Route path="/admin/rooms" element={<AdminInventoryPage />} />
             <Route path="/admin/supervisors" element={<AdminSupervisorsPage />} />
             <Route path="/admin/complaints" element={<AdminComplaintsPage />} />
