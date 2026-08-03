@@ -42,7 +42,11 @@ export function StudentProfilePage() {
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: "", phone: "" });
   const [showLeave, setShowLeave] = useState(false);
-  const [leaveForm, setLeaveForm] = useState({ from_date: "", to_date: "", reason: "" });
+  const [leaveForm, setLeaveForm] = useState({
+    from_date: "",
+    to_date: "",
+    reason: "",
+  });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -58,7 +62,6 @@ export function StudentProfilePage() {
     enabled: Boolean(userId) && (isError || (!isLoading && !data)),
   });
 
-  // Room info
   const roomInfoQ = useQuery({
     queryKey: ["student-room-info", userId],
     queryFn: () =>
@@ -69,7 +72,6 @@ export function StudentProfilePage() {
     enabled: Boolean(userId) && Boolean(data),
   });
 
-  // 👇 ADD THIS HERE
   const roommatesQ = useQuery({
     queryKey: ["student-roommates", userId],
     queryFn: () =>
@@ -94,14 +96,20 @@ export function StudentProfilePage() {
   });
 
   const leaveM = useMutation({
-    mutationFn: (payload: { from_date: string; to_date: string; reason: string }) =>
-      api.post("/student/leave-request", payload).then(r => r.data),
+    mutationFn: (payload: {
+      from_date: string;
+      to_date: string;
+      reason: string;
+    }) => api.post("/student/leave-request", payload).then((r) => r.data),
     onSuccess: (res: any) => {
       toast.success(`Leave request submitted. Ref: ${res.reference}`);
       setShowLeave(false);
       setLeaveForm({ from_date: "", to_date: "", reason: "" });
     },
-    onError: (e: any) => toast.error(e?.response?.data?.detail ?? "Failed to submit leave request"),
+    onError: (e: any) =>
+      toast.error(
+        e?.response?.data?.detail ?? "Failed to submit leave request",
+      ),
   });
   const changePasswordM = useMutation({
     mutationFn: (payload: {
@@ -186,6 +194,7 @@ export function StudentProfilePage() {
       </div>
     );
   }
+  const isValidPhone = (phone: string) => /^[6-9]\d{9}$/.test(phone);
 
   // ── Not yet checked in — show basic user info from visitor profile ──
   if (isError || !data) {
@@ -273,12 +282,37 @@ export function StudentProfilePage() {
                       Phone
                     </label>
                     <input
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
                       className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600"
                       value={editForm.phone}
-                      onChange={(e) =>
-                        setEditForm((f) => ({ ...f, phone: e.target.value }))
-                      }
+                      onChange={(e) => {
+                        // Allow only digits
+                        let value = e.target.value.replace(/\D/g, "");
+
+                        // Maximum 10 digits
+                        value = value.slice(0, 10);
+
+                        // First digit must be 6-9
+                        if (value.length > 0 && !/[6-9]/.test(value[0])) {
+                          return;
+                        }
+
+                        setEditForm((f) => ({
+                          ...f,
+                          phone: value,
+                        }));
+                      }}
                     />
+
+                    {editForm.phone.length > 0 &&
+                      !isValidPhone(editForm.phone) && (
+                        <p className="text-red-500 text-xs mt-1">
+                          Phone number must start with 6-9 and contain exactly
+                          10 digits.
+                        </p>
+                      )}
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -289,9 +323,16 @@ export function StudentProfilePage() {
                     <X className="w-3.5 h-3.5" /> Cancel
                   </button>
                   <button
-                    onClick={() => updateProfileM.mutate(editForm)}
-                    disabled={updateProfileM.isPending}
-                    className="btn-primary flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none disabled:opacity-50"
+                    onClick={() => {
+                      if (!isValidPhone(editForm.phone)) {
+                        toast.error(
+                          "Phone number must start with 6-9 and contain exactly 10 digits.",
+                        );
+                        return;
+                      }
+
+                      updateProfileM.mutate(editForm);
+                    }}
                   >
                     <Save className="w-3.5 h-3.5" />{" "}
                     {updateProfileM.isPending ? "Saving..." : "Save"}
@@ -335,6 +376,7 @@ export function StudentProfilePage() {
   const room = roomInfoQ.data;
 
   const roommates = roommatesQ.data?.roommates || [];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -375,8 +417,10 @@ export function StudentProfilePage() {
           >
             <Edit2 className="w-3.5 h-3.5" /> Edit
           </button>
-          <button onClick={() => setShowLeave(true)}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-warning/30 text-xs sm:text-sm font-medium text-warning hover:bg-warning/5 transition-all">
+          <button
+            onClick={() => setShowLeave(true)}
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-warning/30 text-xs sm:text-sm font-medium text-warning hover:bg-warning/5 transition-all"
+          >
             <LogOut className="w-3.5 h-3.5" /> Leave Request
           </button>
         </div>
@@ -408,25 +452,59 @@ export function StudentProfilePage() {
                 Phone
               </label>
               <input
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
                 className="input-field text-xs sm:text-sm bg-white dark:bg-slate-800 dark:text-white dark:border-slate-600"
                 value={editForm.phone}
-                onChange={(e) =>
-                  setEditForm((f) => ({ ...f, phone: e.target.value }))
-                }
+                onChange={(e) => {
+                  // Allow only digits
+                  let value = e.target.value.replace(/\D/g, "");
+
+                  // Maximum 10 digits
+                  value = value.slice(0, 10);
+
+                  // First digit must be 6-9
+                  if (value.length > 0 && !/[6-9]/.test(value[0])) {
+                    return;
+                  }
+
+                  setEditForm((f) => ({
+                    ...f,
+                    phone: value,
+                  }));
+                }}
               />
+
+              {editForm.phone.length > 0 && !isValidPhone(editForm.phone) && (
+                <p className="text-red-500 text-xs mt-1">
+                  Phone number must start with 6-9 and contain exactly 10
+                  digits.
+                </p>
+              )}
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               onClick={() => setEditing(false)}
-              className="btn-outline flex items-center justify-center gap-1.5 text-xs sm:text-sm dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 w-full sm:w-auto"
+              className="btn-outline flex items-center justify-center gap-1.5 text-xs sm:text-sm w-full sm:w-auto"
             >
-              <X className="w-3.5 h-3.5" /> Cancel
+              <X className="w-3.5 h-3.5" />
+              Cancel
             </button>
 
             <button
-              onClick={() => updateProfileM.mutate(editForm)}
+              onClick={() => {
+                if (!isValidPhone(editForm.phone)) {
+                  toast.error(
+                    "Phone number must start with 6-9 and contain exactly 10 digits.",
+                  );
+                  return;
+                }
+
+                updateProfileM.mutate(editForm);
+              }}
               disabled={updateProfileM.isPending}
               className="btn-primary flex items-center justify-center gap-1.5 text-xs sm:text-sm disabled:opacity-50 w-full sm:w-auto"
             >
@@ -438,41 +516,96 @@ export function StudentProfilePage() {
       )}
 
       {/* Leave Request Form */}
-      {showLeave && (() => {
-        const today = new Date().toISOString().split('T')[0];
-        const fromDateError = leaveForm.from_date && leaveForm.from_date < today ? "From date cannot be in the past" : "";
-        const toDateError = leaveForm.to_date && leaveForm.from_date && leaveForm.to_date < leaveForm.from_date ? "To date must be after from date" : "";
-        const isValid = leaveForm.from_date && leaveForm.to_date && leaveForm.reason.trim() && !fromDateError && !toDateError;
+      {showLeave &&
+        (() => {
+          const today = new Date().toISOString().split("T")[0];
+          const fromDateError =
+            leaveForm.from_date && leaveForm.from_date < today
+              ? "From date cannot be in the past"
+              : "";
+          const toDateError =
+            leaveForm.to_date &&
+            leaveForm.from_date &&
+            leaveForm.to_date < leaveForm.from_date
+              ? "To date must be after from date"
+              : "";
+          const isValid =
+            leaveForm.from_date &&
+            leaveForm.to_date &&
+            leaveForm.reason.trim() &&
+            !fromDateError &&
+            !toDateError;
 
-        return (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/20 dark:border-slate-700 p-4 sm:p-5 space-y-4 shadow-sm">
-          <h2 className="font-bold text-sm sm:text-base text-dark dark:text-white">Apply for Leave</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">From Date</label>
-              <ModernDatePicker min={today} className={`text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${fromDateError ? "border-red-500 dark:border-red-500" : ""}`} value={leaveForm.from_date} onChange={e => setLeaveForm(f => ({ ...f, from_date: e.target.value }))} />
-              {fromDateError && <p className="text-xs text-red-500 mt-1">{fromDateError}</p>}
+          return (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-primary/20 dark:border-slate-700 p-4 sm:p-5 space-y-4 shadow-sm">
+              <h2 className="font-bold text-sm sm:text-base text-dark dark:text-white">
+                Apply for Leave
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                    From Date
+                  </label>
+                  <ModernDatePicker
+                    min={today}
+                    className={`text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${fromDateError ? "border-red-500 dark:border-red-500" : ""}`}
+                    value={leaveForm.from_date}
+                    onChange={(e) =>
+                      setLeaveForm((f) => ({ ...f, from_date: e.target.value }))
+                    }
+                  />
+                  {fromDateError && (
+                    <p className="text-xs text-red-500 mt-1">{fromDateError}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                    To Date
+                  </label>
+                  <ModernDatePicker
+                    min={leaveForm.from_date || today}
+                    className={`text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${toDateError ? "border-red-500 dark:border-red-500" : ""}`}
+                    value={leaveForm.to_date}
+                    onChange={(e) =>
+                      setLeaveForm((f) => ({ ...f, to_date: e.target.value }))
+                    }
+                  />
+                  {toDateError && (
+                    <p className="text-xs text-red-500 mt-1">{toDateError}</p>
+                  )}
+                </div>
+                <div className="col-span-1 sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">
+                    Reason
+                  </label>
+                  <textarea
+                    className="input-field text-xs sm:text-sm min-h-16 dark:bg-slate-800 dark:text-white dark:border-slate-600"
+                    placeholder="Reason for leave..."
+                    value={leaveForm.reason}
+                    onChange={(e) =>
+                      setLeaveForm((f) => ({ ...f, reason: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button
+                  onClick={() => setShowLeave(false)}
+                  className="btn-outline text-xs sm:text-sm dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 w-full sm:w-auto justify-center"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => leaveM.mutate(leaveForm)}
+                  disabled={leaveM.isPending || !isValid}
+                  className="btn-primary text-xs sm:text-sm disabled:opacity-50 w-full sm:w-auto justify-center"
+                >
+                  {leaveM.isPending ? "Submitting..." : "Submit Leave Request"}
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">To Date</label>
-              <ModernDatePicker min={leaveForm.from_date || today} className={`text-xs sm:text-sm dark:bg-slate-800 dark:text-white dark:border-slate-600 ${toDateError ? "border-red-500 dark:border-red-500" : ""}`} value={leaveForm.to_date} onChange={e => setLeaveForm(f => ({ ...f, to_date: e.target.value }))} />
-              {toDateError && <p className="text-xs text-red-500 mt-1">{toDateError}</p>}
-            </div>
-            <div className="col-span-1 sm:col-span-2">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Reason</label>
-              <textarea className="input-field text-xs sm:text-sm min-h-16 dark:bg-slate-800 dark:text-white dark:border-slate-600" placeholder="Reason for leave..." value={leaveForm.reason} onChange={e => setLeaveForm(f => ({ ...f, reason: e.target.value }))} />
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <button onClick={() => setShowLeave(false)} className="btn-outline text-xs sm:text-sm dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 w-full sm:w-auto justify-center">Cancel</button>
-            <button onClick={() => leaveM.mutate(leaveForm)} disabled={leaveM.isPending || !isValid}
-              className="btn-primary text-xs sm:text-sm disabled:opacity-50 w-full sm:w-auto justify-center">
-              {leaveM.isPending ? "Submitting..." : "Submit Leave Request"}
-            </button>
-          </div>
-        </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* Contact info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

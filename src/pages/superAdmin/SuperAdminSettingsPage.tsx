@@ -57,7 +57,10 @@ export function SuperAdminSettingsPage() {
         ),
       phone: Yup.string()
         .required("Phone number is required")
-        .matches(/^\+?[0-9\s-]{10,15}$/, "Please enter a valid phone number"),
+        .matches(
+          /^[6-9]\d{9}$/,
+          "Phone number must start with 6-9 and contain exactly 10 digits",
+        ),
     }),
     onSubmit: async (values) => {
       try {
@@ -249,8 +252,10 @@ export function SuperAdminSettingsPage() {
                 Phone
               </label>
               <input
-                type="text"
+                type="tel"
                 name="phone"
+                inputMode="numeric"
+                maxLength={10}
                 className={`input-field w-full text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-dark dark:text-white placeholder-slate-400 dark:placeholder-slate-500 ${
                   profileFormik.touched.phone && profileFormik.errors.phone
                     ? "border-red-500"
@@ -258,7 +263,19 @@ export function SuperAdminSettingsPage() {
                 }`}
                 placeholder="Enter phone number"
                 value={profileFormik.values.phone}
-                onChange={profileFormik.handleChange}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, "");
+
+                  // Maximum 10 digits
+                  value = value.slice(0, 10);
+
+                  // First digit must be 6-9
+                  if (value.length > 0 && !/[6-9]/.test(value[0])) {
+                    return;
+                  }
+
+                  profileFormik.setFieldValue("phone", value);
+                }}
                 onBlur={profileFormik.handleBlur}
                 disabled={updateProfileM.isPending}
               />
