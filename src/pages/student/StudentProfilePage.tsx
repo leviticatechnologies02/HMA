@@ -64,22 +64,53 @@ export function StudentProfilePage() {
 
   const roomInfoQ = useQuery({
     queryKey: ["student-room-info", userId],
-    queryFn: () =>
-      api
-        .get("/student/room-info")
-        .then((r) => r.data)
-        .catch(() => null),
+
+    queryFn: async () => {
+      try {
+        const res = await api.get("/student/room-info");
+        return res.data;
+      } catch (error) {
+        console.error("Failed to fetch room info:", error);
+        return null;
+      }
+    },
+
     enabled: Boolean(userId) && Boolean(data),
+
+    // Keep room/bed information updated
+    refetchInterval: 5000,
+
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
   const roommatesQ = useQuery({
     queryKey: ["student-roommates", userId],
-    queryFn: () =>
-      api
-        .get("/student/roommates")
-        .then((res) => res.data)
-        .catch(() => null),
+
+    queryFn: async () => {
+      try {
+        const res = await api.get("/student/roommates");
+
+        console.log("ROOMMATES API RESPONSE:", res.data);
+
+        return res.data;
+      } catch (error) {
+        console.error("Failed to fetch roommates:", error);
+
+        return {
+          roommates: [],
+        };
+      }
+    },
+
     enabled: Boolean(userId) && Boolean(data),
+
+    // Automatically detect when someone leaves
+    refetchInterval: 3000,
+
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const updateProfileM = useMutation({
@@ -110,21 +141,6 @@ export function StudentProfilePage() {
       toast.error(
         e?.response?.data?.detail ?? "Failed to submit leave request",
       ),
-  });
-  const changePasswordM = useMutation({
-    mutationFn: (payload: {
-      old_password: string;
-      new_password: string;
-      confirm_password: string;
-    }) => api.post("/student/change-password", payload).then((r) => r.data),
-    onSuccess: () => {
-      toast.success("Password updated successfully!");
-    },
-    onError: (e: any) => {
-      const errorMsg =
-        e?.response?.data?.detail || e?.message || "Failed to update password";
-      toast.error(errorMsg);
-    },
   });
 
   // Password Formik instantiation
@@ -881,23 +897,39 @@ export function StudentProfilePage() {
             Roommates
           </h2>
 
-          {roommates.length > 0 ? (
+          {roommatesQ.isLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map((item) => (
+                <div
+                  key={item}
+                  className="animate-pulse rounded-xl border border-slate-200 p-4"
+                >
+                  <div className="h-4 bg-slate-200 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-slate-200 rounded w-1/4" />
+                </div>
+              ))}
+            </div>
+          ) : roommates.length > 0 ? (
             <div className="space-y-3">
               {roommates.map((mate: any) => (
                 <div
                   key={mate.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 p-4 hover:bg-slate-50"
+                  className="flex items-center justify-between rounded-xl border border-slate-200 p-4 hover:bg-slate-50 transition"
                 >
                   <div>
-                    <p className="font-semibold text-dark">{mate.full_name}</p>
+                    <p className="font-semibold text-dark">
+                      {mate.full_name || "Unknown"}
+                    </p>
 
                     <p className="text-sm text-slate-500">
-                      Bed : {mate.bed_number}
+                      Bed: {mate.bed_number || "—"}
                     </p>
                   </div>
 
                   <div className="text-right">
-                    <p className="font-medium text-primary">{mate.phone}</p>
+                    <p className="font-medium text-primary">
+                      {mate.phone || "—"}
+                    </p>
                   </div>
                 </div>
               ))}

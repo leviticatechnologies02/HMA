@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import {
   useAdminRooms,
   useAdminBeds,
+  useAdminStudents,
   useAddAdminStudentDirect,
   useUpdateAdminStudent,
   useRoomPricePreview,
@@ -126,6 +127,7 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const roomsQuery = useAdminRooms(userId, hostelId, hostelIds);
+  const studentsQuery = useAdminStudents(userId, hostelId, hostelIds);
   console.log("Rooms query data:", roomsQuery.data);
   console.log("hosted id in tenant form:", hostelId);
   const bedsQuery = useAdminBeds(userId, selectedRoomId || null, hostelIds);
@@ -162,6 +164,57 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
         booking_mode: "monthly" as "daily" | "monthly" | "hourly",
         isEdit: false,
       };
+  const getRoomAvailableBeds = (room: any) => {
+    const totalBeds = Number(room.total_beds ?? 0);
+
+    const students = Array.isArray(studentsQuery.data)
+      ? studentsQuery.data
+      : [];
+
+    // Count students currently occupying a bed in this room
+    const occupiedStudents = students.filter((student: any) => {
+      const isSameRoom = String(student.room_id) === String(room.id);
+
+      const status = String(student.status || "").toLowerCase();
+
+      const isCheckedOut =
+        status === "checked_out" ||
+        status === "checked-out" ||
+        status === "checked out" ||
+        status === "checkout" ||
+        status === "checkedout" ||
+        status === "left" ||
+        student.is_checked_out === true;
+
+      return isSameRoom && !isCheckedOut;
+    });
+
+    let occupiedCount = occupiedStudents.length;
+
+    // When editing an existing student, don't count that student
+    // as occupying an additional bed.
+    if (isEdit && editingItem?.room_id) {
+      const editingStudentAlreadyCounted = occupiedStudents.some(
+        (student: any) =>
+          String(student.id) === String(editingItem.id) ||
+          String(student.student_id) === String(editingItem.id),
+      );
+
+      if (editingStudentAlreadyCounted) {
+        occupiedCount -= 1;
+      }
+    }
+
+    // Use backend available_beds as a fallback when total_beds is missing.
+    const backendAvailable = Number(room.available_beds ?? 0);
+
+    const availableBeds =
+      totalBeds > 0
+        ? totalBeds - occupiedCount
+        : backendAvailable - occupiedCount;
+
+    return Math.max(0, availableBeds);
+  };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     if (values.booking_mode === "hourly") {
@@ -393,14 +446,24 @@ const TenantForm = ({ editingItem, onClose }: TenantFormProps) => {
                 required
               >
                 <option value="">Select room...</option>
+
                 {(roomsQuery.data ?? [])
+                  .map((room: any) => {
+                    const availableBeds = getRoomAvailableBeds(room);
+
+                    return {
+                      room,
+                      availableBeds,
+                    };
+                  })
                   .filter(
-                    (r: any) =>
-                      (r.available_beds ?? 0) > 0 || r.id === values.room_id,
+                    ({ room, availableBeds }) =>
+                      availableBeds > 0 ||
+                      String(room.id) === String(values.room_id),
                   )
-                  .map((r: any) => (
-                    <option key={r.id} value={r.id}>
-                      Room {r.room_number} ({r.available_beds ?? 0} available)
+                  .map(({ room, availableBeds }) => (
+                    <option key={room.id} value={room.id}>
+                      Room {room.room_number} ({availableBeds} available)
                     </option>
                   ))}
               </select>
